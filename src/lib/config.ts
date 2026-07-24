@@ -85,9 +85,11 @@ export const siteConfig = {
   brand: {
     hero: "/brand/hero.png",
     tokenIcon: "/brand/token-icon.png",
+    mstrLogo: "/brand/mstr-logo.png",
     heroAlt:
       "Roaring Saylor mascot — lion trader in a Bitcoin treasury command center",
     tokenIconAlt: "Roaring Saylor token mark — lion guardian with orange ring",
+    mstrLogoAlt: "Tokenized MSTR mark",
   },
 
   /** Selected quote asset — change this key to re-point the entire site. */

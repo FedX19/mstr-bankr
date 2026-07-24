@@ -76,6 +76,19 @@ body {
     0 0 56px rgba(247, 147, 26, 0.12);
 }
 
+/* Quote-stock token circle — same language as BrandMark */
+.stock-token-mark {
+  box-shadow: 0 0 0 1px rgba(247, 147, 26, 0.25);
+  background: #f7931a;
+}
+
+.stock-token-mark-glow {
+  box-shadow:
+    0 0 0 1px rgba(247, 147, 26, 0.45),
+    0 0 28px rgba(247, 147, 26, 0.28),
+    0 0 56px rgba(247, 147, 26, 0.1);
+}
+
 .btn-primary {
   border: 1px solid var(--accent-border);
   background: linear-gradient(180deg, rgba(247, 147, 26, 0.22), rgba(247, 147, 26, 0.1));

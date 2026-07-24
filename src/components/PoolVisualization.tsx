@@ -2,6 +2,7 @@ import { getQuoteAsset, siteConfig } from "../lib/config";
 import type { DashboardData } from "../lib/data";
 import { formatNumber, formatPct, formatUsd } from "../lib/format";
 import { BrandMark } from "./BrandMark";
+import { StockTokenMark } from "./StockTokenMark";
 
 type Props = {
   data: DashboardData;
@@ -26,27 +27,23 @@ export function PoolVisualization({ data }: Props) {
           </p>
         </div>
 
-        {/* Pair diagram */}
-        <div className="mb-6 flex items-center justify-center gap-4 sm:gap-8">
-          <div className="flex flex-col items-center gap-2">
+        {/* Pair diagram — matching circular token marks */}
+        <div className="mb-8 flex items-center justify-center gap-4 sm:gap-10">
+          <div className="flex flex-col items-center gap-3">
             <BrandMark size="lg" glow />
             <p className="text-xs font-medium text-white">
               {siteConfig.projectName}
             </p>
           </div>
-          <div className="flex flex-col items-center gap-1 px-2">
+          <div className="flex flex-col items-center gap-1 px-1 sm:px-2">
             <div className="h-px w-10 bg-gradient-to-r from-[var(--accent)] to-[var(--border-strong)] sm:w-16" />
             <span className="stat-value text-[10px] uppercase tracking-widest text-[var(--text-dim)]">
               pair
             </span>
             <div className="h-px w-10 bg-gradient-to-l from-[var(--accent)] to-[var(--border-strong)] sm:w-16" />
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[var(--bg-elevated)] shadow-[0_0_40px_rgba(247,147,26,0.08)]">
-              <span className="stat-value text-lg font-semibold text-[var(--accent)]">
-                {quote.symbol}
-              </span>
-            </div>
+          <div className="flex flex-col items-center gap-3">
+            <StockTokenMark size="lg" glow />
             <p className="text-xs font-medium text-white">
               Tokenized {quote.symbol}
             </p>
@@ -85,11 +82,7 @@ export function PoolVisualization({ data }: Props) {
 
           <div className="card p-5 sm:p-6">
             <div className="mb-3 flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[var(--bg-elevated)]">
-                <span className="stat-value text-[9px] font-semibold text-[var(--accent)]">
-                  {quote.symbol}
-                </span>
-              </span>
+              <StockTokenMark size="xs" />
               <p className="card-label">Tokenized {quote.symbol}</p>
             </div>
             <p className="stat-value text-3xl font-medium text-[var(--accent)]">
