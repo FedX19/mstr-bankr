@@ -1,4 +1,4 @@
-import { productIs, productIsNot } from "../lib/launch";
+import { productIs, productIsNot } from "../lib/content";
 import { siteConfig } from "../lib/config";
 import { BrandMark } from "./BrandMark";
 
@@ -16,7 +16,7 @@ export function ProductIdentity() {
               {siteConfig.positioning}
             </p>
           </div>
-          <BrandMark size="md" glow />
+          <BrandMark size="md" glow className="self-start sm:self-auto" />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -54,7 +54,7 @@ export function ProductIdentity() {
           </div>
         </div>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-3 sm:gap-4">
           <div className="card p-4">
             <p className="card-label mb-1">Launch type</p>
             <p className="text-sm font-medium text-white">
@@ -63,9 +63,7 @@ export function ProductIdentity() {
           </div>
           <div className="card p-4">
             <p className="card-label mb-1">Creator allocation</p>
-            <p className="text-sm font-medium text-white">
-              None · vesting disabled
-            </p>
+            <p className="text-sm font-medium text-white">None</p>
           </div>
           <div className="card p-4">
             <p className="card-label mb-1">Primary pair</p>

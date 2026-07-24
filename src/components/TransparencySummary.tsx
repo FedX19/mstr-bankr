@@ -16,37 +16,24 @@ export function TransparencySummary() {
     },
     {
       label: `Canonical ${quote.symbol} Stock Token`,
-      value: quote.address ?? "Pending registry verification",
+      value: quote.address ?? "—",
       mono: true,
     },
     {
-      label: "Pool contract / ID",
-      value: siteConfig.poolAddress ?? siteConfig.poolId ?? "Not live",
+      label: "Pool",
+      value: siteConfig.poolAddress ?? siteConfig.poolId ?? "Not live yet",
       mono: true,
     },
     {
       label: "Fee beneficiary",
-      value: siteConfig.feeBeneficiary ?? "Not assigned",
+      value: siteConfig.feeBeneficiary ?? "Announced at launch",
       mono: true,
     },
     { label: "Creator allocation", value: "None" },
-    { label: "Vesting", value: "None (disabled)" },
     { label: "Presale", value: "None" },
     {
-      label: "Trading fee",
-      value: `${siteConfig.tradingFeeBps / 100}% (Bankr standard — confirm for stock pairs)`,
-    },
-    {
-      label: "Creator fee share",
-      value: `${siteConfig.creatorFeeSharePct}% of creator-fee portion`,
-    },
-    {
-      label: "Protocol fee share",
-      value: `${siteConfig.protocolFeeSharePct}% (Doppler)`,
-    },
-    {
-      label: "Chain",
-      value: `${siteConfig.chain.chainName} (ID ${siteConfig.chain.chainId})`,
+      label: "Network",
+      value: siteConfig.chain.chainName,
     },
   ];
 
@@ -57,18 +44,18 @@ export function TransparencySummary() {
           <div>
             <p className="card-label mb-2">Transparency</p>
             <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-              Contracts & configuration
+              Verify before you trade
             </h2>
             <p className="mt-2 max-w-xl text-sm text-[var(--text-muted)]">
-              No presale. No creator allocation. Public contracts and public fees
-              after launch. Verify addresses before any transfer or trade.
+              No official token is live yet. When it launches, every address you
+              need will be listed here.
             </p>
           </div>
           <Link
             href="/transparency"
             className="text-sm font-medium text-[var(--accent)] hover:opacity-85"
           >
-            Full transparency →
+            Full details →
           </Link>
         </div>
 
@@ -90,25 +77,6 @@ export function TransparencySummary() {
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-4 text-sm">
-          <a
-            href={siteConfig.chain.explorerUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="link-accent"
-          >
-            Blockscout →
-          </a>
-          <a
-            href={siteConfig.bankrLaunchUrl ?? siteConfig.bankrBaseUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="link-accent"
-          >
-            Bankr →
-          </a>
         </div>
       </div>
     </section>

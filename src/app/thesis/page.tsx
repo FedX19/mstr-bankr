@@ -122,35 +122,29 @@ export default function ThesisPage() {
       </section>
 
       <section className="prose-section">
-        <h2>Invalidation conditions</h2>
-        <p>Thesis-level invalidation (for the cultural market framing) includes:</p>
+        <h2>What would weaken the story</h2>
         <ul>
           <li>
-            Material, sustained abandonment of the Bitcoin treasury strategy.
+            Strategy materially walking away from a Bitcoin treasury approach.
           </li>
           <li>
-            Structural liquidity failure of the tokenized {quote.symbol} market
-            such that a responsible stock-paired pool cannot be seeded.
+            Tokenized {quote.symbol} markets becoming too thin to trade
+            responsibly.
           </li>
           <li>
-            Legal or platform constraints that prevent a compliant stock-paired
-            launch (fallback hierarchy applies: COIN → PLTR → TSLA).
-          </li>
-          <li>
-            Discovery that product claims cannot be made accurately without
-            misrepresenting pool ownership or Stock Token rights.
+            Confusion that holders own pool assets or real company shares — they
+            do not.
           </li>
         </ul>
       </section>
 
       <section className="prose-section">
-        <h2>How the product uses this thesis</h2>
+        <h2>How Roaring Saylor fits</h2>
         <p>
           The primary market is denominated in tokenized {quote.symbol}. Buyers
-          add {quote.symbol} exposure to the pool; sellers remove it. There is no
-          discretionary fee-to-stock purchase program and no permanent
-          holder-owned treasury. Creator fees are project revenue, not holder
-          income.
+          add {quote.symbol} exposure to the pool; sellers remove it. That is a
+          trading relationship, not a permanent holder-owned treasury. Creator
+          fees are project revenue, not holder income.
         </p>
       </section>
 

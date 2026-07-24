@@ -10,7 +10,7 @@ import {
 export const metadata: Metadata = {
   title: `FAQ — ${siteConfig.projectName}`,
   description:
-    "Frequently asked questions about Roaring Saylor: stock-paired mechanics, ownership, U.S. availability, creator fees and contract verification.",
+    "Frequently asked questions about Roaring Saylor: stock-paired mechanics, ownership, availability, fees, and contract verification.",
 };
 
 export default function FaqPage() {
@@ -19,15 +19,15 @@ export default function FaqPage() {
   const faqs: { q: string; a: string }[] = [
     {
       q: "Is Roaring Saylor actual MSTR?",
-      a: `No. Roaring Saylor is an independent cultural meme token. It is not Strategy stock and not a claim on Strategy shares.`,
+      a: "No. Roaring Saylor is an independent cultural meme token. It is not Strategy stock and not a claim on Strategy shares.",
     },
     {
       q: "Do holders own MSTR?",
-      a: `No. Holders do not own Strategy shares, Robinhood ${quote.symbol} Stock Tokens, Bitcoin, liquidity-pool assets or any portion of the project company.`,
+      a: `No. Holders do not own Strategy shares, Robinhood ${quote.symbol} Stock Tokens, Bitcoin, liquidity-pool assets, or any portion of the project company.`,
     },
     {
       q: "Is the token backed by MSTR?",
-      a: `No. The primary market is denominated in tokenized ${quote.symbol} exposure via a liquidity pool. That is not the same as being "backed by" MSTR. Pool composition is dynamic and belongs to the liquidity position, not to holders.`,
+      a: `No. The primary market is denominated in tokenized ${quote.symbol} through a liquidity pool. That is not the same as being “backed by” MSTR. Pool composition is dynamic and belongs to the liquidity position, not to holders.`,
     },
     {
       q: "What happens when someone buys?",
@@ -38,69 +38,61 @@ export default function FaqPage() {
       a: `The seller supplies Roaring Saylor tokens; the pool receives them and releases tokenized ${quote.symbol}. Tokenized ${quote.symbol} exposure in the pool decreases.`,
     },
     {
-      q: "Can the MSTR balance decline?",
+      q: "Can the MSTR balance in the pool go down?",
       a: `Yes. Sales remove tokenized ${quote.symbol} from the pool. The balance is dynamic, not a permanent treasury.`,
     },
     {
       q: "Who owns the liquidity-pool assets?",
-      a: `Economically, pool assets belong to the liquidity position and governing pool mechanics. Individual Roaring Saylor holders have no ownership claim over pool assets.`,
+      a: "Economically, pool assets belong to the liquidity position and pool mechanics. Individual Roaring Saylor holders have no ownership claim over pool assets.",
     },
     {
-      q: "Does every trade cause Robinhood to purchase an actual share?",
-      a: `No. Ordinary users interact with existing secondary-market inventory of Stock Tokens. Primary issuance and redemption are limited to authorized participants.`,
+      q: "Does every trade buy an actual share of Strategy?",
+      a: "No. Ordinary users trade existing secondary-market inventory of Stock Tokens. Primary issuance and redemption are limited to authorized participants.",
     },
     {
       q: "What are Robinhood Stock Tokens?",
-      a: `ERC-20 tokenized debt securities issued by Robinhood Assets (Jersey) Limited. They provide economic exposure to a referenced security but do not grant legal or beneficial ownership in the referenced company.`,
+      a: "They are tokenized products that provide economic exposure to a referenced stock. They do not grant legal or beneficial ownership of the company itself.",
     },
     {
       q: "Can U.S. users trade the MSTR pair?",
-      a: `Robinhood Stock Tokens are not registered under U.S. securities laws and may not be offered, sold or delivered in the United States or to U.S. persons. Stock-paired trading will not be enabled for restricted jurisdictions. Users must determine their own eligibility.`,
+      a: "Robinhood Stock Tokens are not available in the United States or to U.S. persons. Other jurisdictions may also be restricted. You must determine your own eligibility.",
     },
     {
-      q: "Does the creator hold an allocation?",
-      a: `No. The intended launch disables creator allocation and creator vesting. Fair launch: no presale, no founder unlock overhang.`,
+      q: "Is there a presale or creator allocation?",
+      a: "No. The intended launch is a fair launch with no presale, no creator allocation, and no creator vesting.",
     },
     {
-      q: "How are creator fees calculated?",
-      a: `Bankr's standard structure uses a ${siteConfig.tradingFeeBps / 100}% swap fee, with ${siteConfig.creatorFeeSharePct}% of the creator-fee portion to the beneficiary and ${siteConfig.protocolFeeSharePct}% to Doppler. Exact fee denomination for stock-paired pools requires Bankr written confirmation. Fees belong to the project company, not tokenholders.`,
+      q: "How do creator fees work?",
+      a: `Trading uses a ${siteConfig.tradingFeeBps / 100}% swap fee under the standard launch structure. Creator fees belong to the project company, not to tokenholders. There are no promised buybacks or dividends.`,
     },
     {
       q: "Is Roaring Saylor affiliated with Strategy or Michael Saylor?",
       a: siteConfig.nonAffiliation,
     },
     {
-      q: "Where can users verify the official contract?",
-      a: `On the Transparency page and official social channels after launch. Current status: ${getMemeContractDisplay()}. Do not purchase any contract claiming to represent this project during prelaunch.`,
+      q: "Where do I verify the official contract?",
+      a: `On the Transparency page and official channels only. Current status: ${getMemeContractDisplay()}. During prelaunch, do not purchase any token claiming to represent this project.`,
+    },
+    {
+      q: "Is the token live?",
+      a: "Not yet. The project is in prelaunch. There is no official token contract to trade. Follow this site for the official launch announcement.",
     },
     {
       q: "Can the token go to zero?",
-      a: `Yes. It is highly speculative. Prices may fall to zero. There is no price floor, no guaranteed liquidity addition and no holder claim on pool assets.`,
-    },
-    {
-      q: "When does the token launch?",
-      a: `Only after every hard gate is complete: Bankr written confirmation, securities counsel, MSTR liquidity tests (or COIN fallback), security review, brand review, and website readiness. Website readiness is done. See the Roadmap page for the live checklist. No launch date is promised.`,
-    },
-    {
-      q: "Is there a presale or whitelist?",
-      a: `No. Intended configuration is a fair launch with no presale, no creator allocation, and creator vesting disabled.`,
-    },
-    {
-      q: "What is the ticker?",
-      a: `Working candidate is $${siteConfig.ticker}. Other candidates: ${siteConfig.tickerCandidates.map((t) => `$${t}`).join(", ")}. Nothing is final until brand, domain, social, and Bankr configuration are cleared.`,
+      a: "Yes. It is highly speculative. Prices may fall to zero. There is no price floor and no holder claim on pool assets.",
     },
   ];
 
   return (
     <PageShell>
-      <p className="mt-8 text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
+      <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
         FAQ
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
         Frequently asked questions
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-[var(--text-muted)]">
-        Straight answers. No hype. No affiliation claims.
+        Straight answers. No hype.
       </p>
 
       <hr className="section-rule my-10" />
@@ -115,12 +107,6 @@ export default function FaqPage() {
       </div>
 
       <div className="mt-10 flex flex-wrap gap-4">
-        <Link
-          href="/roadmap"
-          className="text-sm font-medium text-[var(--accent)] hover:opacity-85"
-        >
-          Roadmap →
-        </Link>
         <Link
           href="/how-it-works"
           className="text-sm font-medium text-[var(--accent)] hover:opacity-85"

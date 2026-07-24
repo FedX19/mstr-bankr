@@ -34,9 +34,9 @@ export default function PrivacyPage() {
       <section className="prose-section">
         <h2>2. What we do not collect</h2>
         <ul>
-          <li>Seed phrases or private keys (never request them)</li>
-          <li>Presale deposits or investor commitment forms</li>
-          <li>Unnecessary precise GPS location for curiosity tracking</li>
+          <li>Seed phrases or private keys</li>
+          <li>Payment or deposit forms for a presale</li>
+          <li>Precise location for marketing</li>
         </ul>
       </section>
 

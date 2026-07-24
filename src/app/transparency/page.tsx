@@ -6,12 +6,12 @@ import {
   getQuoteAsset,
   siteConfig,
 } from "../../lib/config";
-import { feePolicy, launchConfig, launchGates } from "../../lib/launch";
+import { feePolicyPublic } from "../../lib/content";
 
 export const metadata: Metadata = {
   title: `Transparency — ${siteConfig.projectName}`,
   description:
-    "Official contracts, pool configuration, fee structure, creator allocation and verification links for Roaring Saylor.",
+    "Official contracts, fees, and verification details for Roaring Saylor.",
 };
 
 export default function TransparencyPage() {
@@ -19,16 +19,8 @@ export default function TransparencyPage() {
 
   const rows: { label: string; value: string; mono?: boolean }[] = [
     {
-      label: "Launch status",
-      value: siteConfig.launchStatus.toUpperCase(),
-    },
-    {
-      label: "Trading enabled",
-      value: siteConfig.tradingEnabled ? "Yes" : "No",
-    },
-    {
-      label: "Working ticker (provisional)",
-      value: `$${siteConfig.ticker} · candidates: ${siteConfig.tickerCandidates.map((t) => `$${t}`).join(", ")}`,
+      label: "Status",
+      value: "Prelaunch — no official token yet",
     },
     {
       label: "Official meme contract",
@@ -37,79 +29,38 @@ export default function TransparencyPage() {
     },
     {
       label: `Canonical ${quote.symbol} Stock Token`,
-      value: quote.address ?? "Pending live registry verification",
+      value: quote.address ?? "—",
       mono: true,
     },
     {
       label: "Pool address",
-      value: siteConfig.poolAddress ?? "Not live",
-      mono: true,
-    },
-    {
-      label: "Pool ID",
-      value: siteConfig.poolId ?? "Not live",
+      value: siteConfig.poolAddress ?? "Not live yet",
       mono: true,
     },
     {
       label: "Fee beneficiary",
-      value: siteConfig.feeBeneficiary ?? "Not assigned — project multisig at launch",
+      value: siteConfig.feeBeneficiary ?? "Announced at launch",
       mono: true,
     },
     {
       label: "Deployment transaction",
-      value: siteConfig.deploymentTx ?? "Not live",
+      value: siteConfig.deploymentTx ?? "Not live yet",
       mono: true,
     },
-    { label: "Token supply", value: launchConfig.tokenSupply },
     { label: "Creator allocation", value: "None" },
-    { label: "Vesting", value: "None — creator vesting disabled" },
+    { label: "Creator vesting", value: "None" },
     { label: "Presale", value: "None" },
     {
-      label: "Trading fee",
-      value: `${siteConfig.tradingFeeBps / 100}% (confirm stock-pair fee routing with Bankr)`,
+      label: "Swap fee",
+      value: `${siteConfig.tradingFeeBps / 100}% (standard launch structure)`,
     },
     {
-      label: "Creator fee share",
-      value: `${siteConfig.creatorFeeSharePct}% of creator-fee portion`,
+      label: "Network",
+      value: siteConfig.chain.chainName,
     },
     {
-      label: "Protocol fee share",
-      value: `${siteConfig.protocolFeeSharePct}% (Doppler)`,
-    },
-    {
-      label: "Claimed fees",
-      value: "Not live",
-    },
-    {
-      label: "Unclaimed fees",
-      value: "Not live",
-    },
-    {
-      label: "Chain",
-      value: `${siteConfig.chain.chainName} · Chain ID ${siteConfig.chain.chainId}`,
-    },
-    {
-      label: "RPC",
-      value: siteConfig.chain.rpcUrl,
-      mono: true,
-    },
-    {
-      label: "WETH (canonical)",
-      value: siteConfig.chain.weth,
-      mono: true,
-    },
-    {
-      label: "USDG (canonical)",
-      value: siteConfig.chain.usdg,
-      mono: true,
-    },
-    {
-      label: "Official website",
-      value: siteConfig.officialWebsite ?? "This deployment",
-    },
-    {
-      label: "GitHub",
-      value: siteConfig.officialGitHub,
+      label: "Explorer",
+      value: siteConfig.chain.explorerUrl,
     },
   ];
 
@@ -119,12 +70,11 @@ export default function TransparencyPage() {
         Transparency
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-        Public configuration
+        Contracts & verification
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-[var(--text-muted)]">
-        Verify every address against this page and the chain explorer. Never
-        trust ticker symbols or search results alone. No official contract is
-        live during prelaunch.
+        Use this page to confirm official addresses. Never trust a ticker or a
+        random link alone.
       </p>
 
       <hr className="section-rule my-10" />
@@ -150,66 +100,28 @@ export default function TransparencyPage() {
       </div>
 
       <section className="prose-section mt-10">
-        <h2>Launch gate status</h2>
+        <h2>Before you trade</h2>
         <ul>
-          {launchGates.map((g) => (
-            <li key={g.id}>
-              <strong>{g.title}:</strong> {g.status.replace("_", " ")} —{" "}
-              {g.summary}
-            </li>
-          ))}
-        </ul>
-        <p>
-          Full checklist on the{" "}
-          <Link href="/roadmap" className="link-accent">
-            roadmap
-          </Link>
-          .
-        </p>
-      </section>
-
-      <section className="prose-section">
-        <h2>Verification checklist</h2>
-        <ul>
-          <li>Confirm chain ID is {siteConfig.chain.chainId}.</li>
+          <li>Confirm you are on this official website.</li>
           <li>
-            Confirm the {quote.symbol} address matches Robinhood&apos;s live
-            canonical asset registry before any deployment or trade.
-          </li>
-          <li>Reject any similarly named token at a different address.</li>
-          <li>
-            After launch, confirm meme contract, pool and fee beneficiary match
-            this page and the Bankr launch page.
+            Match the meme contract and {quote.symbol} address to this page.
           </li>
           <li>
-            Never send funds to an address that is not published here after
-            launch.
+            Open the explorer links and double-check the address character by
+            character.
+          </li>
+          <li>
+            Ignore lookalike tokens, DMs, and “early launch” contracts.
           </li>
         </ul>
       </section>
 
       <section className="prose-section">
-        <h2>Creator-fee policy</h2>
-        <p>{feePolicy.publicPolicy}</p>
-        <p>
-          Fees may fund: {feePolicy.mayFund.join("; ")}. We will not promise:{" "}
-          {feePolicy.willNotPromise.join("; ")}.
-        </p>
-        <p>
-          <em>{feePolicy.feeDenominationNote}</em>
-        </p>
-      </section>
-
-      <section className="prose-section">
-        <h2>Intended launch settings</h2>
+        <h2>Fees</h2>
+        <p>{feePolicyPublic.summary}</p>
         <ul>
-          {Object.entries(launchConfig).map(([k, v]) => (
-            <li key={k}>
-              <strong className="capitalize">
-                {k.replace(/([A-Z])/g, " $1")}:
-              </strong>{" "}
-              {v}
-            </li>
+          {feePolicyPublic.highlights.map((item) => (
+            <li key={item}>{item}</li>
           ))}
         </ul>
       </section>
@@ -224,47 +136,29 @@ export default function TransparencyPage() {
               rel="noopener noreferrer"
               className="link-accent"
             >
-              Blockscout explorer
+              Block explorer
             </a>
           </li>
+          {siteConfig.bankrLaunchUrl ? (
+            <li>
+              <a
+                href={siteConfig.bankrLaunchUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="link-accent"
+              >
+                Official launch page
+              </a>
+            </li>
+          ) : null}
           <li>
-            <a
-              href={siteConfig.bankrLaunchUrl ?? siteConfig.bankrBaseUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link-accent"
-            >
-              Bankr
-            </a>
-          </li>
-          <li>
-            <a
-              href={siteConfig.officialGitHub}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link-accent"
-            >
-              GitHub
-            </a>
-          </li>
-          <li>
-            <a
-              href={siteConfig.officialX}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link-accent"
-            >
-              Official X (reserve and update when ready)
-            </a>
-          </li>
-          <li>
-            <Link href="/terms" className="link-accent">
-              Terms
+            <Link href="/risks" className="link-accent">
+              Risks
             </Link>
           </li>
           <li>
-            <Link href="/privacy" className="link-accent">
-              Privacy
+            <Link href="/faq" className="link-accent">
+              FAQ
             </Link>
           </li>
         </ul>
@@ -272,9 +166,8 @@ export default function TransparencyPage() {
 
       <div className="card mt-8 border-[rgba(239,68,68,0.35)] bg-[rgba(239,68,68,0.06)] p-5">
         <p className="text-sm text-[var(--text-muted)]">
-          Do not purchase contracts claiming to represent this project until an
-          official contract is published here. Prelaunch means no official token
-          is live.
+          Prelaunch: there is no official Roaring Saylor token. Do not send
+          funds to any address that is not published on this page after launch.
         </p>
       </div>
     </PageShell>

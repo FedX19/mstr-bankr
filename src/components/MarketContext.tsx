@@ -16,41 +16,37 @@ export function MarketContext({ data }: Props) {
         <div className="mb-8">
           <p className="card-label mb-2">Market context</p>
           <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-            Bitcoin, {quote.symbol} & research framing
+            Bitcoin, {quote.symbol} & the thesis
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
-            Performance charts for the meme token will appear only when live
-            market data exists. Do not treat research figures as live trading
-            signals.
+            Research context only — not live trading signals. Token performance
+            charts will appear after launch.
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="card p-5">
-            <p className="card-label mb-3">Research note</p>
+            <p className="card-label mb-3">Why it matters</p>
             <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-              {data.market.cycleNote}
-            </p>
-            <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
-              Holdings, short interest and cycle narratives change. Source
-              filings and market data providers before publishing updates.
+              Strategy is widely watched as a public Bitcoin treasury company.
+              That debate — bullish and bearish — is the cultural backdrop for
+              this market.
             </p>
           </div>
 
           <div className="card p-5">
             <p className="card-label mb-3">
-              {siteConfig.strategy.name} holdings (research)
+              {siteConfig.strategy.name} BTC holdings
             </p>
             <p className="stat-value text-3xl font-medium text-white">
               {formatNumber(holdings)}
             </p>
             <p className="mt-1 text-sm text-[var(--accent)]">
-              BTC on balance sheet
+              BTC (research snapshot)
             </p>
             <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
-              {siteConfig.strategy.name} ({siteConfig.strategy.ticker}) holds{" "}
-              {formatBtc(holdings)} per research snapshot as of{" "}
-              {siteConfig.strategy.dataAsOf}. Not a real-time feed.
+              About {formatBtc(holdings)} as of {siteConfig.strategy.dataAsOf}.
+              Figures change; check primary sources for updates.
             </p>
           </div>
 
@@ -59,10 +55,10 @@ export function MarketContext({ data }: Props) {
               {quote.symbol} vs pure BTC
             </p>
             <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-              Strategy stock can exhibit{" "}
-              <span className="text-white">amplified beta</span> to Bitcoin —
-              both downside and upside — through capital structure and market
-              positioning. That is a risk factor, not a guarantee of outperformance.
+              Strategy stock can move with{" "}
+              <span className="text-white">amplified sensitivity</span> to
+              Bitcoin — both up and down. That is a risk, not a promise of
+              outperformance.
             </p>
             <div className="mt-5 space-y-2 border-t border-[var(--border)] pt-4">
               <div className="flex justify-between text-xs">

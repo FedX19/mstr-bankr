@@ -27,22 +27,20 @@ export function Footer() {
           : undefined,
     },
     {
-      label: "Bankr",
-      href: siteConfig.bankrLaunchUrl ?? siteConfig.bankrBaseUrl,
-    },
-    {
-      label: "Blockscout",
+      label: "Explorer",
       href: siteConfig.chain.explorerUrl,
     },
+    ...(siteConfig.bankrLaunchUrl
+      ? [{ label: "Trade", href: siteConfig.bankrLaunchUrl }]
+      : []),
     { label: "X", href: siteConfig.officialX },
-    { label: "Roadmap", href: "/roadmap", internal: true },
     { label: "How It Works", href: "/how-it-works", internal: true },
+    { label: "Thesis", href: "/thesis", internal: true },
     { label: "Risks", href: "/risks", internal: true },
     { label: "FAQ", href: "/faq", internal: true },
     { label: "Transparency", href: "/transparency", internal: true },
     { label: "Terms", href: "/terms", internal: true },
     { label: "Privacy", href: "/privacy", internal: true },
-    { label: "GitHub", href: siteConfig.officialGitHub },
   ];
 
   return (
@@ -66,8 +64,7 @@ export function Footer() {
             </div>
             <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
               {siteConfig.secondarySlogan} Primary market: meme / tokenized{" "}
-              {quote.symbol} on {siteConfig.chain.chainName}. Working ticker
-              candidate: ${siteConfig.ticker} (not final until brand clearance).
+              {quote.symbol}.
             </p>
             <p className="mt-3 text-xs leading-relaxed text-[var(--text-dim)]">
               {siteConfig.riskStatement}

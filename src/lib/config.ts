@@ -159,13 +159,13 @@ export const siteConfig = {
 
   statusMessages: {
     prelaunch:
-      "PRELAUNCH — Stock-paired deployment pending platform, liquidity and legal clearance. No official token is live.",
+      "PRELAUNCH — No official token is live. Do not purchase contracts claiming to represent this project.",
     research:
-      "RESEARCH — Product under design. No official token is live.",
+      "PRELAUNCH — No official token is live. Do not purchase contracts claiming to represent this project.",
     cleared:
-      "CLEARED — Launch gates satisfied. Contract announcement pending.",
-    live: "LIVE ON ROBINHOOD CHAIN — Verify the contract before trading.",
-    paused: "PAUSED — Trading and promotions temporarily suspended.",
+      "Launching soon — Official contract will be published on this site first.",
+    live: "LIVE ON ROBINHOOD CHAIN — Verify the contract on this site before trading.",
+    paused: "PAUSED — Trading is temporarily unavailable.",
   },
 } as const;
 

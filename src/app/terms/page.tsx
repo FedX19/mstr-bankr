@@ -4,8 +4,7 @@ import { siteConfig } from "../../lib/config";
 
 export const metadata: Metadata = {
   title: `Terms — ${siteConfig.projectName}`,
-  description:
-    "Terms of use for the Roaring Saylor website and prelaunch product materials.",
+  description: `Terms of use for the ${siteConfig.projectName} website.`,
 };
 
 export default function TermsPage() {
@@ -18,9 +17,7 @@ export default function TermsPage() {
         Terms of use
       </h1>
       <p className="mt-4 text-sm text-[var(--text-dim)]">
-        Last updated: July 24, 2026. These terms govern use of this website and
-        related public materials. They are not a substitute for counsel review
-        before token launch.
+        Last updated: July 24, 2026.
       </p>
 
       <hr className="section-rule my-10" />
@@ -28,100 +25,86 @@ export default function TermsPage() {
       <section className="prose-section">
         <h2>1. Acceptance</h2>
         <p>
-          By accessing this site you agree to these terms. If you do not agree,
-          do not use the site.
+          By using this site you agree to these terms. If you do not agree, do
+          not use the site.
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>2. Nature of the project</h2>
+        <h2>2. About the project</h2>
         <p>
           Roaring Saylor is an independent cultural project. During prelaunch
-          there is no official token contract. Any third-party token claiming to
-          represent this project is unauthorized.
+          there is no official token. Any third-party token claiming to represent
+          this project is unauthorized.
         </p>
         <p>{siteConfig.nonAffiliation}</p>
       </section>
 
       <section className="prose-section">
-        <h2>3. No offer of securities or investment advice</h2>
+        <h2>3. No investment advice</h2>
         <p>
-          Nothing on this site is an offer to sell, or a solicitation to buy,
-          any security, investment contract, or financial product. Content is
-          informational and cultural. It is not investment, legal, tax, or
-          accounting advice. You are solely responsible for your own decisions
-          and compliance with applicable law.
+          Nothing on this site is investment, legal, tax, or accounting advice,
+          or an offer to sell any security. Content is informational and cultural.
+          You are responsible for your own decisions and for following applicable
+          law.
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>4. Token and market risks</h2>
+        <h2>4. Risks</h2>
         <p>{siteConfig.riskStatement}</p>
       </section>
 
       <section className="prose-section">
-        <h2>5. Jurisdictional restrictions</h2>
+        <h2>5. Jurisdictional limits</h2>
         <p>
-          Robinhood Stock Tokens are not registered under U.S. securities laws
-          and may not be offered, sold, or delivered in the United States or to
-          U.S. persons. Other jurisdictions may restrict access. You must
-          determine your eligibility. Do not use tools to evade location checks.
+          Tokenized stock products related to this market may be unavailable in
+          the United States and other places. You must determine your own
+          eligibility. Do not try to evade location rules.
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>6. No custody or execution on this site (Version 1)</h2>
+        <h2>6. No custody on this site</h2>
         <p>
-          This website does not custody user assets, request seed phrases, or
-          execute swaps in Version 1. Any future trading link will route to an
-          approved third-party interface after launch gates clear. You interact
-          with third-party protocols at your own risk.
+          This website does not hold your assets or ask for seed phrases. Any
+          trading happens through third-party interfaces after launch. You use
+          those services at your own risk.
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>7. Accuracy of information</h2>
+        <h2>7. Accuracy</h2>
         <p>
-          Market figures, research notes, and dashboard metrics may be delayed,
-          incomplete, or incorrect. Onchain data and primary filings control.
-          We may update content without notice.
+          Information can be delayed or incomplete. Always verify contracts and
+          balances yourself. We may update content without notice.
         </p>
       </section>
 
       <section className="prose-section">
         <h2>8. Intellectual property</h2>
         <p>
-          Original site content, branding, and graphics are owned by the project
-          operators or licensed to them. Third-party names and trademarks belong
-          to their respective owners and are used only for identification or
-          commentary.
+          Original site content and branding belong to the project operators or
+          their licensors. Third-party names and trademarks belong to their
+          owners.
         </p>
       </section>
 
       <section className="prose-section">
         <h2>9. Limitation of liability</h2>
         <p>
-          To the fullest extent permitted by law, the project operators are not
-          liable for any loss or damage arising from use of this site, reliance
-          on its content, or interaction with any related token, pool, or third
-          party. Use is at your own risk.
+          To the fullest extent allowed by law, the project operators are not
+          liable for losses from using this site, relying on its content, or
+          interacting with any related token or third party. Use is at your own
+          risk.
         </p>
       </section>
 
       <section className="prose-section">
         <h2>10. Changes</h2>
         <p>
-          We may revise these terms. Continued use after changes constitutes
-          acceptance of the revised terms.
-        </p>
-      </section>
-
-      <section className="prose-section">
-        <h2>11. Contact</h2>
-        <p>
-          Official updates will be published on this website and verified social
-          channels once reserved. Do not send funds to any address that is not
-          listed on the Transparency page.
+          We may update these terms. Continued use after changes means you accept
+          the updated terms.
         </p>
       </section>
     </PageShell>

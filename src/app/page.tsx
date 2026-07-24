@@ -8,11 +8,11 @@ import { MarketContext } from "../components/MarketContext";
 import { PoolVisualization } from "../components/PoolVisualization";
 import { ProductIdentity } from "../components/ProductIdentity";
 import { RiskSummary } from "../components/RiskSummary";
-import { RoadmapSection } from "../components/RoadmapSection";
 import { StatsRow } from "../components/StatsRow";
 import { StatusBar } from "../components/StatusBar";
 import { ThesisPanel } from "../components/ThesisPanel";
 import { TransparencySummary } from "../components/TransparencySummary";
+import { WhatsNext } from "../components/WhatsNext";
 import { getDashboardData } from "../lib/data";
 
 export default async function Home() {
@@ -32,7 +32,7 @@ export default async function Home() {
         <HowTradingWorks />
         <ThesisPanel />
         <MarketContext data={data} />
-        <RoadmapSection />
+        <WhatsNext />
         <TransparencySummary />
         <RiskSummary />
       </main>

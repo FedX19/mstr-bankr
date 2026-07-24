@@ -72,8 +72,8 @@ export function ThesisPanel() {
                 short interest of float · {strategy.shortSharesNote}
               </p>
               <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
-                {strategy.shortInterestCallout} Data as of {strategy.dataAsOf} —
-                refresh from primary sources before relying on these figures.
+                {strategy.shortInterestCallout} Snapshot as of{" "}
+                {strategy.dataAsOf} — figures change over time.
               </p>
             </div>
 

@@ -112,22 +112,22 @@ export function Hero({ data }: Props) {
               {prelaunch || !live ? (
                 <>
                   <Link
-                    href="/roadmap"
-                    className="btn-primary inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold sm:w-auto sm:py-2.5"
-                  >
-                    Launch roadmap
-                  </Link>
-                  <Link
                     href="/how-it-works"
-                    className="btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-medium sm:w-auto sm:py-2.5"
+                    className="btn-primary inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold sm:w-auto sm:py-2.5"
                   >
                     See how it works
                   </Link>
                   <Link
                     href="/thesis"
+                    className="btn-ghost inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-medium sm:w-auto sm:py-2.5"
+                  >
+                    Read the thesis
+                  </Link>
+                  <Link
+                    href="/faq"
                     className="inline-flex w-full items-center justify-center py-2 text-sm font-medium text-zinc-300 underline-offset-4 hover:text-white hover:underline sm:w-auto"
                   >
-                    Thesis
+                    FAQ
                   </Link>
                 </>
               ) : (
@@ -166,11 +166,7 @@ export function Hero({ data }: Props) {
                 </div>
                 <p className="mt-0.5 text-xs leading-snug text-[var(--text-dim)]">
                   Meme / Tokenized {quote.symbol}
-                  <span className="hidden sm:inline">
-                    {prelaunch
-                      ? " · Pending Bankr, liquidity & legal clearance"
-                      : ""}
-                  </span>
+                  {prelaunch ? " · Coming soon" : ""}
                 </p>
               </div>
             </div>

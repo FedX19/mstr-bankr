@@ -7,7 +7,7 @@ const nav = [
   { href: "/#market", label: "Market" },
   { href: "/how-it-works", label: "How It Works" },
   { href: "/thesis", label: "Thesis" },
-  { href: "/roadmap", label: "Roadmap" },
+  { href: "/#whats-next", label: "Status" },
   { href: "/transparency", label: "Transparency" },
   { href: "/risks", label: "Risks" },
   { href: "/faq", label: "FAQ" },
@@ -19,7 +19,10 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/90 backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--bg)]/75">
       <div className="mx-auto flex h-12 max-w-6xl items-center justify-between gap-3 px-3 sm:h-14 sm:gap-4 sm:px-6">
-        <Link href="/" className="group flex min-w-0 shrink items-center gap-2 sm:gap-2.5">
+        <Link
+          href="/"
+          className="group flex min-w-0 shrink items-center gap-2 sm:gap-2.5"
+        >
           <BrandMark size="xs" priority />
           <span className="truncate text-sm font-semibold tracking-tight text-[var(--text)] group-hover:text-white">
             {siteConfig.projectName}
@@ -45,13 +48,6 @@ export function Header() {
           <span className="badge badge-accent hidden sm:inline-flex">
             {live ? "Live" : "Prelaunch"}
           </span>
-          {live && siteConfig.tradingEnabled ? (
-            <span className="badge badge-live hidden md:inline-flex">
-              Trade
-            </span>
-          ) : (
-            <span className="badge hidden lg:inline-flex">Trade disabled</span>
-          )}
           <a
             href={siteConfig.officialX}
             target="_blank"
@@ -63,7 +59,6 @@ export function Header() {
         </div>
       </div>
 
-      {/* Horizontal scroll nav — primary mobile IA */}
       <nav
         className="flex gap-1 overflow-x-auto overscroll-x-contain border-t border-[var(--border)] px-2 py-1.5 [-ms-overflow-style:none] [scrollbar-width:none] xl:hidden [&::-webkit-scrollbar]:hidden"
         aria-label="Mobile"

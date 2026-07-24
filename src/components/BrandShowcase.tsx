@@ -30,7 +30,7 @@ export function BrandShowcase() {
       <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 py-12 text-center sm:px-6 sm:py-20">
         <BrandMark size="xl" glow variant="transparent" />
         <p className="mt-6 text-[10px] font-medium uppercase tracking-[0.24em] text-[var(--accent)] sm:mt-8 sm:text-xs">
-          Official mark
+          Roaring Saylor
         </p>
         <h2 className="mt-2 max-w-xl text-2xl font-semibold tracking-tight text-white sm:mt-3 sm:text-4xl">
           {siteConfig.tagline}

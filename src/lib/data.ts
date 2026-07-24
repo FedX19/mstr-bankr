@@ -100,7 +100,7 @@ export function createEmptyDashboard(): DashboardData {
       btcHoldings: siteConfig.strategy.btcHoldings,
       shortInterestFloatPct: siteConfig.strategy.shortInterestFloatPct,
       cycleNote:
-        "Market facts are research context only. Refresh holdings and short interest from primary sources before publishing claims.",
+        "Strategy is a high-profile Bitcoin treasury stock. Narratives and numbers change — treat research figures as snapshots, not live signals.",
       stockSymbol: quote.symbol,
     },
     meta: {

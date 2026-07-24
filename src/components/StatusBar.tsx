@@ -1,17 +1,26 @@
 import { siteConfig } from "../lib/config";
 
 const shortMessages: Record<typeof siteConfig.launchStatus, string> = {
-  prelaunch: "PRELAUNCH — No official token is live.",
-  research: "RESEARCH — No official token is live.",
-  cleared: "CLEARED — Contract announcement pending.",
+  prelaunch: "PRELAUNCH — No official token is live yet.",
+  research: "PRELAUNCH — No official token is live yet.",
+  cleared: "Launching soon — verify the contract when announced.",
   live: "LIVE — Verify the contract before trading.",
-  paused: "PAUSED — Trading temporarily suspended.",
+  paused: "PAUSED — Trading temporarily unavailable.",
+};
+
+const fullMessages: Record<typeof siteConfig.launchStatus, string> = {
+  prelaunch:
+    "PRELAUNCH — No official token is live. Do not purchase contracts claiming to represent this project.",
+  research:
+    "PRELAUNCH — No official token is live. Do not purchase contracts claiming to represent this project.",
+  cleared:
+    "Launching soon — Official contract will be published on this site first.",
+  live: "LIVE ON ROBINHOOD CHAIN — Verify the contract on this site before trading.",
+  paused: "PAUSED — Trading is temporarily unavailable.",
 };
 
 export function StatusBar() {
   const status = siteConfig.launchStatus;
-  const message = siteConfig.statusMessages[status];
-  const short = shortMessages[status];
   const isLive = status === "live";
   const isPaused = status === "paused";
 
@@ -39,8 +48,8 @@ export function StatusBar() {
             aria-hidden
           />
         ) : null}
-        <span className="sm:hidden">{short}</span>
-        <span className="hidden sm:inline">{message}</span>
+        <span className="sm:hidden">{shortMessages[status]}</span>
+        <span className="hidden sm:inline">{fullMessages[status]}</span>
       </span>
     </div>
   );

@@ -77,7 +77,7 @@ export function StatsRow({ data }: Props) {
             <p className="mt-1 text-xs leading-snug text-[var(--text-dim)]">
               {data.meta.isLive
                 ? `Last update: ${data.meta.lastUpdated ?? "—"} · Source: ${data.meta.source}`
-                : "Not live. Placeholders only — no fabricated sample values."}
+                : "Market data will appear here after the official token launches."}
             </p>
           </div>
           {data.meta.status === "stale" ? (
