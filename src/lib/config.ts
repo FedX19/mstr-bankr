@@ -89,7 +89,12 @@ export const siteConfig = {
     tokenIconTransparent: "/brand/token-icon-transparent.png",
     mstrLogo: "/brand/mstr-logo.png",
     ogShare: "/brand/og-share.png",
+    /** Master mark; generated sizes live under /icons and app/ */
     favicon: "/brand/favicon.png",
+    faviconIco: "/favicon.ico",
+    appleTouchIcon: "/icons/apple-touch-icon.png",
+    androidChrome192: "/icons/android-chrome-192.png",
+    androidChrome512: "/icons/android-chrome-512.png",
     vaultAbstract: "/brand/vault-abstract.png",
     heroAlt:
       "Roaring Saylor mascot — lion trader in a Bitcoin treasury command center",
