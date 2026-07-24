@@ -135,11 +135,44 @@ export default function HowItWorksPage() {
         </p>
       </section>
 
+      <section className="prose-section">
+        <h2>Fair-launch configuration</h2>
+        <ul>
+          <li>
+            <strong>Chain:</strong> {siteConfig.chain.chainName} (ID{" "}
+            {siteConfig.chain.chainId})
+          </li>
+          <li>
+            <strong>Primary quote:</strong> Canonical {quote.symbol} Stock Token
+          </li>
+          <li>
+            <strong>Presale:</strong> None
+          </li>
+          <li>
+            <strong>Creator allocation:</strong> None
+          </li>
+          <li>
+            <strong>Creator vesting:</strong> Disabled
+          </li>
+          <li>
+            <strong>Fee beneficiary:</strong> Project multisig (subject to Bankr
+            approval)
+          </li>
+        </ul>
+        <p>
+          See the{" "}
+          <a href="/roadmap" className="link-accent">
+            roadmap
+          </a>{" "}
+          for gates that must clear before any deployment.
+        </p>
+      </section>
+
       <div className="card mt-8 border-[var(--accent-border)] bg-[var(--accent-soft)] p-6">
         <p className="text-sm text-[var(--text-muted)]">
           Fair launch intended: no presale, no creator allocation, no creator
           vesting. Status remains prelaunch until Bankr, liquidity and legal
-          gates clear.
+          gates clear. No official contract is live.
         </p>
       </div>
     </PageShell>

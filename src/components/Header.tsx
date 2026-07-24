@@ -3,9 +3,11 @@ import { isLive, siteConfig } from "../lib/config";
 import { BrandMark } from "./BrandMark";
 
 const nav = [
-  { href: "/#market", label: "Live Market" },
+  { href: "/#product", label: "Product" },
+  { href: "/#market", label: "Market" },
   { href: "/how-it-works", label: "How It Works" },
-  { href: "/thesis", label: "MSTR Thesis" },
+  { href: "/thesis", label: "Thesis" },
+  { href: "/roadmap", label: "Roadmap" },
   { href: "/transparency", label: "Transparency" },
   { href: "/risks", label: "Risks" },
   { href: "/faq", label: "FAQ" },
@@ -25,14 +27,14 @@ export function Header() {
         </Link>
 
         <nav
-          className="hidden items-center gap-5 lg:flex"
+          className="hidden items-center gap-4 xl:flex"
           aria-label="Primary"
         >
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-xs font-medium uppercase tracking-wider text-[var(--text-dim)] transition-colors hover:text-[var(--text)]"
+              className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-dim)] transition-colors hover:text-[var(--text)]"
             >
               {item.label}
             </Link>
@@ -62,7 +64,7 @@ export function Header() {
       </div>
 
       <nav
-        className="flex gap-4 overflow-x-auto border-t border-[var(--border)] px-4 py-2 lg:hidden"
+        className="flex gap-4 overflow-x-auto border-t border-[var(--border)] px-4 py-2 xl:hidden"
         aria-label="Mobile"
       >
         {nav.map((item) => (

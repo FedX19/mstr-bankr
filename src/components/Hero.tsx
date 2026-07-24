@@ -87,20 +87,31 @@ export function Hero({ data }: Props) {
               {siteConfig.supportingPhrase}
             </p>
 
+            <p className="mt-3 text-xs text-zinc-500">
+              Fair launch · no presale · no creator allocation · pair: meme /{" "}
+              {quote.symbol}
+            </p>
+
             <div className="mt-7 flex flex-wrap items-center gap-3">
               {prelaunch || !live ? (
                 <>
                   <Link
-                    href="/thesis"
+                    href="/roadmap"
                     className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
                   >
-                    Read the thesis
+                    Launch roadmap
                   </Link>
                   <Link
                     href="/how-it-works"
                     className="btn-ghost inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
                   >
                     See how it works
+                  </Link>
+                  <Link
+                    href="/thesis"
+                    className="text-sm font-medium text-zinc-300 underline-offset-4 hover:text-white hover:underline"
+                  >
+                    Thesis
                   </Link>
                 </>
               ) : (

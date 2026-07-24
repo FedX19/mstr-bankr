@@ -107,7 +107,9 @@ export const siteConfig = {
   bankrLaunchUrl: null as string | null,
   bankrBaseUrl: "https://bankr.bot",
 
-  officialWebsite: null as string | null,
+  /** Production deployment until a custom domain is reserved. */
+  officialWebsite: "https://mstr-bankr.vercel.app",
+  /** Update when the project-owned handle is reserved and verified. */
   officialX: "https://x.com",
   officialTelegram: null as string | null,
   officialDiscord: null as string | null,

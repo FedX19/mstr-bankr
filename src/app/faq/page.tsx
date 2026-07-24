@@ -77,6 +77,18 @@ export default function FaqPage() {
       q: "Can the token go to zero?",
       a: `Yes. It is highly speculative. Prices may fall to zero. There is no price floor, no guaranteed liquidity addition and no holder claim on pool assets.`,
     },
+    {
+      q: "When does the token launch?",
+      a: `Only after every hard gate is complete: Bankr written confirmation, securities counsel, MSTR liquidity tests (or COIN fallback), security review, brand review, and website readiness. Website readiness is done. See the Roadmap page for the live checklist. No launch date is promised.`,
+    },
+    {
+      q: "Is there a presale or whitelist?",
+      a: `No. Intended configuration is a fair launch with no presale, no creator allocation, and creator vesting disabled.`,
+    },
+    {
+      q: "What is the ticker?",
+      a: `Working candidate is $${siteConfig.ticker}. Other candidates: ${siteConfig.tickerCandidates.map((t) => `$${t}`).join(", ")}. Nothing is final until brand, domain, social, and Bankr configuration are cleared.`,
+    },
   ];
 
   return (
@@ -103,6 +115,12 @@ export default function FaqPage() {
       </div>
 
       <div className="mt-10 flex flex-wrap gap-4">
+        <Link
+          href="/roadmap"
+          className="text-sm font-medium text-[var(--accent)] hover:opacity-85"
+        >
+          Roadmap →
+        </Link>
         <Link
           href="/how-it-works"
           className="text-sm font-medium text-[var(--accent)] hover:opacity-85"

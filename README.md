@@ -6,7 +6,12 @@ Stock-paired cultural meme — primary market denominated in tokenized MSTR expo
 > A Bitcoin treasury meme, denominated in MSTR.  
 > **The bid never sleeps.**
 
-**Status: PRELAUNCH.** No official token is live. Do not purchase contracts claiming to represent this project until the official contract is published on this site.
+**Status: PRELAUNCH (Phase 1 — public research).**  
+No official token is live. Do not purchase contracts claiming to represent this project.
+
+**Production:** https://mstr-bankr.vercel.app
+
+---
 
 ## Product model
 
@@ -16,25 +21,58 @@ Stock-paired cultural meme — primary market denominated in tokenized MSTR expo
 | Chain | Robinhood Chain (chain ID `4663`) |
 | Launch | Bankr fair launch — no presale, no creator allocation, no vesting |
 | Fee beneficiary | Project multisig (subject to Bankr approval) |
+| Working ticker | `$ROAR` (candidates: ROAR, SAYLOR, BID, STACK) |
 
-This replaces the earlier plan to manually recycle a percentage of creator fees into MSTR purchases. Pool composition is dynamic and verifiable onchain. Holders have **no claim** on pool assets.
+Pool composition is dynamic and verifiable onchain. Holders have **no claim** on pool assets.
 
-## Stack
+---
 
-- Next.js (App Router)
-- TypeScript
-- Tailwind CSS v4
+## Site map
 
-## Quick start
+| Route | Content |
+| --- | --- |
+| `/` | Hero, product identity, market, pool, mechanics, thesis, roadmap, transparency, risks |
+| `/how-it-works` | Buy/sell, pool ownership, fees, Stock Token disclosure |
+| `/thesis` | Balanced MSTR bull/bear thesis |
+| `/roadmap` | Phases, hard gates, Bankr settings, fee policy, open questions |
+| `/transparency` | Contracts, fees, verification, launch gate status |
+| `/risks` | Full risk categories + non-affiliation |
+| `/faq` | Product + launch FAQ |
+| `/terms` | Terms of use |
+| `/privacy` | Privacy policy |
 
-```bash
-npm install
-npm run dev
-```
+Trade UI stays disabled until `launchStatus === "live"` and `tradingEnabled === true`.
 
-Open [http://localhost:3000](http://localhost:3000).
+---
 
-## Configuration
+## Roadmap (summary)
+
+| Phase | Status | Meaning |
+| --- | --- | --- |
+| 0 Build & verify | **Complete** | Website + stock-paired product packaging |
+| 1 Public research | **Current** | Site live without a token |
+| 2 Clearance | Next | Bankr + counsel + liquidity + brand |
+| 3 Token launch | Later | Human-approved Bankr deploy only |
+| 4–6 Ops | Later | First day / week / ongoing |
+
+### Hard gates
+
+| Gate | Status |
+| --- | --- |
+| Website readiness | **Done** |
+| Bankr confirmation | Human / pending |
+| Securities counsel | Human / pending |
+| Liquidity validation | Human / pending |
+| Security review | In progress (ops) |
+| Brand review | In progress (handles / counsel) |
+
+**Do not deploy the token until every gate is done.**
+
+Full detail: `/roadmap` and `src/lib/launch.ts`.
+
+---
+
+## Configure
 
 Single source of truth: `src/lib/config.ts`.
 
@@ -44,52 +82,47 @@ Single source of truth: `src/lib/config.ts`.
 | `tradingEnabled` | Must stay `false` until launch gates clear |
 | `quoteAssetKey` | `MSTR` (fallback: `COIN` → `PLTR` → `TSLA`) |
 | `memeTokenAddress` | Official CA — `null` until launch |
-| `poolAddress` / `poolId` | Pool identifiers after launch |
+| `poolAddress` / `poolId` | After launch |
 | `feeBeneficiary` | Public creator-fee wallet |
-| `chain.*` | Robinhood Chain RPC, explorer, WETH, USDG |
-| `stockTokens.*` | Canonical quote-asset addresses |
+| `officialX` | Project-owned handle when reserved |
+| `brand.*` | Hero, token icon, MSTR mark paths |
 
-Changing `quoteAssetKey` re-points copy and dashboards without a redesign.
+Roadmap/gates/fee policy: `src/lib/launch.ts`.
 
-## Data layer
+---
 
-- `src/lib/data.ts` — dashboard model (null placeholders in prelaunch; no fabricated production values)
-- `src/lib/adapters/robinhood-chain.ts` — RPC / pool reads (stub)
-- `src/lib/adapters/bankr.ts` — public fee API (stub; confirm stock-pair fee docs first)
-- `src/lib/adapters/chainlink.ts` — Stock Token oracle (stub)
+## Stack
 
-## Site map
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS v4
 
-| Route | Content |
-| --- | --- |
-| `/` | Status bar, hero, live market placeholders, pool viz, mechanics, thesis, transparency, risks |
-| `/how-it-works` | Buy/sell flow, pool ownership, fees, Stock Token disclosure |
-| `/thesis` | Balanced MSTR bull/bear thesis |
-| `/transparency` | Contracts, fees, verification checklist |
-| `/risks` | Full risk categories + non-affiliation |
-| `/faq` | Required FAQ set |
-
-Trade UI is disabled until `launchStatus === "live"` and `tradingEnabled === true`.
-
-## Launch gates (do not deploy the token until)
-
-1. Written Bankr confirmation for stock-paired launch + fee routing  
-2. Securities counsel memo  
-3. Executable MSTR liquidity tests  
-4. Security review  
-5. Brand / trademark review  
-6. Website readiness (this app in prelaunch mode)
-
-## Tone
-
-Serious financial / onchain dashboard: dark graphite, Bitcoin orange accent, monospaced stats. No cartoon clutter, no copied Strategy/Robinhood branding, no public-figure likeness.
-
-## Deploy
+```bash
+npm install
+npm run dev
+```
 
 ```bash
 npm run build
 npm start
 ```
+
+---
+
+## Operator checklist before token launch
+
+1. Written Bankr answers to the 10 stock-pair questions in `/roadmap`
+2. Securities counsel memo on file
+3. Non-U.S. liquidity tests at $100 / $1k / $5k / $10k
+4. Project entity + 2-of-3 hardware multisig labeled “Roaring Saylor Creator Fees”
+5. Domain + X (and other socials) reserved and linked in config
+6. Final ticker chosen after conflict / trademark checks
+7. Security review signed off
+8. On Transparency page: publish contract, pool, fee beneficiary, Bankr URL **before** any trade CTA
+9. Human explicitly approves Bankr deployment
+10. Flip config: `launchStatus: "live"`, `tradingEnabled: true` only after publish
+
+---
 
 ## Disclaimers
 

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageShell } from "../../components/PageShell";
 import {
   getMemeContractDisplay,
   getQuoteAsset,
   siteConfig,
 } from "../../lib/config";
+import { feePolicy, launchConfig, launchGates } from "../../lib/launch";
 
 export const metadata: Metadata = {
   title: `Transparency — ${siteConfig.projectName}`,
@@ -23,6 +25,10 @@ export default function TransparencyPage() {
     {
       label: "Trading enabled",
       value: siteConfig.tradingEnabled ? "Yes" : "No",
+    },
+    {
+      label: "Working ticker (provisional)",
+      value: `$${siteConfig.ticker} · candidates: ${siteConfig.tickerCandidates.map((t) => `$${t}`).join(", ")}`,
     },
     {
       label: "Official meme contract",
@@ -46,7 +52,7 @@ export default function TransparencyPage() {
     },
     {
       label: "Fee beneficiary",
-      value: siteConfig.feeBeneficiary ?? "Not assigned",
+      value: siteConfig.feeBeneficiary ?? "Not assigned — project multisig at launch",
       mono: true,
     },
     {
@@ -54,7 +60,7 @@ export default function TransparencyPage() {
       value: siteConfig.deploymentTx ?? "Not live",
       mono: true,
     },
-    { label: "Token supply", value: "Bankr standard fixed supply (post-launch)" },
+    { label: "Token supply", value: launchConfig.tokenSupply },
     { label: "Creator allocation", value: "None" },
     { label: "Vesting", value: "None — creator vesting disabled" },
     { label: "Presale", value: "None" },
@@ -97,11 +103,19 @@ export default function TransparencyPage() {
       value: siteConfig.chain.usdg,
       mono: true,
     },
+    {
+      label: "Official website",
+      value: siteConfig.officialWebsite ?? "This deployment",
+    },
+    {
+      label: "GitHub",
+      value: siteConfig.officialGitHub,
+    },
   ];
 
   return (
     <PageShell>
-      <p className="mt-8 text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
+      <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
         Transparency
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
@@ -136,6 +150,25 @@ export default function TransparencyPage() {
       </div>
 
       <section className="prose-section mt-10">
+        <h2>Launch gate status</h2>
+        <ul>
+          {launchGates.map((g) => (
+            <li key={g.id}>
+              <strong>{g.title}:</strong> {g.status.replace("_", " ")} —{" "}
+              {g.summary}
+            </li>
+          ))}
+        </ul>
+        <p>
+          Full checklist on the{" "}
+          <Link href="/roadmap" className="link-accent">
+            roadmap
+          </Link>
+          .
+        </p>
+      </section>
+
+      <section className="prose-section">
         <h2>Verification checklist</h2>
         <ul>
           <li>Confirm chain ID is {siteConfig.chain.chainId}.</li>
@@ -143,27 +176,42 @@ export default function TransparencyPage() {
             Confirm the {quote.symbol} address matches Robinhood&apos;s live
             canonical asset registry before any deployment or trade.
           </li>
-          <li>
-            Reject any similarly named token at a different address.
-          </li>
+          <li>Reject any similarly named token at a different address.</li>
           <li>
             After launch, confirm meme contract, pool and fee beneficiary match
             this page and the Bankr launch page.
+          </li>
+          <li>
+            Never send funds to an address that is not published here after
+            launch.
           </li>
         </ul>
       </section>
 
       <section className="prose-section">
         <h2>Creator-fee policy</h2>
+        <p>{feePolicy.publicPolicy}</p>
         <p>
-          Creator fees are generated automatically by trading through the Bankr
-          liquidity pool. They belong to the project company and do not belong to
-          tokenholders. Fees may fund infrastructure, data, development,
-          security, legal, accounting, community, content, marketing and
-          contingency reserves. There is no promise of buybacks, price support,
-          permanent {quote.symbol} purchases, revenue distributions or holder
-          dividends.
+          Fees may fund: {feePolicy.mayFund.join("; ")}. We will not promise:{" "}
+          {feePolicy.willNotPromise.join("; ")}.
         </p>
+        <p>
+          <em>{feePolicy.feeDenominationNote}</em>
+        </p>
+      </section>
+
+      <section className="prose-section">
+        <h2>Intended launch settings</h2>
+        <ul>
+          {Object.entries(launchConfig).map(([k, v]) => (
+            <li key={k}>
+              <strong className="capitalize">
+                {k.replace(/([A-Z])/g, " $1")}:
+              </strong>{" "}
+              {v}
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="prose-section">
@@ -206,8 +254,18 @@ export default function TransparencyPage() {
               rel="noopener noreferrer"
               className="link-accent"
             >
-              Official X
+              Official X (reserve and update when ready)
             </a>
+          </li>
+          <li>
+            <Link href="/terms" className="link-accent">
+              Terms
+            </Link>
+          </li>
+          <li>
+            <Link href="/privacy" className="link-accent">
+              Privacy
+            </Link>
           </li>
         </ul>
       </section>

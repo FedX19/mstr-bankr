@@ -6,7 +6,9 @@ import { HowTradingWorks } from "../components/HowTradingWorks";
 import { JurisdictionNotice } from "../components/JurisdictionNotice";
 import { MarketContext } from "../components/MarketContext";
 import { PoolVisualization } from "../components/PoolVisualization";
+import { ProductIdentity } from "../components/ProductIdentity";
 import { RiskSummary } from "../components/RiskSummary";
+import { RoadmapSection } from "../components/RoadmapSection";
 import { StatsRow } from "../components/StatsRow";
 import { StatusBar } from "../components/StatusBar";
 import { ThesisPanel } from "../components/ThesisPanel";
@@ -23,12 +25,14 @@ export default async function Home() {
       <main className="flex-1">
         <Hero data={data} />
         <JurisdictionNotice />
+        <ProductIdentity />
         <StatsRow data={data} />
         <BrandShowcase />
         <PoolVisualization data={data} />
         <HowTradingWorks />
         <ThesisPanel />
         <MarketContext data={data} />
+        <RoadmapSection />
         <TransparencySummary />
         <RiskSummary />
       </main>
