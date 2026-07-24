@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getQuoteAsset, siteConfig } from "../lib/config";
+import { BrandMark } from "./BrandMark";
 
 export function ThesisPanel() {
   const quote = getQuoteAsset();
@@ -45,7 +46,7 @@ export function ThesisPanel() {
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 href="/thesis"
-                className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-strong)] bg-[var(--bg-elevated)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:border-[var(--accent-border)] hover:bg-[var(--bg-card-hover)]"
+                className="btn-ghost inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium"
               >
                 Read full thesis
                 <span className="text-[var(--text-dim)]">→</span>
@@ -57,7 +58,10 @@ export function ThesisPanel() {
           </div>
 
           <div className="flex flex-col gap-4 lg:col-span-2">
-            <div className="card border-[var(--accent-border)] bg-[var(--accent-soft)] p-5">
+            <div className="card relative overflow-hidden border-[var(--accent-border)] bg-[var(--accent-soft)] p-5">
+              <div className="pointer-events-none absolute -right-4 -top-4 opacity-30">
+                <BrandMark size="lg" />
+              </div>
               <p className="card-label mb-2 text-[var(--accent)]">
                 Research context
               </p>
@@ -74,7 +78,10 @@ export function ThesisPanel() {
             </div>
 
             <div className="card p-5">
-              <p className="card-label mb-2">What this is not</p>
+              <div className="mb-3 flex items-center gap-3">
+                <BrandMark size="xs" />
+                <p className="card-label mb-0">What this is not</p>
+              </div>
               <p className="text-sm leading-relaxed text-[var(--text-muted)]">
                 Not a claim that {quote.symbol} has limited downside. Not a
                 short-squeeze product. Not affiliation with Strategy or any

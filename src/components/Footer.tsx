@@ -4,6 +4,7 @@ import {
   getQuoteAsset,
   siteConfig,
 } from "../lib/config";
+import { BrandMark } from "./BrandMark";
 
 export function Footer() {
   const quote = getQuoteAsset();
@@ -46,17 +47,25 @@ export function Footer() {
   ];
 
   return (
-    <footer className="border-t border-[var(--border)]">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <footer className="relative overflow-hidden border-t border-[var(--border)]">
+      <div className="pointer-events-none absolute -bottom-24 -left-16 opacity-[0.12]">
+        <BrandMark size="xl" />
+      </div>
+      <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-md">
-            <p className="text-sm font-semibold text-white">
-              {siteConfig.projectName}
-            </p>
-            <p className="mt-1 text-sm text-[var(--accent)]">
-              {siteConfig.tagline}
-            </p>
-            <p className="mt-3 text-xs leading-relaxed text-[var(--text-dim)]">
+            <div className="flex items-center gap-3">
+              <BrandMark size="sm" />
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  {siteConfig.projectName}
+                </p>
+                <p className="text-sm text-[var(--accent)]">
+                  {siteConfig.tagline}
+                </p>
+              </div>
+            </div>
+            <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
               {siteConfig.secondarySlogan} Primary market: meme / tokenized{" "}
               {quote.symbol} on {siteConfig.chain.chainName}.
             </p>

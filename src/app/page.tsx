@@ -1,3 +1,4 @@
+import { BrandShowcase } from "../components/BrandShowcase";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { Hero } from "../components/Hero";
@@ -23,6 +24,7 @@ export default async function Home() {
         <Hero data={data} />
         <JurisdictionNotice />
         <StatsRow data={data} />
+        <BrandShowcase />
         <PoolVisualization data={data} />
         <HowTradingWorks />
         <ThesisPanel />

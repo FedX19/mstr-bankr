@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { isLive, siteConfig } from "../lib/config";
+import { BrandMark } from "./BrandMark";
 
 const nav = [
   { href: "/#market", label: "Live Market" },
@@ -14,15 +15,10 @@ export function Header() {
   const live = isLive();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link href="/" className="group flex shrink-0 items-center gap-2.5">
-          <span
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-[var(--accent-border)] bg-[var(--accent-soft)] text-xs font-bold text-[var(--accent)]"
-            aria-hidden
-          >
-            RS
-          </span>
+          <BrandMark size="xs" priority />
           <span className="text-sm font-semibold tracking-tight text-[var(--text)] group-hover:text-white">
             {siteConfig.projectName}
           </span>
@@ -65,7 +61,6 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile nav */}
       <nav
         className="flex gap-4 overflow-x-auto border-t border-[var(--border)] px-4 py-2 lg:hidden"
         aria-label="Mobile"

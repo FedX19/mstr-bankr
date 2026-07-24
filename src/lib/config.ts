@@ -81,6 +81,15 @@ export const siteConfig = {
   positioning:
     "Roaring Saylor is an independent cultural meme whose primary market is denominated in tokenized MSTR exposure.",
 
+  /** Brand assets in /public/brand */
+  brand: {
+    hero: "/brand/hero.png",
+    tokenIcon: "/brand/token-icon.png",
+    heroAlt:
+      "Roaring Saylor mascot — lion trader in a Bitcoin treasury command center",
+    tokenIconAlt: "Roaring Saylor token mark — lion guardian with orange ring",
+  },
+
   /** Selected quote asset — change this key to re-point the entire site. */
   quoteAssetKey: "MSTR" as StockTokenKey,
 

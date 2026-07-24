@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getQuoteAsset, siteConfig } from "../lib/config";
+import { BrandMark } from "./BrandMark";
 
 export function HowTradingWorks() {
   const quote = getQuoteAsset();
@@ -23,11 +24,24 @@ export function HowTradingWorks() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="card p-5 sm:p-6">
+          <div className="card relative overflow-hidden p-5 sm:p-6">
+            <div className="pointer-events-none absolute -right-6 -top-6 opacity-20">
+              <BrandMark size="lg" />
+            </div>
             <p className="card-label mb-3 text-[var(--positive)]">
               When someone buys
             </p>
-            <ol className="space-y-3 text-sm text-[var(--text-muted)]">
+            <div className="mb-5 flex items-center gap-2 text-xs text-[var(--text-dim)]">
+              <span className="rounded-full border border-[var(--border)] px-2 py-1">
+                {quote.symbol} in
+              </span>
+              <span aria-hidden>→</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2 py-1 text-[var(--accent)]">
+                <BrandMark size="xs" />
+                out
+              </span>
+            </div>
+            <ol className="relative space-y-3 text-sm text-[var(--text-muted)]">
               <li className="flex gap-3">
                 <span className="stat-value shrink-0 text-[var(--text-dim)]">
                   1
@@ -55,10 +69,23 @@ export function HowTradingWorks() {
             </p>
           </div>
 
-          <div className="card p-5 sm:p-6">
+          <div className="card relative overflow-hidden p-5 sm:p-6">
+            <div className="pointer-events-none absolute -right-6 -top-6 opacity-20">
+              <BrandMark size="lg" />
+            </div>
             <p className="card-label mb-3 text-[var(--negative)]">
               When someone sells
             </p>
+            <div className="mb-5 flex items-center gap-2 text-xs text-[var(--text-dim)]">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2 py-1 text-[var(--accent)]">
+                <BrandMark size="xs" />
+                in
+              </span>
+              <span aria-hidden>→</span>
+              <span className="rounded-full border border-[var(--border)] px-2 py-1">
+                {quote.symbol} out
+              </span>
+            </div>
             <ol className="space-y-3 text-sm text-[var(--text-muted)]">
               <li className="flex gap-3">
                 <span className="stat-value shrink-0 text-[var(--text-dim)]">
