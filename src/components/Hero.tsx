@@ -25,38 +25,36 @@ export function Hero({ data }: Props) {
     change == null ? "dim" : change >= 0 ? "positive-text" : "negative-text";
 
   return (
-    <section className="relative isolate min-h-[min(92vh,880px)] overflow-hidden border-b border-[var(--border)]">
-      {/* Cinematic plate — lion sits right; left is dark for type */}
-      <div className="absolute inset-0">
-        <Image
-          src={siteConfig.brand.hero}
-          alt={siteConfig.brand.heroAlt}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[78%_center] sm:object-[72%_center] lg:object-right"
-        />
-        {/* Readability stacks */}
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-[#050506] via-[#050506]/92 to-[#050506]/25 sm:via-[#050506]/88 sm:to-transparent"
-          aria-hidden
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-transparent to-black/35"
-          aria-hidden
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent"
-          aria-hidden
-        />
-        <div className="hero-vignette absolute inset-0" aria-hidden />
-      </div>
+    <section className="border-b border-[var(--border)]">
+      {/* Cinematic stage — art first, copy only on the dark left edge */}
+      <div className="relative isolate min-h-[min(78vh,720px)] overflow-hidden sm:min-h-[min(82vh,780px)]">
+        <div className="absolute inset-0">
+          <Image
+            src={siteConfig.brand.hero}
+            alt={siteConfig.brand.heroAlt}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[70%_center] sm:object-[68%_center] lg:object-[62%_center]"
+          />
+          {/* Soft left scrim only — keep lion / vault / screens open */}
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-[#050506]/95 via-[#050506]/55 to-transparent sm:via-[#050506]/40 lg:w-[55%]"
+            aria-hidden
+          />
+          <div
+            className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[var(--bg)] to-transparent sm:h-36"
+            aria-hidden
+          />
+          <div
+            className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/30 to-transparent"
+            aria-hidden
+          />
+        </div>
 
-      <div className="relative mx-auto flex min-h-[min(92vh,880px)] max-w-6xl flex-col justify-end px-4 pb-12 pt-20 sm:px-6 sm:pb-16 sm:pt-24 lg:justify-center lg:py-24">
-        <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-center lg:gap-12">
-          {/* Copy column */}
-          <div className="max-w-xl">
-            <div className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="relative mx-auto flex min-h-[min(78vh,720px)] max-w-6xl flex-col justify-end px-4 pb-10 pt-24 sm:min-h-[min(82vh,780px)] sm:px-6 sm:pb-14 sm:pt-28 lg:justify-center lg:pb-20">
+          <div className="max-w-md lg:max-w-lg">
+            <div className="mb-5 flex flex-wrap items-center gap-3">
               <BrandMark size="md" priority glow />
               <div className="flex flex-wrap items-center gap-2">
                 <span className="badge badge-accent">Stock-paired meme</span>
@@ -68,9 +66,6 @@ export function Hero({ data }: Props) {
                 ) : (
                   <span className="badge">Prelaunch</span>
                 )}
-                <span className="badge hidden sm:inline-flex">
-                  {siteConfig.chain.chainName}
-                </span>
               </div>
             </div>
 
@@ -78,35 +73,21 @@ export function Hero({ data }: Props) {
               {siteConfig.category}
             </p>
 
-            <h1 className="text-4xl font-semibold tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.65)] sm:text-5xl md:text-6xl lg:text-[3.75rem] lg:leading-[1.05]">
+            <h1 className="text-4xl font-semibold tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.75)] sm:text-5xl md:text-6xl lg:text-[3.75rem] lg:leading-[1.05]">
               {siteConfig.tagline}
             </h1>
 
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-zinc-200/90 sm:text-lg">
+            <p className="mt-4 max-w-md text-base leading-relaxed text-zinc-100/90 drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] sm:text-lg">
               {prelaunch
                 ? `An independent cultural meme being designed around a primary market denominated in tokenized ${quote.symbol} exposure.`
                 : siteConfig.positioning}
             </p>
 
-            <p className="mt-4 max-w-lg text-sm leading-relaxed text-zinc-400">
-              {prelaunch
-                ? `Buyers would add tokenized ${quote.symbol} to the pool. Sellers would remove it. Every movement would be visible onchain.`
-                : `Buyers add ${quote.symbol} exposure to the primary liquidity pool. Sellers remove it. The entire market is visible onchain.`}
-            </p>
-
-            <p className="mt-3 text-sm font-medium tracking-wide text-[var(--accent)]">
+            <p className="mt-3 text-sm font-medium tracking-wide text-[var(--accent)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]">
               {siteConfig.supportingPhrase}
             </p>
 
-            {prelaunch ? (
-              <p className="mt-4 max-w-lg text-xs leading-relaxed text-zinc-500">
-                Launch remains subject to Bankr support, liquidity testing,
-                jurisdictional eligibility and legal review. No official contract
-                has been announced.
-              </p>
-            ) : null}
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
               {prelaunch || !live ? (
                 <>
                   <Link
@@ -140,36 +121,45 @@ export function Hero({ data }: Props) {
               )}
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Floating market glass card */}
-          <div className="glass-card w-full max-w-md justify-self-start lg:justify-self-end lg:max-w-none">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <BrandMark size="sm" />
-                <div>
-                  <p className="card-label">Primary market</p>
-                  <p className="text-xs font-medium text-white">
-                    Meme / Tokenized {quote.symbol}
+      {/* Market strip — below the art, not over the lion */}
+      <div className="relative border-t border-[var(--border)] bg-[var(--bg-elevated)]">
+        <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <BrandMark size="sm" />
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-medium text-white">
+                    Primary market
                   </p>
+                  <span className="badge">{live ? "Live" : "Not live"}</span>
                 </div>
+                <p className="mt-0.5 text-xs text-[var(--text-dim)]">
+                  Meme / Tokenized {quote.symbol}
+                  {prelaunch
+                    ? " · Pending Bankr, liquidity & legal clearance"
+                    : ""}
+                </p>
               </div>
-              <span className="badge">{live ? "Live" : "Not live"}</span>
             </div>
 
-            <div className="flex items-baseline justify-between gap-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
               <div>
-                <p className="stat-value text-3xl font-medium text-white sm:text-4xl">
+                <p className="card-label mb-1">Price</p>
+                <p className="stat-value text-lg font-medium text-white">
                   {formatUsd(token.priceUsd, {
                     digits:
                       token.priceUsd && token.priceUsd < 0.01 ? 6 : 4,
                   })}
                 </p>
-                <p className={`mt-1 text-sm font-medium ${changeClass}`}>
-                  {formatPct(change)}{" "}
-                  <span className="dim font-normal">24h</span>
+                <p className={`mt-0.5 text-xs font-medium ${changeClass}`}>
+                  {formatPct(change)} 24h
                 </p>
               </div>
-              <div className="text-right">
+              <div>
                 <p className="card-label mb-1">In {quote.symbol}</p>
                 <p className="stat-value text-lg font-medium text-white">
                   {token.priceInStock != null
@@ -177,19 +167,18 @@ export function Hero({ data }: Props) {
                     : "—"}
                 </p>
               </div>
-            </div>
-
-            <div className="mt-5 space-y-3 border-t border-white/10 pt-4">
-              <div>
+              <div className="col-span-2 sm:col-span-1">
                 <p className="card-label mb-1">Meme contract</p>
-                <p className="stat-value truncate text-xs text-zinc-300">
+                <p className="stat-value truncate text-xs text-[var(--text-muted)] sm:text-sm">
                   {getMemeContractDisplay()}
                 </p>
               </div>
-              <div>
+              <div className="col-span-2 sm:col-span-1">
                 <p className="card-label mb-1">Canonical {quote.symbol}</p>
-                <p className="stat-value truncate text-xs text-zinc-300">
-                  {quote.address ?? "Pending registry verification"}
+                <p className="stat-value truncate text-xs text-[var(--text-muted)] sm:text-sm">
+                  {quote.address
+                    ? `${quote.address.slice(0, 6)}…${quote.address.slice(-4)}`
+                    : "Pending"}
                 </p>
               </div>
             </div>
