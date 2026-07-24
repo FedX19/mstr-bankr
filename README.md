@@ -1,9 +1,23 @@
 # Roaring Saylor
 
-Public research dashboard for the **Roaring Saylor** thesis.
+Stock-paired cultural meme — primary market denominated in tokenized MSTR exposure on Robinhood Chain.
 
 > **We like the stock.**  
-> Strategy (MSTR) is a Bitcoin accumulation vehicle. Creator fees recycle into tokenized MSTR — public, trackable, compounding.
+> A Bitcoin treasury meme, denominated in MSTR.  
+> **The bid never sleeps.**
+
+**Status: PRELAUNCH.** No official token is live. Do not purchase contracts claiming to represent this project until the official contract is published on this site.
+
+## Product model
+
+| Item | Value |
+| --- | --- |
+| Primary market | Roaring Saylor / Robinhood MSTR Stock Token |
+| Chain | Robinhood Chain (chain ID `4663`) |
+| Launch | Bankr fair launch — no presale, no creator allocation, no vesting |
+| Fee beneficiary | Project multisig (subject to Bankr approval) |
+
+This replaces the earlier plan to manually recycle a percentage of creator fees into MSTR purchases. Pool composition is dynamic and verifiable onchain. Holders have **no claim** on pool assets.
 
 ## Stack
 
@@ -14,54 +28,61 @@ Public research dashboard for the **Roaring Saylor** thesis.
 ## Quick start
 
 ```bash
-cd roaring-saylor
 npm install
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Configure after launch
+## Configuration
 
-Edit `src/lib/config.ts`:
+Single source of truth: `src/lib/config.ts`.
 
 | Field | Purpose |
 | --- | --- |
-| `contractAddress` | Token CA |
-| `bankrUrl` | Bankr page |
-| `xUrl` | X account |
-| `githubUrl` | Repo |
-| `explorerTxBase` | Tx explorer prefix |
-| `strategy.*` | BTC holdings, short interest notes |
-| `feeAllocationPct` | Default **60%** |
+| `launchStatus` | `research` \| `prelaunch` \| `cleared` \| `live` \| `paused` |
+| `tradingEnabled` | Must stay `false` until launch gates clear |
+| `quoteAssetKey` | `MSTR` (fallback: `COIN` → `PLTR` → `TSLA`) |
+| `memeTokenAddress` | Official CA — `null` until launch |
+| `poolAddress` / `poolId` | Pool identifiers after launch |
+| `feeBeneficiary` | Public creator-fee wallet |
+| `chain.*` | Robinhood Chain RPC, explorer, WETH, USDG |
+| `stockTokens.*` | Canonical quote-asset addresses |
 
-### Live stats & purchase log
+Changing `quoteAssetKey` re-points copy and dashboards without a redesign.
 
-`src/lib/data.ts` owns dashboard numbers:
+## Data layer
 
-- Pre-launch: zeros / `—` placeholders (`USE_DEMO_DATA = false`)
-- Preview UI with sample buys: set `USE_DEMO_DATA = true`
-- Production: implement real fetches inside `getDashboardData()` (token price, holders, fee totals, on-chain purchase list)
+- `src/lib/data.ts` — dashboard model (null placeholders in prelaunch; no fabricated production values)
+- `src/lib/adapters/robinhood-chain.ts` — RPC / pool reads (stub)
+- `src/lib/adapters/bankr.ts` — public fee API (stub; confirm stock-pair fee docs first)
+- `src/lib/adapters/chainlink.ts` — Stock Token oracle (stub)
 
 ## Site map
 
 | Route | Content |
 | --- | --- |
-| `/` | Hero, live stats, MSTR accumulation tracker, thesis panel, market context, roadmap |
-| `/thesis` | Full written thesis |
+| `/` | Status bar, hero, live market placeholders, pool viz, mechanics, thesis, transparency, risks |
+| `/how-it-works` | Buy/sell flow, pool ownership, fees, Stock Token disclosure |
+| `/thesis` | Balanced MSTR bull/bear thesis |
+| `/transparency` | Contracts, fees, verification checklist |
+| `/risks` | Full risk categories + non-affiliation |
+| `/faq` | Required FAQ set |
 
-## Business plan (unchanged)
+Trade UI is disabled until `launchStatus === "live"` and `tradingEnabled === true`.
 
-1. Launch token (non-paired initially)
-2. Collect creator fees
-3. Allocate fixed % (60%) to tokenized MSTR
-4. Publish every purchase
-5. Optional later: stock-paired upgrade when Bankr liquidity allows
-6. Own the “Roaring Saylor” narrative early
+## Launch gates (do not deploy the token until)
+
+1. Written Bankr confirmation for stock-paired launch + fee routing  
+2. Securities counsel memo  
+3. Executable MSTR liquidity tests  
+4. Security review  
+5. Brand / trademark review  
+6. Website readiness (this app in prelaunch mode)
 
 ## Tone
 
-Clean dark theme, high-contrast numbers, minimal fluff. Public research dashboard — not a hype landing page.
+Serious financial / onchain dashboard: dark graphite, Bitcoin orange accent, monospaced stats. No cartoon clutter, no copied Strategy/Robinhood branding, no public-figure likeness.
 
 ## Deploy
 
@@ -70,8 +91,6 @@ npm run build
 npm start
 ```
 
-Or connect the repo to Vercel / any Next host.
+## Disclaimers
 
-## Disclaimer
-
-Not financial advice. Tokenized equity and crypto involve significant risk. DYOR.
+Not financial advice. Not affiliated with Strategy, Michael Saylor, Keith Gill, Robinhood Markets, Robinhood Assets (Jersey) Limited, Bankr or Doppler. Robinhood Stock Tokens are restricted in the United States and other jurisdictions. DYOR.

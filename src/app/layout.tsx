@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { siteConfig } from "../lib/config";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,21 +13,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const description =
+  "Independent cultural meme whose primary market is denominated in tokenized MSTR exposure. Stock-paired on Robinhood Chain. Prelaunch — no official token is live.";
+
 export const metadata: Metadata = {
-  title: "Roaring Saylor — We like the stock.",
-  description:
-    "Public dashboard for the Roaring Saylor thesis. Strategy (MSTR) as a Bitcoin accumulation vehicle. Creator fees recycle into tokenized MSTR — transparent, trackable, compounding.",
+  title: `${siteConfig.projectName} — ${siteConfig.tagline}`,
+  description,
   openGraph: {
-    title: "Roaring Saylor — We like the stock.",
+    title: `${siteConfig.projectName} — ${siteConfig.tagline}`,
     description:
-      "Strategy is a Bitcoin accumulation vehicle. Short interest remains elevated. We recycle volume into the treasury.",
+      "A Bitcoin treasury meme, denominated in MSTR. Stock-paired cultural market. Not affiliated with Strategy, Michael Saylor, Keith Gill, Robinhood or Bankr.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Roaring Saylor — We like the stock.",
+    title: `${siteConfig.projectName} — ${siteConfig.tagline}`,
     description:
-      "Public MSTR accumulation dashboard. Recycling volume into the treasury.",
+      "Independent cultural meme denominated in tokenized MSTR exposure. Prelaunch — verify contracts before trading.",
   },
 };
 
@@ -40,7 +43,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[var(--bg)] text-[var(--text)]">
+      <body className="flex min-h-full flex-col bg-[var(--bg)] text-[var(--text)]">
         {children}
       </body>
     </html>

@@ -1,35 +1,41 @@
 import Link from "next/link";
-import { siteConfig } from "../lib/config";
-
-const bullets = [
-  "Strategy (MSTR) is the purest large-scale Bitcoin treasury company in public markets — a BTC accumulation vehicle with operating leverage to the price of Bitcoin.",
-  "The market has spent years treating it like a risky levered bet or a software company that happens to own BTC. That framing is wrong.",
-  "Short interest remains elevated even after a brutal drawdown — most recently ~13% of the float, and at points the most shorted large-cap by short interest as % of market cap.",
-  "This is not primarily a short-squeeze trade. It is conviction that the market misprices long-term value, with structural short interest that can amplify any positive shift.",
-  "Our edge: creator fees recycle into tokenized MSTR — public, trackable, compounding demand.",
-];
+import { getQuoteAsset, siteConfig } from "../lib/config";
 
 export function ThesisPanel() {
+  const quote = getQuoteAsset();
   const { strategy } = siteConfig;
+
+  const bullets = [
+    "Bitcoin-native audience and cultural overlap with treasury narratives.",
+    "Public-market volatility that maps cleanly to meme-market energy.",
+    "Strong bullish and bearish camps — a genuine debate, not a one-sided cheer.",
+    "Recognizable Bitcoin treasury story in public equities.",
+    `Direct fit with ${siteConfig.chain.chainName}'s tokenized-equity market structure.`,
+  ];
 
   return (
     <section id="thesis" className="border-b border-[var(--border)]">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
         <div className="grid gap-6 lg:grid-cols-5">
           <div className="lg:col-span-3">
-            <p className="card-label mb-2">Thesis</p>
+            <p className="card-label mb-2">Thesis summary</p>
             <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-              The market has it wrong
+              Why {quote.symbol}?
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
-              Calm conviction. Limited downside relative to upside when the asset
-              is understood correctly. Skin in the game through transparent fee →
-              MSTR buying.
+              Strategy is the largest publicly traded Bitcoin treasury company.
+              Its common stock provides amplified exposure to Bitcoin through an
+              actively managed capital structure. The market remains divided over
+              whether that structure represents an advantage or a liability.
+              Roaring Saylor turns that debate into an onchain cultural market.
             </p>
 
             <ul className="mt-8 space-y-4">
-              {bullets.map((b, i) => (
-                <li key={i} className="flex gap-3 text-sm leading-relaxed text-[var(--text-muted)]">
+              {bullets.map((b) => (
+                <li
+                  key={b}
+                  className="flex gap-3 text-sm leading-relaxed text-[var(--text-muted)]"
+                >
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent)]" />
                   <span>{b}</span>
                 </li>
@@ -45,7 +51,7 @@ export function ThesisPanel() {
                 <span className="text-[var(--text-dim)]">→</span>
               </Link>
               <p className="text-sm font-medium text-[var(--accent)]">
-                We like the stock.
+                {siteConfig.tagline}
               </p>
             </div>
           </div>
@@ -53,30 +59,33 @@ export function ThesisPanel() {
           <div className="flex flex-col gap-4 lg:col-span-2">
             <div className="card border-[var(--accent-border)] bg-[var(--accent-soft)] p-5">
               <p className="card-label mb-2 text-[var(--accent)]">
-                Short Interest Callout
+                Research context
               </p>
               <p className="stat-value text-4xl font-medium text-white">
                 {strategy.shortInterestFloatPct}%+
               </p>
               <p className="mt-1 text-sm text-[var(--text-muted)]">
-                of float · {strategy.shortSharesNote}
+                short interest of float · {strategy.shortSharesNote}
               </p>
               <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
-                {strategy.shortInterestCallout}
+                {strategy.shortInterestCallout} Data as of {strategy.dataAsOf} —
+                refresh from primary sources before relying on these figures.
               </p>
             </div>
 
             <div className="card p-5">
-              <p className="card-label mb-2">Asymmetric Setup</p>
+              <p className="card-label mb-2">What this is not</p>
               <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-                Elevated short interest + Bitcoin cycle positioning + public fee
-                recycling into the underlying. Not hype — structure.
+                Not a claim that {quote.symbol} has limited downside. Not a
+                short-squeeze product. Not affiliation with Strategy or any
+                public figure. A cultural market denominated in tokenized{" "}
+                {quote.symbol} exposure.
               </p>
               <p className="mt-4 text-xs font-medium uppercase tracking-wider text-[var(--text-dim)]">
-                Secondary phrase
+                Supporting phrase
               </p>
               <p className="mt-1 text-sm text-white">
-                Recycling volume into the treasury.
+                {siteConfig.supportingPhrase}
               </p>
             </div>
           </div>

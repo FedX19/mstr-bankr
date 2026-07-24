@@ -201,6 +201,77 @@ a.link-accent:hover {
   border: none;
 }
 
+/* Content pages */
+.prose-section {
+  margin-bottom: 2.5rem;
+}
+.prose-section h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+.prose-section h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #e4e4e7;
+  margin: 1.25rem 0 0.5rem;
+}
+.prose-section p {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.prose-section strong {
+  color: #e4e4e7;
+  font-weight: 600;
+}
+.prose-section em {
+  color: var(--text);
+  font-style: italic;
+}
+.prose-section ul,
+.prose-section ol {
+  margin: 0.75rem 0 1rem;
+  padding-left: 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+.prose-section li {
+  margin-bottom: 0.5rem;
+}
+.prose-section li::marker {
+  color: var(--accent);
+}
+.accent-line {
+  font-size: 1.125rem !important;
+  font-weight: 600;
+  color: var(--accent) !important;
+  margin-top: 1.5rem !important;
+}
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 0;
+}
+.faq-item:last-child {
+  border-bottom: none;
+}
+.faq-item h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+.faq-item p {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0;
+}
+
 /* Selection */
 ::selection {
   background: rgba(247, 147, 26, 0.3);

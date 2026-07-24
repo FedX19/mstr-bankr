@@ -1,62 +1,95 @@
 import Link from "next/link";
-import { siteConfig } from "../lib/config";
+import {
+  getMemeContractDisplay,
+  getQuoteAsset,
+  siteConfig,
+} from "../lib/config";
 
 export function Footer() {
-  const links = [
+  const quote = getQuoteAsset();
+  const contract = getMemeContractDisplay();
+
+  const links: {
+    label: string;
+    href?: string;
+    value?: string;
+    mono?: boolean;
+    internal?: boolean;
+  }[] = [
     {
       label: "Contract",
-      href: siteConfig.contractAddress === "TBA" ? undefined : `#`,
-      value: siteConfig.contractAddress,
+      value: contract,
       mono: true,
+      href:
+        siteConfig.memeTokenAddress != null
+          ? `${siteConfig.chain.explorerAddressBase}${siteConfig.memeTokenAddress}`
+          : undefined,
     },
-    { label: "Bankr", href: siteConfig.bankrUrl },
-    { label: "X", href: siteConfig.xUrl },
-    { label: "Full Thesis", href: "/thesis", internal: true },
-    { label: "GitHub", href: siteConfig.githubUrl },
+    {
+      label: "Bankr",
+      href: siteConfig.bankrLaunchUrl ?? siteConfig.bankrBaseUrl,
+    },
+    {
+      label: "Blockscout",
+      href: siteConfig.chain.explorerUrl,
+    },
+    { label: "X", href: siteConfig.officialX },
+    {
+      label: "How It Works",
+      href: "/how-it-works",
+      internal: true,
+    },
+    { label: "Risks", href: "/risks", internal: true },
+    { label: "FAQ", href: "/faq", internal: true },
+    { label: "Transparency", href: "/transparency", internal: true },
+    { label: "GitHub", href: siteConfig.officialGitHub },
   ];
 
   return (
     <footer className="border-t border-[var(--border)]">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-white">{siteConfig.name}</p>
-            <p className="mt-1 text-sm text-[var(--accent)]">{siteConfig.tagline}</p>
-            <p className="mt-3 max-w-xs text-xs leading-relaxed text-[var(--text-dim)]">
-              Public research dashboard. Not financial advice. Do your own
-              research. Tokenized equity and crypto involve significant risk.
+          <div className="max-w-md">
+            <p className="text-sm font-semibold text-white">
+              {siteConfig.projectName}
+            </p>
+            <p className="mt-1 text-sm text-[var(--accent)]">
+              {siteConfig.tagline}
+            </p>
+            <p className="mt-3 text-xs leading-relaxed text-[var(--text-dim)]">
+              {siteConfig.secondarySlogan} Primary market: meme / tokenized{" "}
+              {quote.symbol} on {siteConfig.chain.chainName}.
+            </p>
+            <p className="mt-3 text-xs leading-relaxed text-[var(--text-dim)]">
+              {siteConfig.riskStatement}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-3">
             {links.map((link) => {
               const content = (
                 <>
-                  <span className="card-label block mb-0.5">{link.label}</span>
+                  <span className="card-label mb-0.5 block">{link.label}</span>
                   <span
                     className={`text-sm text-[var(--text-muted)] group-hover:text-white ${
-                      "mono" in link && link.mono ? "stat-value text-xs" : ""
+                      link.mono ? "stat-value text-xs" : ""
                     }`}
                   >
-                    {"value" in link && link.value ? link.value : link.label}
+                    {link.value ?? link.label}
                   </span>
                 </>
               );
 
-              if ("internal" in link && link.internal) {
+              if (link.internal && link.href) {
                 return (
-                  <Link key={link.label} href={link.href!} className="group">
+                  <Link key={link.label} href={link.href} className="group">
                     {content}
                   </Link>
                 );
               }
 
-              if (!link.href || link.href === "#") {
-                return (
-                  <div key={link.label}>
-                    {content}
-                  </div>
-                );
+              if (!link.href) {
+                return <div key={link.label}>{content}</div>;
               }
 
               return (
@@ -76,13 +109,18 @@ export function Footer() {
 
         <hr className="section-rule my-8" />
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[11px] text-[var(--text-dim)]">
-            Recycling volume into the treasury.
+        <div className="space-y-3">
+          <p className="text-[11px] leading-relaxed text-[var(--text-dim)]">
+            {siteConfig.nonAffiliation}
           </p>
-          <p className="text-[11px] text-[var(--text-dim)]">
-            © {new Date().getFullYear()} {siteConfig.name}
-          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[11px] text-[var(--text-dim)]">
+              {siteConfig.supportingPhrase}
+            </p>
+            <p className="text-[11px] text-[var(--text-dim)]">
+              © {new Date().getFullYear()} {siteConfig.projectName}
+            </p>
+          </div>
         </div>
       </div>
     </footer>
