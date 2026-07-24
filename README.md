@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Roaring Saylor
 
-## Getting Started
+Public research dashboard for the **Roaring Saylor** thesis.
 
-First, run the development server:
+> **We like the stock.**  
+> Strategy (MSTR) is a Bitcoin accumulation vehicle. Creator fees recycle into tokenized MSTR — public, trackable, compounding.
+
+## Stack
+
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS v4
+
+## Quick start
 
 ```bash
+cd roaring-saylor
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Configure after launch
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `src/lib/config.ts`:
 
-## Learn More
+| Field | Purpose |
+| --- | --- |
+| `contractAddress` | Token CA |
+| `bankrUrl` | Bankr page |
+| `xUrl` | X account |
+| `githubUrl` | Repo |
+| `explorerTxBase` | Tx explorer prefix |
+| `strategy.*` | BTC holdings, short interest notes |
+| `feeAllocationPct` | Default **60%** |
 
-To learn more about Next.js, take a look at the following resources:
+### Live stats & purchase log
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`src/lib/data.ts` owns dashboard numbers:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Pre-launch: zeros / `—` placeholders (`USE_DEMO_DATA = false`)
+- Preview UI with sample buys: set `USE_DEMO_DATA = true`
+- Production: implement real fetches inside `getDashboardData()` (token price, holders, fee totals, on-chain purchase list)
 
-## Deploy on Vercel
+## Site map
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Route | Content |
+| --- | --- |
+| `/` | Hero, live stats, MSTR accumulation tracker, thesis panel, market context, roadmap |
+| `/thesis` | Full written thesis |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Business plan (unchanged)
+
+1. Launch token (non-paired initially)
+2. Collect creator fees
+3. Allocate fixed % (60%) to tokenized MSTR
+4. Publish every purchase
+5. Optional later: stock-paired upgrade when Bankr liquidity allows
+6. Own the “Roaring Saylor” narrative early
+
+## Tone
+
+Clean dark theme, high-contrast numbers, minimal fluff. Public research dashboard — not a hype landing page.
+
+## Deploy
+
+```bash
+npm run build
+npm start
+```
+
+Or connect the repo to Vercel / any Next host.
+
+## Disclaimer
+
+Not financial advice. Tokenized equity and crypto involve significant risk. DYOR.
