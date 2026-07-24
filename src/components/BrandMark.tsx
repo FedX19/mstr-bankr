@@ -16,6 +16,11 @@ type Props = {
   className?: string;
   priority?: boolean;
   glow?: boolean;
+  /**
+   * circular — full token badge (default, best for header/pair)
+   * transparent — cutout head for large showcases on dark backgrounds
+   */
+  variant?: "circular" | "transparent";
 };
 
 export function BrandMark({
@@ -23,22 +28,34 @@ export function BrandMark({
   className = "",
   priority = false,
   glow = false,
+  variant = "circular",
 }: Props) {
   const { px, className: sizeClass } = sizes[size];
+  const isTransparent = variant === "transparent";
 
   return (
     <span
-      className={`brand-mark relative inline-flex shrink-0 overflow-hidden rounded-full ${sizeClass} ${
-        glow ? "brand-mark-glow" : ""
+      className={`brand-mark relative inline-flex shrink-0 items-center justify-center ${
+        isTransparent ? "overflow-visible rounded-none bg-transparent shadow-none" : "overflow-hidden rounded-full"
+      } ${sizeClass} ${glow && !isTransparent ? "brand-mark-glow" : ""} ${
+        glow && isTransparent ? "drop-shadow-[0_0_28px_rgba(247,147,26,0.35)]" : ""
       } ${className}`}
     >
       <Image
-        src={siteConfig.brand.tokenIcon}
+        src={
+          isTransparent
+            ? siteConfig.brand.tokenIconTransparent
+            : siteConfig.brand.tokenIcon
+        }
         alt={siteConfig.brand.tokenIconAlt}
         width={px}
         height={px}
         priority={priority}
-        className="h-full w-full object-cover"
+        className={
+          isTransparent
+            ? "h-full w-full object-contain"
+            : "h-full w-full object-cover"
+        }
       />
     </span>
   );

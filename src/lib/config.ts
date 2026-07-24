@@ -84,12 +84,22 @@ export const siteConfig = {
   /** Brand assets in /public/brand */
   brand: {
     hero: "/brand/hero.png",
+    heroMobile: "/brand/hero-mobile.png",
     tokenIcon: "/brand/token-icon.png",
+    tokenIconTransparent: "/brand/token-icon-transparent.png",
     mstrLogo: "/brand/mstr-logo.png",
+    ogShare: "/brand/og-share.png",
+    favicon: "/brand/favicon.png",
+    vaultAbstract: "/brand/vault-abstract.png",
     heroAlt:
       "Roaring Saylor mascot — lion trader in a Bitcoin treasury command center",
+    heroMobileAlt:
+      "Roaring Saylor mascot — lion portrait in a Bitcoin treasury command center",
     tokenIconAlt: "Roaring Saylor token mark — lion guardian with orange ring",
     mstrLogoAlt: "Tokenized MSTR mark",
+    ogShareAlt:
+      "Roaring Saylor — We like the stock. A Bitcoin treasury meme denominated in MSTR.",
+    vaultAlt: "Abstract Bitcoin treasury vault atmosphere",
   },
 
   /** Selected quote asset — change this key to re-point the entire site. */

@@ -28,23 +28,33 @@ export function PoolVisualization({ data }: Props) {
         </div>
 
         {/* Pair diagram — matching circular token marks */}
-        <div className="mb-8 flex items-center justify-center gap-4 sm:gap-10">
-          <div className="flex flex-col items-center gap-3">
-            <BrandMark size="lg" glow />
-            <p className="text-xs font-medium text-white">
+        <div className="mb-6 flex items-center justify-center gap-3 sm:mb-8 sm:gap-10">
+          <div className="flex min-w-0 flex-1 flex-col items-center gap-2 sm:flex-none sm:gap-3">
+            <span className="sm:hidden">
+              <BrandMark size="md" glow />
+            </span>
+            <span className="hidden sm:inline-flex">
+              <BrandMark size="lg" glow />
+            </span>
+            <p className="max-w-[7.5rem] text-center text-[11px] font-medium leading-snug text-white sm:max-w-none sm:text-xs">
               {siteConfig.projectName}
             </p>
           </div>
-          <div className="flex flex-col items-center gap-1 px-1 sm:px-2">
-            <div className="h-px w-10 bg-gradient-to-r from-[var(--accent)] to-[var(--border-strong)] sm:w-16" />
-            <span className="stat-value text-[10px] uppercase tracking-widest text-[var(--text-dim)]">
+          <div className="flex shrink-0 flex-col items-center gap-1 px-0.5 sm:px-2">
+            <div className="h-px w-6 bg-gradient-to-r from-[var(--accent)] to-[var(--border-strong)] sm:w-16" />
+            <span className="stat-value text-[9px] uppercase tracking-widest text-[var(--text-dim)] sm:text-[10px]">
               pair
             </span>
-            <div className="h-px w-10 bg-gradient-to-l from-[var(--accent)] to-[var(--border-strong)] sm:w-16" />
+            <div className="h-px w-6 bg-gradient-to-l from-[var(--accent)] to-[var(--border-strong)] sm:w-16" />
           </div>
-          <div className="flex flex-col items-center gap-3">
-            <StockTokenMark size="lg" glow />
-            <p className="text-xs font-medium text-white">
+          <div className="flex min-w-0 flex-1 flex-col items-center gap-2 sm:flex-none sm:gap-3">
+            <span className="sm:hidden">
+              <StockTokenMark size="md" glow />
+            </span>
+            <span className="hidden sm:inline-flex">
+              <StockTokenMark size="lg" glow />
+            </span>
+            <p className="max-w-[7.5rem] text-center text-[11px] font-medium leading-snug text-white sm:max-w-none sm:text-xs">
               Tokenized {quote.symbol}
             </p>
           </div>

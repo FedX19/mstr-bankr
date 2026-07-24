@@ -25,13 +25,13 @@ export function HowTradingWorks() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="card relative overflow-hidden p-5 sm:p-6">
-            <div className="pointer-events-none absolute -right-6 -top-6 opacity-20">
-              <BrandMark size="lg" />
+            <div className="pointer-events-none absolute -right-6 -top-6 hidden opacity-20 sm:block">
+              <BrandMark size="lg" variant="transparent" />
             </div>
             <p className="card-label mb-3 text-[var(--positive)]">
               When someone buys
             </p>
-            <div className="mb-5 flex items-center gap-2 text-xs text-[var(--text-dim)]">
+            <div className="mb-5 flex flex-wrap items-center gap-2 text-xs text-[var(--text-dim)]">
               <span className="rounded-full border border-[var(--border)] px-2 py-1">
                 {quote.symbol} in
               </span>
@@ -70,13 +70,13 @@ export function HowTradingWorks() {
           </div>
 
           <div className="card relative overflow-hidden p-5 sm:p-6">
-            <div className="pointer-events-none absolute -right-6 -top-6 opacity-20">
-              <BrandMark size="lg" />
+            <div className="pointer-events-none absolute -right-6 -top-6 hidden opacity-20 sm:block">
+              <BrandMark size="lg" variant="transparent" />
             </div>
             <p className="card-label mb-3 text-[var(--negative)]">
               When someone sells
             </p>
-            <div className="mb-5 flex items-center gap-2 text-xs text-[var(--text-dim)]">
+            <div className="mb-5 flex flex-wrap items-center gap-2 text-xs text-[var(--text-dim)]">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2 py-1 text-[var(--accent)]">
                 <BrandMark size="xs" />
                 in

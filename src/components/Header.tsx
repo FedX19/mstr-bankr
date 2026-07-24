@@ -17,11 +17,11 @@ export function Header() {
   const live = isLive();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Link href="/" className="group flex shrink-0 items-center gap-2.5">
+    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/90 backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--bg)]/75">
+      <div className="mx-auto flex h-12 max-w-6xl items-center justify-between gap-3 px-3 sm:h-14 sm:gap-4 sm:px-6">
+        <Link href="/" className="group flex min-w-0 shrink items-center gap-2 sm:gap-2.5">
           <BrandMark size="xs" priority />
-          <span className="text-sm font-semibold tracking-tight text-[var(--text)] group-hover:text-white">
+          <span className="truncate text-sm font-semibold tracking-tight text-[var(--text)] group-hover:text-white">
             {siteConfig.projectName}
           </span>
         </Link>
@@ -41,7 +41,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <span className="badge badge-accent hidden sm:inline-flex">
             {live ? "Live" : "Prelaunch"}
           </span>
@@ -50,7 +50,7 @@ export function Header() {
               Trade
             </span>
           ) : (
-            <span className="badge hidden md:inline-flex">Trade disabled</span>
+            <span className="badge hidden lg:inline-flex">Trade disabled</span>
           )}
           <a
             href={siteConfig.officialX}
@@ -63,15 +63,16 @@ export function Header() {
         </div>
       </div>
 
+      {/* Horizontal scroll nav — primary mobile IA */}
       <nav
-        className="flex gap-4 overflow-x-auto border-t border-[var(--border)] px-4 py-2 xl:hidden"
+        className="flex gap-1 overflow-x-auto overscroll-x-contain border-t border-[var(--border)] px-2 py-1.5 [-ms-overflow-style:none] [scrollbar-width:none] xl:hidden [&::-webkit-scrollbar]:hidden"
         aria-label="Mobile"
       >
         {nav.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="shrink-0 text-[11px] font-medium uppercase tracking-wider text-[var(--text-dim)] transition-colors hover:text-[var(--text)]"
+            className="shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-[var(--text-dim)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text)] active:bg-[var(--bg-card)]"
           >
             {item.label}
           </Link>

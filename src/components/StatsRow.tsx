@@ -68,13 +68,13 @@ export function StatsRow({ data }: Props) {
 
   return (
     <section id="market" className="border-b border-[var(--border)]">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mb-4 flex flex-col gap-2 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-sm font-semibold tracking-tight text-white">
               Live market
             </h2>
-            <p className="mt-1 text-xs text-[var(--text-dim)]">
+            <p className="mt-1 text-xs leading-snug text-[var(--text-dim)]">
               {data.meta.isLive
                 ? `Last update: ${data.meta.lastUpdated ?? "—"} · Source: ${data.meta.source}`
                 : "Not live. Placeholders only — no fabricated sample values."}
@@ -87,26 +87,26 @@ export function StatsRow({ data }: Props) {
           ) : null}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className={`card p-4 ${
+              className={`card min-w-0 p-3 sm:p-4 ${
                 stat.highlight
                   ? "border-[var(--accent-border)] bg-[var(--accent-soft)]"
                   : ""
               }`}
             >
-              <p className="card-label mb-2 leading-snug">{stat.label}</p>
+              <p className="card-label mb-1.5 leading-snug sm:mb-2">{stat.label}</p>
               <p
-                className={`stat-value text-xl font-medium sm:text-2xl ${
+                className={`stat-value break-words text-lg font-medium sm:text-2xl ${
                   stat.highlight ? "text-[var(--accent)]" : "text-white"
                 }`}
               >
                 {stat.value}
               </p>
               {stat.sub ? (
-                <p className="mt-1.5 text-[11px] leading-snug text-[var(--text-dim)]">
+                <p className="mt-1 text-[10px] leading-snug text-[var(--text-dim)] sm:mt-1.5 sm:text-[11px]">
                   {stat.sub}
                 </p>
               ) : null}

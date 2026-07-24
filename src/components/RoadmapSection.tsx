@@ -62,11 +62,11 @@ export function RoadmapSection() {
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
           {roadmapPhases.slice(0, 4).map((p) => (
             <div
               key={p.id}
-              className={`card p-5 ${phaseStyles[p.status]}`}
+              className={`card p-4 sm:p-5 ${phaseStyles[p.status]}`}
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-dim)]">

@@ -26,7 +26,7 @@ export function RiskSummary() {
             </div>
             <Link
               href="/risks"
-              className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[rgba(239,68,68,0.35)] px-4 py-2.5 text-sm font-medium text-[var(--negative)] transition-opacity hover:opacity-85"
+              className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-[rgba(239,68,68,0.35)] px-4 py-2.5 text-sm font-medium text-[var(--negative)] transition-opacity hover:opacity-85 sm:w-auto"
             >
               Full risks
               <span aria-hidden>→</span>

@@ -47,10 +47,10 @@ export function Footer() {
 
   return (
     <footer className="relative overflow-hidden border-t border-[var(--border)]">
-      <div className="pointer-events-none absolute -bottom-24 -left-16 opacity-[0.12]">
-        <BrandMark size="xl" />
+      <div className="pointer-events-none absolute -bottom-20 -left-12 opacity-[0.14] sm:-bottom-24 sm:-left-16">
+        <BrandMark size="xl" variant="transparent" />
       </div>
-      <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6">
+      <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-md">
             <div className="flex items-center gap-3">
@@ -74,7 +74,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 sm:gap-x-10">
             {links.map((link) => {
               const content = (
                 <>

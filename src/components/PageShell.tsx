@@ -20,11 +20,11 @@ export function PageShell({
       <StatusBar />
       <Header />
       <main className="flex-1">
-        <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-          <div className="mb-6 flex items-center justify-between gap-4">
+        <article className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-16">
+          <div className="mb-5 flex items-center justify-between gap-4 sm:mb-6">
             <Link
               href={backHref}
-              className="text-xs font-medium uppercase tracking-wider text-[var(--text-dim)] transition-colors hover:text-[var(--text)]"
+              className="min-h-10 inline-flex items-center text-xs font-medium uppercase tracking-wider text-[var(--text-dim)] transition-colors hover:text-[var(--text)]"
             >
               {backLabel}
             </Link>

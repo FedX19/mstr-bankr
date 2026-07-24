@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { siteConfig } from "../lib/config";
 import "./globals.css";
@@ -16,6 +16,13 @@ const geistMono = Geist_Mono({
 const description =
   "Independent cultural meme whose primary market is denominated in tokenized MSTR exposure. Stock-paired on Robinhood Chain. Prelaunch — no official token is live.";
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#070708",
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     siteConfig.officialWebsite ?? "https://mstr-bankr.vercel.app",
@@ -23,8 +30,9 @@ export const metadata: Metadata = {
   title: `${siteConfig.projectName} — ${siteConfig.tagline}`,
   description,
   icons: {
-    icon: siteConfig.brand.tokenIcon,
-    apple: siteConfig.brand.tokenIcon,
+    icon: [{ url: siteConfig.brand.favicon, type: "image/png" }],
+    apple: [{ url: siteConfig.brand.favicon, type: "image/png" }],
+    shortcut: siteConfig.brand.favicon,
   },
   openGraph: {
     title: `${siteConfig.projectName} — ${siteConfig.tagline}`,
@@ -33,10 +41,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: siteConfig.brand.hero,
-        width: 1672,
-        height: 941,
-        alt: siteConfig.brand.heroAlt,
+        url: siteConfig.brand.ogShare,
+        width: 1731,
+        height: 909,
+        alt: siteConfig.brand.ogShareAlt,
       },
     ],
   },
@@ -45,7 +53,7 @@ export const metadata: Metadata = {
     title: `${siteConfig.projectName} — ${siteConfig.tagline}`,
     description:
       "Independent cultural meme denominated in tokenized MSTR exposure. Prelaunch — verify contracts before trading.",
-    images: [siteConfig.brand.hero],
+    images: [siteConfig.brand.ogShare],
   },
 };
 
@@ -59,7 +67,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-[var(--bg)] text-[var(--text)]">
+      <body className="flex min-h-full flex-col overflow-x-hidden bg-[var(--bg)] text-[var(--text)]">
         {children}
       </body>
     </html>
