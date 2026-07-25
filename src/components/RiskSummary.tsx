@@ -14,9 +14,10 @@ export function RiskSummary() {
                 Risk disclosure
               </p>
               <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-                Roaring Saylor is a highly speculative cultural token. It provides
-                no ownership in Strategy, {quote.displayName}s, Bitcoin, the
-                liquidity pool or the project company. Prices may fall to zero.
+                {siteConfig.projectName} is a highly speculative cultural meme.
+                It provides no ownership in Strategy, {quote.displayName}s,
+                Bitcoin, any liquidity pool, or the project company. Prices may
+                fall to zero. The proposed stock-paired market is not confirmed.
                 Robinhood Stock Tokens are restricted in the United States and
                 other jurisdictions.
               </p>

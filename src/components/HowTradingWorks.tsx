@@ -6,14 +6,21 @@ export function HowTradingWorks() {
   const quote = getQuoteAsset();
 
   return (
-    <section id="how-trading" className="border-b border-[var(--border)]">
+    <section id="mechanics" className="border-b border-[var(--border)]">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="card-label mb-2">Mechanics</p>
+            <p className="card-label mb-2">Proposed mechanics</p>
             <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-              How trading works
+              Stock-paired market (proposed)
             </h2>
+            <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
+              Intended primary market:{" "}
+              <strong className="text-white">{siteConfig.proposedPair}</strong>.
+              The pair is not yet confirmed. Launch remains subject to platform
+              support, liquidity testing, jurisdictional eligibility, and legal
+              review.
+            </p>
           </div>
           <Link
             href="/how-it-works"
@@ -29,7 +36,7 @@ export function HowTradingWorks() {
               <BrandMark size="lg" variant="transparent" />
             </div>
             <p className="card-label mb-3 text-[var(--positive)]">
-              When someone buys
+              When users buy (proposed)
             </p>
             <div className="mb-5 flex flex-wrap items-center gap-2 text-xs text-[var(--text-dim)]">
               <span className="rounded-full border border-[var(--border)] px-2 py-1">
@@ -41,31 +48,9 @@ export function HowTradingWorks() {
                 out
               </span>
             </div>
-            <ol className="relative space-y-3 text-sm text-[var(--text-muted)]">
-              <li className="flex gap-3">
-                <span className="stat-value shrink-0 text-[var(--text-dim)]">
-                  1
-                </span>
-                <span>Buyer supplies tokenized {quote.symbol}</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="stat-value shrink-0 text-[var(--text-dim)]">
-                  2
-                </span>
-                <span>Liquidity pool receives {quote.symbol}</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="stat-value shrink-0 text-[var(--text-dim)]">
-                  3
-                </span>
-                <span>
-                  Pool releases {siteConfig.projectName} tokens
-                </span>
-              </li>
-            </ol>
-            <p className="mt-5 border-t border-[var(--border)] pt-4 text-sm font-medium text-white">
-              Tokenized {quote.symbol} enters the pool.{" "}
-              {siteConfig.projectName} leaves the pool.
+            <p className="text-sm leading-relaxed text-[var(--text-muted)]">
+              When users buy through the proposed pool, tokenized MSTR enters
+              the pool and Roaring Stacker leaves it.
             </p>
           </div>
 
@@ -74,7 +59,7 @@ export function HowTradingWorks() {
               <BrandMark size="lg" variant="transparent" />
             </div>
             <p className="card-label mb-3 text-[var(--negative)]">
-              When someone sells
+              When users sell (proposed)
             </p>
             <div className="mb-5 flex flex-wrap items-center gap-2 text-xs text-[var(--text-dim)]">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2 py-1 text-[var(--accent)]">
@@ -86,43 +71,40 @@ export function HowTradingWorks() {
                 {quote.symbol} out
               </span>
             </div>
-            <ol className="space-y-3 text-sm text-[var(--text-muted)]">
-              <li className="flex gap-3">
-                <span className="stat-value shrink-0 text-[var(--text-dim)]">
-                  1
-                </span>
-                <span>
-                  Seller supplies {siteConfig.projectName} tokens
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="stat-value shrink-0 text-[var(--text-dim)]">
-                  2
-                </span>
-                <span>Liquidity pool receives the meme tokens</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="stat-value shrink-0 text-[var(--text-dim)]">
-                  3
-                </span>
-                <span>Pool releases tokenized {quote.symbol}</span>
-              </li>
-            </ol>
-            <p className="mt-5 border-t border-[var(--border)] pt-4 text-sm font-medium text-white">
-              {siteConfig.projectName} enters the pool. Tokenized{" "}
-              {quote.symbol} leaves the pool.
+            <p className="text-sm leading-relaxed text-[var(--text-muted)]">
+              When users sell, Roaring Stacker enters the pool and tokenized
+              MSTR leaves it.
             </p>
           </div>
         </div>
 
         <div className="card mt-4 border-[var(--border-strong)] p-5">
-          <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-            The pool&apos;s {quote.symbol} balance is{" "}
-            <strong className="text-white">dynamic</strong>. It is not a
-            permanent treasury, and tokenholders have{" "}
-            <strong className="text-white">no ownership claim</strong> over pool
-            assets. Exposure can increase on buys and decrease on sells.
-          </p>
+          <ul className="space-y-2 text-sm leading-relaxed text-[var(--text-muted)]">
+            <li>
+              • The MSTR balance is <strong className="text-white">dynamic</strong>
+            </li>
+            <li>
+              • It is{" "}
+              <strong className="text-white">not a permanent treasury</strong>
+            </li>
+            <li>
+              • Holders{" "}
+              <strong className="text-white">do not own</strong> the MSTR in
+              the pool
+            </li>
+            <li>
+              • The project token is{" "}
+              <strong className="text-white">not backed by MSTR</strong>
+            </li>
+            <li>
+              • The pair is{" "}
+              <strong className="text-white">not yet confirmed</strong>
+            </li>
+            <li>
+              • Launch remains subject to{" "}
+              <strong className="text-white">platform and legal approval</strong>
+            </li>
+          </ul>
         </div>
       </div>
     </section>

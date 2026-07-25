@@ -5,8 +5,7 @@ import { getQuoteAsset, siteConfig } from "../../lib/config";
 
 export const metadata: Metadata = {
   title: `How It Works — ${siteConfig.projectName}`,
-  description:
-    "How the stock-paired Roaring Saylor market works: buy and sell mechanics, dynamic pool composition, and fees.",
+  description: `How the proposed ${siteConfig.proposedPair} market would work: buy and sell mechanics, dynamic pool composition, and clear limits on what holders own.`,
 };
 
 export default function HowItWorksPage() {
@@ -21,104 +20,93 @@ export default function HowItWorksPage() {
         How it works
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-[var(--text-muted)]">
-        Roaring Saylor is a cultural meme token whose primary market is paired
-        against tokenized {quote.symbol} exposure on {siteConfig.chain.chainName}.
+        {siteConfig.projectName} is an independent cultural meme. The{" "}
+        <strong>proposed</strong> primary market pairs it with tokenized{" "}
+        {quote.symbol} exposure on {siteConfig.chain.chainName}. The pair is not
+        yet confirmed. Launch remains subject to platform and legal approval.
       </p>
 
       <hr className="section-rule my-10" />
 
       <section className="prose-section">
-        <h2>The primary pair</h2>
+        <h2>The proposed primary pair</h2>
         <p>
-          The market is{" "}
-          <strong>
-            {siteConfig.projectName} / tokenized {quote.symbol}
-          </strong>
-          . You trade the meme against tokenized {quote.symbol} — not against a
-          holder-owned stock reserve.
+          <strong>{siteConfig.proposedPair}</strong>. You would trade the meme
+          against tokenized {quote.symbol} — not against a holder-owned stock
+          reserve.
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>When someone buys</h2>
-        <ol>
-          <li>Buyer supplies tokenized {quote.symbol}.</li>
-          <li>The liquidity pool receives {quote.symbol}.</li>
-          <li>The pool releases Roaring Saylor tokens.</li>
-        </ol>
+        <h2>When users buy</h2>
         <p>
-          Result: tokenized {quote.symbol} enters the pool; meme tokens leave the
-          pool.
+          When users buy through the proposed pool, tokenized MSTR enters the
+          pool and Roaring Stacker leaves it.
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>When someone sells</h2>
-        <ol>
-          <li>Seller supplies Roaring Saylor tokens.</li>
-          <li>The liquidity pool receives the meme tokens.</li>
-          <li>The pool releases tokenized {quote.symbol}.</li>
-        </ol>
+        <h2>When users sell</h2>
         <p>
-          Result: meme tokens enter the pool; tokenized {quote.symbol} leaves the
-          pool.
+          When users sell, Roaring Stacker enters the pool and tokenized MSTR
+          leaves it.
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>Dynamic pool — not a treasury you own</h2>
-        <p>
-          {quote.symbol} exposure in the pool is <strong>dynamic</strong>. Buys
-          can increase it; sells can decrease it. It is not a permanent
-          holder-owned treasury.
-        </p>
-        <p>
-          Tokenholders have <strong>no ownership claim</strong> over pool
-          assets, no redemption rights, and no claim on creator fees.
-        </p>
-      </section>
-
-      <section className="prose-section">
-        <h2>Fees</h2>
-        <p>
-          Trading uses a {siteConfig.tradingFeeBps / 100}% swap fee under the
-          standard launch structure. Creator fees belong to the project company
-          and do not belong to tokenholders. There is no promise of buybacks,
-          price support, or stock purchases for holders.
-        </p>
-      </section>
-
-      <section className="prose-section">
-        <h2>About Stock Tokens</h2>
-        <p>
-          Robinhood Stock Tokens provide economic exposure to a referenced
-          security. They do not grant legal or beneficial ownership of the
-          company. They are unavailable in the United States and other
-          restricted jurisdictions.
-        </p>
-      </section>
-
-      <section className="prose-section">
-        <h2>Fair launch</h2>
+        <h2>What this means</h2>
         <ul>
-          <li>No presale</li>
-          <li>No creator allocation</li>
-          <li>No creator vesting</li>
           <li>
-            Network: {siteConfig.chain.chainName}
+            The MSTR balance is <strong>dynamic</strong>
+          </li>
+          <li>
+            It is <strong>not a permanent treasury</strong>
+          </li>
+          <li>
+            Holders <strong>do not own</strong> the MSTR in the pool
+          </li>
+          <li>
+            The project token is <strong>not backed by MSTR</strong>
+          </li>
+          <li>
+            The pair is <strong>not yet confirmed</strong>
+          </li>
+          <li>
+            Launch remains subject to <strong>platform and legal approval</strong>
           </li>
         </ul>
       </section>
 
-      <div className="card mt-8 border-[var(--accent-border)] bg-[var(--accent-soft)] p-6">
-        <p className="text-sm text-[var(--text-muted)]">
-          Prelaunch: no official token is live yet. When it launches, verify the
-          contract on the{" "}
-          <Link href="/transparency" className="link-accent">
-            Transparency
-          </Link>{" "}
-          page before trading.
+      <section className="prose-section">
+        <h2>Fees (if live)</h2>
+        <p>
+          Under a standard launch structure, trading would use a swap fee.
+          Creator fees would belong to the project company, not to
+          tokenholders. There are no promised buybacks, dividends, price floors,
+          or permanent MSTR purchases for holders.
         </p>
+      </section>
+
+      <section className="prose-section">
+        <h2>Eligibility</h2>
+        <p>
+          Robinhood Stock Tokens are restricted in the United States and other
+          jurisdictions. You are responsible for determining whether you can
+          participate.
+        </p>
+      </section>
+
+      <div className="card mt-10 border-[var(--accent-border)] bg-[var(--accent-soft)] p-5">
+        <p className="text-sm text-[var(--text-muted)]">
+          Prelaunch: no official token. Do not trust any contract unless
+          published on this site and the official social account.
+        </p>
+        <Link
+          href="/transparency"
+          className="mt-3 inline-flex text-sm font-medium text-[var(--accent)] hover:opacity-85"
+        >
+          Transparency →
+        </Link>
       </div>
     </PageShell>
   );

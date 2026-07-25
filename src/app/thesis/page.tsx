@@ -1,170 +1,183 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../../components/PageShell";
-import { getQuoteAsset, siteConfig } from "../../lib/config";
+import {
+  bearCase,
+  bullCase,
+  flywheelDisclaimer,
+  flywheelSteps,
+  invalidationConditions,
+} from "../../lib/content";
+import { siteConfig } from "../../lib/config";
 
 export const metadata: Metadata = {
-  title: `MSTR Thesis — ${siteConfig.projectName}`,
-  description:
-    "Balanced thesis on Strategy (MSTR) as a Bitcoin treasury company: bull case, bear case, capital structure risks, and why Roaring Saylor is a cultural market denominated in tokenized MSTR — not equity in Strategy.",
+  title: `Full Thesis — ${siteConfig.projectName}`,
+  description: siteConfig.metaDescription,
 };
 
 export default function ThesisPage() {
-  const quote = getQuoteAsset();
-  const { strategy } = siteConfig;
-
   return (
     <PageShell>
       <p className="mt-8 text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
-        {quote.symbol} Thesis
+        {siteConfig.projectName} Thesis
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-        Why {quote.symbol}?
+        {siteConfig.primarySlogan}
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-[var(--text-muted)]">
-        Strategy is the largest publicly traded Bitcoin treasury company. Roaring
-        Saylor turns the debate around that structure into an onchain cultural
-        market denominated in tokenized {quote.symbol} exposure.
+        {siteConfig.thesisLine} {siteConfig.catalystLine}
       </p>
       <p className="mt-3 text-sm text-[var(--text-dim)]">
-        Research snapshot as of {strategy.dataAsOf}. Market facts must be
-        refreshed from primary sources before publication.
+        {siteConfig.creed} — {siteConfig.communityName}.
       </p>
 
       <hr className="section-rule my-10" />
 
       <section className="prose-section">
-        <h2>What Roaring Saylor is (and is not)</h2>
+        <h2>The market&apos;s bearish view</h2>
         <p>
-          Roaring Saylor is an independent cultural meme. It is not Strategy
-          stock, not Bitcoin, not a share in the project company, and not
-          redeemable for {quote.symbol}. Holders have no rights to pool assets
-          and no affiliation with Strategy, Michael Saylor, Keith Gill, Robinhood
-          or Bankr.
+          Parts of the market have written off Bitcoin after a deep and painful
+          drawdown. Separately, parts of the market have written off Strategy
+          (MSTR) as a broken capital engine — too levered, too complex, or too
+          dependent on continuous access to equity and credit markets.
+        </p>
+        <p>
+          In that framing, MSTR is often reduced to a risky levered beta trade:
+          when Bitcoin falls, the equity story supposedly dies with it. The
+          possibility that MSTR strength could again support capital formation
+          and, over time, Bitcoin demand is discounted or ignored.
+        </p>
+      </section>
+
+      <section className="prose-section">
+        <h2>Our disagreement</h2>
+        <p>
+          Our thesis is that the market{" "}
+          <strong>may be underestimating</strong> the relationship between MSTR,
+          Strategy&apos;s access to capital, and future Bitcoin demand.
+        </p>
+        <p>
+          Bitcoin has been written off. MSTR&apos;s capital engine has been
+          written off. The Roaring Stacker thesis is that the market may have
+          both wrong.
+        </p>
+        <p>
+          This is a thesis, not a guaranteed causal chain. A higher MSTR price
+          does not automatically cause Strategy to raise capital, buy Bitcoin, or
+          move Bitcoin&apos;s price. Outcomes depend on financing conditions,
+          management decisions, Bitcoin prices, investor demand, and Strategy&apos;s
+          obligations.
         </p>
         <p className="accent-line">{siteConfig.tagline}</p>
       </section>
 
       <section className="prose-section">
-        <h2>Bull case (balanced)</h2>
-        <ul>
-          <li>
-            Strategy holds a large, publicly disclosed Bitcoin treasury (
-            <strong>{strategy.btcHoldings.toLocaleString()} BTC</strong> in the
-            research snapshot) — a pure-play vehicle for BTC exposure in equity
-            markets.
-          </li>
-          <li>
-            Capital structure can amplify upside when Bitcoin rises and when the
-            market assigns a premium to the treasury narrative.
-          </li>
-          <li>
-            Cultural recognition and crypto-native attention create durable meme
-            energy around the ticker.
-          </li>
-          <li>
-            Tokenized {quote.symbol} on {siteConfig.chain.chainName} enables an
-            onchain market that mirrors that debate without claiming ownership of
-            the underlying equity.
-          </li>
-        </ul>
-      </section>
-
-      <section className="prose-section">
-        <h2>Bear case (balanced)</h2>
-        <ul>
-          <li>
-            Capital structure works both ways: leverage, preferred stock and debt
-            can amplify drawdowns when Bitcoin falls or when refinancing becomes
-            difficult.
-          </li>
-          <li>
-            Dilution risk from equity or convertible issuance can pressure the
-            common stock.
-          </li>
-          <li>
-            Valuation premiums to net Bitcoin holdings can compress or reverse.
-          </li>
-          <li>
-            Bitcoin-sale risk: treasury policy could change; sales would alter the
-            narrative and asset base.
-          </li>
-          <li>
-            Short interest remains elevated (research: ~{strategy.shortInterestFloatPct}%
-            of float, {strategy.shortSharesNote}) — a double-edged factor, not a
-            free option on a squeeze.
-          </li>
-        </ul>
+        <h2>The MSTR–Bitcoin flywheel</h2>
+        <p>Potential sequence (if conditions allow):</p>
+        <ol>
+          {flywheelSteps.map((step) => (
+            <li key={step.id}>
+              <strong>{step.title}.</strong> {step.body}
+            </li>
+          ))}
+        </ol>
         <p>
-          Do not describe {quote.symbol} as low-risk or as having limited
-          downside.
+          Then the cycle may strengthen again —{" "}
+          <em>if</em> each link holds. That is the core of the Stacker view:
+          MSTR is the stock; Bitcoin is the stack; the stock{" "}
+          <em>may</em> be capable of restarting the stack.
+        </p>
+        <p>
+          <strong>Disclaimer:</strong> {flywheelDisclaimer}
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>Bitcoin sensitivity</h2>
+        <h2>Why the setup may matter now</h2>
         <p>
-          Strategy equity typically exhibits amplified beta to Bitcoin. That
-          makes it interesting as a cultural and financial narrative — and more
-          volatile than holding spot BTC alone. The stock-paired meme inherits
-          secondary market dynamics of tokenized {quote.symbol}, which may
-          diverge from the referenced equity and from Bitcoin.
+          When both Bitcoin and the corporate treasury narrative are deeply
+          discounted, the asymmetric question is not whether every path works —
+          it is whether the market has fully priced the possibility that capital
+          markets and Bitcoin demand could reinforce each other again.
+        </p>
+        <p>
+          Roaring Stacker is a Bitcoin-native cultural meme around that debate.
+          It is not Strategy equity, not Bitcoin ownership, and not a claim on
+          any treasury or pool.
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>Capital-structure complexity</h2>
-        <p>
-          Debt, preferred stock, convertibles and active capital markets activity
-          make Strategy harder to model than a simple BTC wrapper. Complexity is
-          both the thesis for some bulls and the core objection for bears.
-        </p>
-      </section>
-
-      <section className="prose-section">
-        <h2>What would weaken the story</h2>
+        <h2>What could go right</h2>
         <ul>
-          <li>
-            Strategy materially walking away from a Bitcoin treasury approach.
-          </li>
-          <li>
-            Tokenized {quote.symbol} markets becoming too thin to trade
-            responsibly.
-          </li>
-          <li>
-            Confusion that holders own pool assets or real company shares — they
-            do not.
-          </li>
+          {bullCase.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
         </ul>
       </section>
 
       <section className="prose-section">
-        <h2>How Roaring Saylor fits</h2>
+        <h2>What could go wrong</h2>
+        <ul>
+          {bearCase.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="prose-section">
+        <h2>Clear invalidation conditions</h2>
         <p>
-          The primary market is denominated in tokenized {quote.symbol}. Buyers
-          add {quote.symbol} exposure to the pool; sellers remove it. That is a
-          trading relationship, not a permanent holder-owned treasury. Creator
-          fees are project revenue, not holder income.
+          The thesis weakens materially if several of the following persist:
+        </p>
+        <ul>
+          {invalidationConditions.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="prose-section">
+        <h2>What Roaring Stacker is (and is not)</h2>
+        <p>
+          Roaring Stacker is an independent cultural meme. Working ticker: $
+          {siteConfig.ticker}. Community: {siteConfig.communityName}. Proposed
+          primary market: {siteConfig.proposedPair}. The pair is not yet
+          confirmed. No official token is live.
+        </p>
+        <p>
+          It is not Strategy stock, not Bitcoin, not redeemable for MSTR, not
+          backed by a holder-owned reserve, and not affiliated with Strategy,
+          Michael Saylor, Keith Gill, Robinhood, or Bankr.
         </p>
       </section>
 
       <div className="card mt-12 border-[var(--accent-border)] bg-[var(--accent-soft)] p-6">
-        <p className="text-sm text-[var(--text-muted)]">
-          This page is research and product framing — not investment advice.{" "}
-          {siteConfig.nonAffiliation}
+        <p className="text-base leading-relaxed text-white">
+          We are not waiting for the breakout to discover the thesis.
         </p>
-        <div className="mt-4 flex flex-wrap gap-4">
+        <p className="mt-4 text-sm leading-relaxed text-[var(--text-muted)]">
+          MSTR is the stock.
+          <br />
+          Bitcoin is the stack.
+          <br />
+          The stock may be capable of restarting the stack.
+        </p>
+        <p className="mt-4 text-lg font-semibold text-[var(--accent)]">
+          We like the stock.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-4">
           <Link
             href="/how-it-works"
             className="text-sm font-medium text-[var(--accent)] hover:opacity-85"
           >
-            How it works →
+            See how it works →
           </Link>
           <Link
             href="/risks"
-            className="text-sm font-medium text-[var(--accent)] hover:opacity-85"
+            className="text-sm font-medium text-[var(--text-muted)] hover:text-white"
           >
-            Risks →
+            Risks
           </Link>
         </div>
       </div>

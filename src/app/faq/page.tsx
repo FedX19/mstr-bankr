@@ -9,17 +9,17 @@ import {
 
 export const metadata: Metadata = {
   title: `FAQ — ${siteConfig.projectName}`,
-  description:
-    "Frequently asked questions about Roaring Saylor: stock-paired mechanics, ownership, availability, fees, and contract verification.",
+  description: `Frequently asked questions about ${siteConfig.projectName}: thesis, proposed stock-paired mechanics, ownership, and contract verification.`,
 };
 
 export default function FaqPage() {
   const quote = getQuoteAsset();
+  const name = siteConfig.projectName;
 
   const faqs: { q: string; a: string }[] = [
     {
-      q: "Is Roaring Saylor actual MSTR?",
-      a: "No. Roaring Saylor is an independent cultural meme token. It is not Strategy stock and not a claim on Strategy shares.",
+      q: `Is ${name} actual MSTR?`,
+      a: `No. ${name} is an independent cultural meme token. It is not Strategy stock and not a claim on Strategy shares.`,
     },
     {
       q: "Do holders own MSTR?",
@@ -27,27 +27,31 @@ export default function FaqPage() {
     },
     {
       q: "Is the token backed by MSTR?",
-      a: `No. The primary market is denominated in tokenized ${quote.symbol} through a liquidity pool. That is not the same as being “backed by” MSTR. Pool composition is dynamic and belongs to the liquidity position, not to holders.`,
+      a: `No. A proposed primary market denominated in tokenized ${quote.symbol} is not the same as being “backed by” MSTR. The project token is not backed by MSTR. Pool composition would be dynamic and belong to the liquidity position, not to holders.`,
     },
     {
-      q: "What happens when someone buys?",
-      a: `The buyer supplies tokenized ${quote.symbol}; the pool receives it and releases Roaring Saylor tokens. Tokenized ${quote.symbol} exposure in the pool increases.`,
+      q: "What happens when someone buys (if live)?",
+      a: `Through the proposed pool, tokenized MSTR would enter the pool and ${name} would leave it.`,
     },
     {
-      q: "What happens when someone sells?",
-      a: `The seller supplies Roaring Saylor tokens; the pool receives them and releases tokenized ${quote.symbol}. Tokenized ${quote.symbol} exposure in the pool decreases.`,
+      q: "What happens when someone sells (if live)?",
+      a: `${name} would enter the pool and tokenized MSTR would leave it.`,
     },
     {
       q: "Can the MSTR balance in the pool go down?",
-      a: `Yes. Sales remove tokenized ${quote.symbol} from the pool. The balance is dynamic, not a permanent treasury.`,
+      a: `Yes. Sales would remove tokenized ${quote.symbol} from the pool. The balance is dynamic, not a permanent treasury.`,
     },
     {
       q: "Who owns the liquidity-pool assets?",
-      a: "Economically, pool assets belong to the liquidity position and pool mechanics. Individual Roaring Saylor holders have no ownership claim over pool assets.",
+      a: `Economically, pool assets would belong to the liquidity position and pool mechanics. Individual ${name} holders have no ownership claim over pool assets.`,
     },
     {
       q: "Does every trade buy an actual share of Strategy?",
-      a: "No. Ordinary users trade existing secondary-market inventory of Stock Tokens. Primary issuance and redemption are limited to authorized participants.",
+      a: "No. Ordinary users would trade existing secondary-market inventory of Stock Tokens. Primary issuance and redemption are limited to authorized participants. Nothing forces Robinhood to buy shares on each retail trade.",
+    },
+    {
+      q: "Does a higher MSTR price force Strategy to buy Bitcoin?",
+      a: "No. That is not automatic. Our flywheel is a thesis that depends on financing conditions, management decisions, Bitcoin prices, investor demand, and Strategy’s obligations.",
     },
     {
       q: "What are Robinhood Stock Tokens?",
@@ -59,26 +63,26 @@ export default function FaqPage() {
     },
     {
       q: "Is there a presale or creator allocation?",
-      a: "No. The intended launch is a fair launch with no presale, no creator allocation, and no creator vesting.",
+      a: "None planned. The intended launch is a fair launch with no presale, no creator allocation, and no creator vesting — subject to platform and legal confirmation.",
     },
     {
       q: "How do creator fees work?",
-      a: `Trading uses a ${siteConfig.tradingFeeBps / 100}% swap fee under the standard launch structure. Creator fees belong to the project company, not to tokenholders. There are no promised buybacks or dividends.`,
+      a: `If trading goes live under a standard structure, a swap fee applies. Creator fees would belong to the project company, not to tokenholders. There are no promised buybacks, price floors, or permanent MSTR purchases for holders.`,
     },
     {
-      q: "Is Roaring Saylor affiliated with Strategy or Michael Saylor?",
+      q: `Is ${name} affiliated with Strategy or Michael Saylor?`,
       a: siteConfig.nonAffiliation,
     },
     {
       q: "Where do I verify the official contract?",
-      a: `On the Transparency page and official channels only. Current status: ${getMemeContractDisplay()}. During prelaunch, do not purchase any token claiming to represent this project.`,
+      a: `On the Transparency page and official channels only. Current status: ${getMemeContractDisplay()}. Do not trust any contract unless published on this official site and the official social account.`,
     },
     {
       q: "Is the token live?",
-      a: "Not yet. The project is in prelaunch. There is no official token contract to trade. Follow this site for the official launch announcement.",
+      a: "Not yet. The project is in prelaunch. There is no official token contract to trade.",
     },
     {
-      q: "Can the token go to zero?",
+      q: "Can I lose money?",
       a: "Yes. It is highly speculative. Prices may fall to zero. There is no price floor and no holder claim on pool assets.",
     },
   ];
@@ -92,38 +96,32 @@ export default function FaqPage() {
         Frequently asked questions
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-[var(--text-muted)]">
-        Straight answers. No hype.
+        Straight answers. If something is proposed rather than live, we say so.
       </p>
 
       <hr className="section-rule my-10" />
 
-      <div>
+      <div className="space-y-6">
         {faqs.map((item) => (
-          <div key={item.q} className="faq-item">
-            <h3>{item.q}</h3>
+          <section key={item.q} className="prose-section !mb-6">
+            <h2 className="!text-base">{item.q}</h2>
             <p>{item.a}</p>
-          </div>
+          </section>
         ))}
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-4">
-        <Link
-          href="/how-it-works"
-          className="text-sm font-medium text-[var(--accent)] hover:opacity-85"
-        >
-          How it works →
+      <div className="mt-10 flex flex-wrap gap-4 text-sm">
+        <Link href="/thesis" className="text-[var(--accent)] hover:opacity-85">
+          Full thesis →
         </Link>
-        <Link
-          href="/risks"
-          className="text-sm font-medium text-[var(--accent)] hover:opacity-85"
-        >
-          Risks →
+        <Link href="/risks" className="text-[var(--text-muted)] hover:text-white">
+          Risks
         </Link>
         <Link
           href="/transparency"
-          className="text-sm font-medium text-[var(--accent)] hover:opacity-85"
+          className="text-[var(--text-muted)] hover:text-white"
         >
-          Transparency →
+          Transparency
         </Link>
       </div>
     </PageShell>

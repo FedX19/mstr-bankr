@@ -1,28 +1,19 @@
 import { siteConfig } from "../lib/config";
 
 const shortMessages: Record<typeof siteConfig.launchStatus, string> = {
-  prelaunch: "PRELAUNCH — No official token is live yet.",
-  research: "PRELAUNCH — No official token is live yet.",
+  prelaunch: "PRELAUNCH — No official token is live.",
+  research: "PRELAUNCH — No official token is live.",
   cleared: "Launching soon — verify the contract when announced.",
   live: "LIVE — Verify the contract before trading.",
   paused: "PAUSED — Trading temporarily unavailable.",
-};
-
-const fullMessages: Record<typeof siteConfig.launchStatus, string> = {
-  prelaunch:
-    "PRELAUNCH — No official token is live. Do not purchase contracts claiming to represent this project.",
-  research:
-    "PRELAUNCH — No official token is live. Do not purchase contracts claiming to represent this project.",
-  cleared:
-    "Launching soon — Official contract will be published on this site first.",
-  live: "LIVE ON ROBINHOOD CHAIN — Verify the contract on this site before trading.",
-  paused: "PAUSED — Trading is temporarily unavailable.",
 };
 
 export function StatusBar() {
   const status = siteConfig.launchStatus;
   const isLive = status === "live";
   const isPaused = status === "paused";
+  const fullMessage =
+    siteConfig.statusMessages[status] ?? siteConfig.statusMessages.prelaunch;
 
   return (
     <div
@@ -35,7 +26,7 @@ export function StatusBar() {
             : "border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]"
       }`}
     >
-      <span className="inline-flex max-w-full items-center justify-center gap-2">
+      <span className="inline-flex max-w-4xl items-center justify-center gap-2">
         {!isLive && !isPaused ? (
           <span
             className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent)]"
@@ -49,7 +40,7 @@ export function StatusBar() {
           />
         ) : null}
         <span className="sm:hidden">{shortMessages[status]}</span>
-        <span className="hidden sm:inline">{fullMessages[status]}</span>
+        <span className="hidden sm:inline">{fullMessage}</span>
       </span>
     </div>
   );

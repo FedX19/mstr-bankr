@@ -20,7 +20,7 @@ export function WhatsNext() {
             What’s next
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
-            Roaring Saylor is in prelaunch. Here’s what that means for you.
+            Roaring Stacker is in prelaunch. Here’s what that means for you.
           </p>
         </div>
 

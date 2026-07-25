@@ -186,7 +186,7 @@ export const launchGates: LaunchGate[] = [
       "Name, ticker, domain, and socials checked; original art in place; no unauthorized likeness.",
     details: [
       "Original hero and token icon live on site",
-      "Ticker candidates still provisional ($ROAR first)",
+      "Ticker candidates still provisional ($STACKR first)",
       "Domain and social handle reservation pending",
       "Trademark / publicity counsel pending with Gate 2",
       "No copied Strategy or Roaring Kitty assets",

@@ -3,12 +3,11 @@ import { isLive, siteConfig } from "../lib/config";
 import { BrandMark } from "./BrandMark";
 
 const nav = [
-  { href: "/#product", label: "Product" },
-  { href: "/#market", label: "Market" },
+  { href: "/#thesis", label: "Thesis" },
+  { href: "/#flywheel", label: "Flywheel" },
   { href: "/how-it-works", label: "How It Works" },
-  { href: "/thesis", label: "Thesis" },
-  { href: "/#whats-next", label: "Status" },
-  { href: "/transparency", label: "Transparency" },
+  { href: "/thesis", label: "Full Thesis" },
+  { href: "/#transparency", label: "Transparency" },
   { href: "/risks", label: "Risks" },
   { href: "/faq", label: "FAQ" },
 ];
@@ -47,6 +46,9 @@ export function Header() {
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <span className="badge badge-accent hidden sm:inline-flex">
             {live ? "Live" : "Prelaunch"}
+          </span>
+          <span className="hidden text-xs text-[var(--text-dim)] md:inline">
+            ${siteConfig.ticker}
           </span>
           <a
             href={siteConfig.officialX}

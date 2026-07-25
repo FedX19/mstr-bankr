@@ -10,53 +10,54 @@ import { feePolicyPublic } from "../../lib/content";
 
 export const metadata: Metadata = {
   title: `Transparency — ${siteConfig.projectName}`,
-  description:
-    "Official contracts, fees, and verification details for Roaring Saylor.",
+  description: `Official status, contracts, and verification details for ${siteConfig.projectName}.`,
 };
 
 export default function TransparencyPage() {
   const quote = getQuoteAsset();
 
   const rows: { label: string; value: string; mono?: boolean }[] = [
+    { label: "Status", value: "Prelaunch" },
+    { label: "Official token", value: "Not deployed" },
     {
-      label: "Status",
-      value: "Prelaunch — no official token yet",
-    },
-    {
-      label: "Official meme contract",
+      label: "Official contract",
       value: getMemeContractDisplay(),
       mono: true,
     },
     {
-      label: `Canonical ${quote.symbol} Stock Token`,
+      label: "Proposed pair",
+      value: siteConfig.proposedPair,
+    },
+    {
+      label: `Canonical ${quote.symbol} Stock Token (reference)`,
       value: quote.address ?? "—",
       mono: true,
     },
     {
       label: "Pool address",
-      value: siteConfig.poolAddress ?? "Not live yet",
+      value: siteConfig.poolAddress ?? "Not available",
       mono: true,
     },
     {
       label: "Fee beneficiary",
-      value: siteConfig.feeBeneficiary ?? "Announced at launch",
+      value: siteConfig.feeBeneficiary ?? "Announced at launch if applicable",
       mono: true,
     },
     {
       label: "Deployment transaction",
-      value: siteConfig.deploymentTx ?? "Not live yet",
+      value: siteConfig.deploymentTx ?? "Not available",
       mono: true,
     },
-    { label: "Creator allocation", value: "None" },
-    { label: "Creator vesting", value: "None" },
-    { label: "Presale", value: "None" },
+    { label: "Presale", value: "None planned" },
+    { label: "Creator allocation", value: "None planned" },
+    { label: "Creator vesting", value: "None planned" },
     {
-      label: "Swap fee",
-      value: `${siteConfig.tradingFeeBps / 100}% (standard launch structure)`,
+      label: "Platform",
+      value: `${siteConfig.platformName}, ${siteConfig.platformStatus}`,
     },
     {
-      label: "Network",
-      value: siteConfig.chain.chainName,
+      label: "Chain",
+      value: siteConfig.chainStatus,
     },
     {
       label: "Explorer",
@@ -70,10 +71,10 @@ export default function TransparencyPage() {
         Transparency
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-        Contracts & verification
+        Status & verification
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-[var(--text-muted)]">
-        Use this page to confirm official addresses. Never trust a ticker or a
+        Use this page to confirm what is official. Never trust a ticker or a
         random link alone.
       </p>
 
@@ -99,77 +100,37 @@ export default function TransparencyPage() {
         </div>
       </div>
 
-      <section className="prose-section mt-10">
-        <h2>Before you trade</h2>
-        <ul>
-          <li>Confirm you are on this official website.</li>
-          <li>
-            Match the meme contract and {quote.symbol} address to this page.
-          </li>
-          <li>
-            Open the explorer links and double-check the address character by
-            character.
-          </li>
-          <li>
-            Ignore lookalike tokens, DMs, and “early launch” contracts.
-          </li>
-        </ul>
-      </section>
+      <div className="card mt-6 border-[rgba(239,68,68,0.35)] bg-[rgba(239,68,68,0.06)] p-5">
+        <p className="text-sm font-medium text-[var(--negative)]">
+          Impersonation warning
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">
+          Do not trust any contract unless it is published on this official site
+          and the official social account. Prelaunch: there is no official{" "}
+          {siteConfig.projectName} token. Do not send funds to addresses that
+          claim to represent this project.
+        </p>
+      </div>
 
-      <section className="prose-section">
-        <h2>Fees</h2>
+      <section className="prose-section mt-10">
+        <h2>Fee policy (if live)</h2>
         <p>{feePolicyPublic.summary}</p>
         <ul>
-          {feePolicyPublic.highlights.map((item) => (
-            <li key={item}>{item}</li>
+          {feePolicyPublic.highlights.map((h) => (
+            <li key={h}>{h}</li>
           ))}
         </ul>
       </section>
 
-      <section className="prose-section">
-        <h2>Links</h2>
-        <ul>
-          <li>
-            <a
-              href={siteConfig.chain.explorerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="link-accent"
-            >
-              Block explorer
-            </a>
-          </li>
-          {siteConfig.bankrLaunchUrl ? (
-            <li>
-              <a
-                href={siteConfig.bankrLaunchUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="link-accent"
-              >
-                Official launch page
-              </a>
-            </li>
-          ) : null}
-          <li>
-            <Link href="/risks" className="link-accent">
-              Risks
-            </Link>
-          </li>
-          <li>
-            <Link href="/faq" className="link-accent">
-              FAQ
-            </Link>
-          </li>
-        </ul>
-      </section>
-
-      <div className="card mt-8 border-[rgba(239,68,68,0.35)] bg-[rgba(239,68,68,0.06)] p-5">
-        <p className="text-sm text-[var(--text-muted)]">
-          Prelaunch: there is no official Roaring Saylor token. Do not send
-          funds to any address that is not published on this page after launch.
-        </p>
-      </div>
+      <p className="mt-8 text-sm text-[var(--text-dim)]">
+        <Link href="/risks" className="text-[var(--accent)] hover:opacity-85">
+          Read full risks
+        </Link>
+        {" · "}
+        <Link href="/faq" className="text-[var(--accent)] hover:opacity-85">
+          FAQ
+        </Link>
+      </p>
     </PageShell>
   );
 }

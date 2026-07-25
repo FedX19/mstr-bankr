@@ -1,40 +1,34 @@
-import { BrandShowcase } from "../components/BrandShowcase";
+import { BullVsBear } from "../components/BullVsBear";
+import { FaqSummary } from "../components/FaqSummary";
+import { Flywheel } from "../components/Flywheel";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { Hero } from "../components/Hero";
 import { HowTradingWorks } from "../components/HowTradingWorks";
-import { JurisdictionNotice } from "../components/JurisdictionNotice";
-import { MarketContext } from "../components/MarketContext";
-import { PoolVisualization } from "../components/PoolVisualization";
-import { ProductIdentity } from "../components/ProductIdentity";
+import { Invalidation } from "../components/Invalidation";
+import { MarketMissing } from "../components/MarketMissing";
 import { RiskSummary } from "../components/RiskSummary";
-import { StatsRow } from "../components/StatsRow";
 import { StatusBar } from "../components/StatusBar";
 import { ThesisPanel } from "../components/ThesisPanel";
 import { TransparencySummary } from "../components/TransparencySummary";
-import { WhatsNext } from "../components/WhatsNext";
-import { getDashboardData } from "../lib/data";
 
-export default async function Home() {
-  const data = await getDashboardData();
-
+export default function Home() {
   return (
     <>
       <StatusBar />
       <Header />
       <main className="flex-1">
-        <Hero data={data} />
-        <JurisdictionNotice />
-        <ProductIdentity />
-        <StatsRow data={data} />
-        <BrandShowcase />
-        <PoolVisualization data={data} />
-        <HowTradingWorks />
+        {/* 1 Prelaunch status · 2 Hero · 3 Thesis · 4 Flywheel · 5 Missing · 6 Mechanics · 7 Bull/Bear · 8 Invalidation · 9 Transparency · 10 Risks · 11 FAQ · 12 Footer */}
+        <Hero />
         <ThesisPanel />
-        <MarketContext data={data} />
-        <WhatsNext />
+        <Flywheel />
+        <MarketMissing />
+        <HowTradingWorks />
+        <BullVsBear />
+        <Invalidation />
         <TransparencySummary />
         <RiskSummary />
+        <FaqSummary />
       </main>
       <Footer />
     </>

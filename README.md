@@ -1,129 +1,81 @@
-# Roaring Saylor
+# Roaring Stacker
 
-Stock-paired cultural meme — primary market denominated in tokenized MSTR exposure on Robinhood Chain.
+> **WE LIKE THE STOCK.**  
+> MSTR is the stock. Bitcoin is the stack.  
+> The stock can restart the stack.
 
-> **We like the stock.**  
-> A Bitcoin treasury meme, denominated in MSTR.  
-> **The bid never sleeps.**
+Independent Bitcoin-native cultural meme built around the thesis that a recovery in MSTR **could** help reactivate Strategy’s capital engine and contribute to Bitcoin’s next major move.
 
-**Status: PRELAUNCH (Phase 1 — public research).**  
-No official token is live. Do not purchase contracts claiming to represent this project.
+**Community:** The Stackers  
+**Working ticker:** `$STACKR`  
+**Status:** Prelaunch — no official token  
+**Site:** https://mstr-bankr.vercel.app  
+**Repo:** https://github.com/FedX19/mstr-bankr
 
-**Production:** https://mstr-bankr.vercel.app
+## Core config
 
----
+Edit `src/lib/config.ts` — single source of truth:
 
-## Product model
-
-| Item | Value |
+| Field | Value |
 | --- | --- |
-| Primary market | Roaring Saylor / Robinhood MSTR Stock Token |
-| Chain | Robinhood Chain (chain ID `4663`) |
-| Launch | Bankr fair launch — no presale, no creator allocation, no vesting |
-| Fee beneficiary | Project multisig (subject to Bankr approval) |
-| Working ticker | `$ROAR` (candidates: ROAR, SAYLOR, BID, STACK) |
+| `projectName` | Roaring Stacker |
+| `ticker` | STACKR |
+| `communityName` | The Stackers |
+| `primarySlogan` | WE LIKE THE STOCK. |
+| `thesisLine` | MSTR is the stock. Bitcoin is the stack. |
+| `catalystLine` | The stock can restart the stack. |
+| `launchStatus` | `"prelaunch"` |
+| `tradingEnabled` | `false` |
 
-Pool composition is dynamic and verifiable onchain. Holders have **no claim** on pool assets.
+## Thesis (summary)
 
----
+The market may be underestimating the relationship between MSTR, Strategy’s access to capital, and future Bitcoin demand.
 
-## Site map
+Potential flywheel (thesis, not a guarantee):
 
-| Route | Content |
-| --- | --- |
-| `/` | Hero, product identity, market, pool, mechanics, thesis, roadmap, transparency, risks |
-| `/how-it-works` | Buy/sell, pool ownership, fees, Stock Token disclosure |
-| `/thesis` | Balanced MSTR bull/bear thesis |
-| `/roadmap` | Phases, hard gates, Bankr settings, fee policy, open questions |
-| `/transparency` | Contracts, fees, verification, launch gate status |
-| `/risks` | Full risk categories + non-affiliation |
-| `/faq` | Product + launch FAQ |
-| `/terms` | Terms of use |
-| `/privacy` | Privacy policy |
+MSTR Strength → Access to Capital → Potential BTC Purchases → Bitcoin Demand → BTC Appreciation → MSTR Asset Value → (back)
 
-Trade UI stays disabled until `launchStatus === "live"` and `tradingEnabled === true`.
+A higher MSTR price does **not** automatically cause Strategy to raise capital or buy Bitcoin.
 
----
+## Proposed market
 
-## Roadmap (summary)
+**Roaring Stacker / tokenized MSTR**
 
-| Phase | Status | Meaning |
-| --- | --- | --- |
-| 0 Build & verify | **Complete** | Website + stock-paired product packaging |
-| 1 Public research | **Current** | Site live without a token |
-| 2 Clearance | Next | Bankr + counsel + liquidity + brand |
-| 3 Token launch | Later | Human-approved Bankr deploy only |
-| 4–6 Ops | Later | First day / week / ongoing |
+- Buy: tokenized MSTR enters the pool; Roaring Stacker leaves it  
+- Sell: Roaring Stacker enters the pool; tokenized MSTR leaves it  
+- MSTR balance is dynamic — not a permanent treasury  
+- Holders do **not** own pool MSTR  
+- Token is **not** backed by MSTR  
+- Pair **not yet confirmed** — subject to platform and legal approval  
 
-### Hard gates
+## What we do not claim
 
-| Gate | Status |
-| --- | --- |
-| Website readiness | **Done** |
-| Bankr confirmation | Human / pending |
-| Securities counsel | Human / pending |
-| Liquidity validation | Human / pending |
-| Security review | In progress (ops) |
-| Brand review | In progress (handles / counsel) |
-
-**Do not deploy the token until every gate is done.**
-
-Full detail: `/roadmap` and `src/lib/launch.ts`.
-
----
-
-## Configure
-
-Single source of truth: `src/lib/config.ts`.
-
-| Field | Purpose |
-| --- | --- |
-| `launchStatus` | `research` \| `prelaunch` \| `cleared` \| `live` \| `paused` |
-| `tradingEnabled` | Must stay `false` until launch gates clear |
-| `quoteAssetKey` | `MSTR` (fallback: `COIN` → `PLTR` → `TSLA`) |
-| `memeTokenAddress` | Official CA — `null` until launch |
-| `poolAddress` / `poolId` | After launch |
-| `feeBeneficiary` | Public creator-fee wallet |
-| `officialX` | Project-owned handle when reserved |
-| `brand.*` | Hero, token icon, MSTR mark paths |
-
-Roadmap/gates/fee policy: `src/lib/launch.ts`.
-
----
+- No permanent fee-funded MSTR accumulation  
+- No MSTR-backed token  
+- No creator-fee price floor  
+- No holder claim on a reserve  
+- No “every buy buys shares / forces Robinhood buys”  
+- No coordinated squeeze narrative  
 
 ## Stack
 
-- Next.js 16 (App Router)
-- TypeScript
-- Tailwind CSS v4
+- Next.js (App Router) · TypeScript · Tailwind CSS v4
 
 ```bash
 npm install
 npm run dev
-```
-
-```bash
 npm run build
-npm start
+npm run lint
 ```
 
----
+## Brand
 
-## Operator checklist before token launch
+Treasury Lion mascot, red headband, orange eyes, dark command-center artwork, mobile crop, token icon, vault background — orange/graphite design system under `/public/brand`.
 
-1. Written Bankr answers to the 10 stock-pair questions in `/roadmap`
-2. Securities counsel memo on file
-3. Non-U.S. liquidity tests at $100 / $1k / $5k / $10k
-4. Project entity + 2-of-3 hardware multisig labeled “Roaring Saylor Creator Fees”
-5. Domain + X (and other socials) reserved and linked in config
-6. Final ticker chosen after conflict / trademark checks
-7. Security review signed off
-8. On Transparency page: publish contract, pool, fee beneficiary, Bankr URL **before** any trade CTA
-9. Human explicitly approves Bankr deployment
-10. Flip config: `launchStatus: "live"`, `tradingEnabled: true` only after publish
+## Safety
 
----
+Do not deploy a token, invent financial data, or publish a contract from this repo without human approval. Research figures require a source and date or display “Data source pending.”
 
-## Disclaimers
+## Disclaimer
 
-Not financial advice. Not affiliated with Strategy, Michael Saylor, Keith Gill, Robinhood Markets, Robinhood Assets (Jersey) Limited, Bankr or Doppler. Robinhood Stock Tokens are restricted in the United States and other jurisdictions. DYOR.
+Not financial advice. Not affiliated with Strategy, Michael Saylor, Keith Gill, Robinhood Markets, Robinhood Assets (Jersey) Limited, Bankr or Doppler. DYOR.

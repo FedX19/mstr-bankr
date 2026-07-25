@@ -1,13 +1,8 @@
 import Link from "next/link";
-import {
-  getMemeContractDisplay,
-  getQuoteAsset,
-  siteConfig,
-} from "../lib/config";
+import { getMemeContractDisplay, siteConfig } from "../lib/config";
 import { BrandMark } from "./BrandMark";
 
 export function Footer() {
-  const quote = getQuoteAsset();
   const contract = getMemeContractDisplay();
 
   const links: {
@@ -30,10 +25,8 @@ export function Footer() {
       label: "Explorer",
       href: siteConfig.chain.explorerUrl,
     },
-    ...(siteConfig.bankrLaunchUrl
-      ? [{ label: "Trade", href: siteConfig.bankrLaunchUrl }]
-      : []),
     { label: "X", href: siteConfig.officialX },
+    { label: "GitHub", href: siteConfig.officialGitHub },
     { label: "How It Works", href: "/how-it-works", internal: true },
     { label: "Thesis", href: "/thesis", internal: true },
     { label: "Risks", href: "/risks", internal: true },
@@ -63,8 +56,8 @@ export function Footer() {
               </div>
             </div>
             <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
-              {siteConfig.secondarySlogan} Primary market: meme / tokenized{" "}
-              {quote.symbol}.
+              {siteConfig.thesisLine} {siteConfig.catalystLine} Community:{" "}
+              {siteConfig.communityName}. Working ticker: ${siteConfig.ticker}.
             </p>
             <p className="mt-3 text-xs leading-relaxed text-[var(--text-dim)]">
               {siteConfig.riskStatement}
@@ -121,7 +114,7 @@ export function Footer() {
           </p>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[11px] text-[var(--text-dim)]">
-              {siteConfig.supportingPhrase}
+              {siteConfig.creed}
             </p>
             <p className="text-[11px] text-[var(--text-dim)]">
               © {new Date().getFullYear()} {siteConfig.projectName}

@@ -33,7 +33,7 @@ export default function TermsPage() {
       <section className="prose-section">
         <h2>2. About the project</h2>
         <p>
-          Roaring Saylor is an independent cultural project. During prelaunch
+          Roaring Stacker is an independent cultural project. During prelaunch
           there is no official token. Any third-party token claiming to represent
           this project is unauthorized.
         </p>

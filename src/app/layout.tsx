@@ -13,9 +13,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const description =
-  "Independent cultural meme whose primary market is denominated in tokenized MSTR exposure. Stock-paired on Robinhood Chain. Prelaunch — no official token is live.";
-
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -32,10 +29,8 @@ export const metadata: Metadata = {
     siteConfig.officialWebsite ?? "https://mstr-bankr.vercel.app",
   ),
   applicationName: siteConfig.projectName,
-  title: `${siteConfig.projectName} — ${siteConfig.tagline}`,
-  description,
-  // File conventions (app/favicon.ico, icon.png, apple-icon.png) also apply.
-  // Explicit icons cover multi-size browser + iOS + Android / web-app install.
+  title: siteConfig.metaTitle,
+  description: siteConfig.metaDescription,
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -77,9 +72,8 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: `${siteConfig.projectName} — ${siteConfig.tagline}`,
-    description:
-      "A Bitcoin treasury meme, denominated in MSTR. Stock-paired cultural market. Not affiliated with Strategy, Michael Saylor, Keith Gill, Robinhood or Bankr.",
+    title: siteConfig.metaTitle,
+    description: siteConfig.metaDescription,
     type: "website",
     images: [
       {
@@ -92,9 +86,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.projectName} — ${siteConfig.tagline}`,
-    description:
-      "Independent cultural meme denominated in tokenized MSTR exposure. Prelaunch — verify contracts before trading.",
+    title: siteConfig.metaTitle,
+    description: siteConfig.metaDescription,
     images: [siteConfig.brand.ogShare],
   },
 };
@@ -104,12 +97,29 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.projectName,
+    description: siteConfig.metaDescription,
+    url: siteConfig.officialWebsite,
+    about: {
+      "@type": "Thing",
+      name: "Roaring Stacker thesis",
+      description: siteConfig.thesisLine,
+    },
+  };
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col overflow-x-hidden bg-[var(--bg)] text-[var(--text)]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {children}
       </body>
     </html>

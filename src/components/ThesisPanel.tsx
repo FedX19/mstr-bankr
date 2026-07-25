@@ -1,19 +1,9 @@
 import Link from "next/link";
-import { getQuoteAsset, siteConfig } from "../lib/config";
+import { thesisSummaryBullets } from "../lib/content";
+import { siteConfig } from "../lib/config";
 import { BrandMark } from "./BrandMark";
 
 export function ThesisPanel() {
-  const quote = getQuoteAsset();
-  const { strategy } = siteConfig;
-
-  const bullets = [
-    "Bitcoin-native audience and cultural overlap with treasury narratives.",
-    "Public-market volatility that maps cleanly to meme-market energy.",
-    "Strong bullish and bearish camps — a genuine debate, not a one-sided cheer.",
-    "Recognizable Bitcoin treasury story in public equities.",
-    `Direct fit with ${siteConfig.chain.chainName}'s tokenized-equity market structure.`,
-  ];
-
   return (
     <section id="thesis" className="border-b border-[var(--border)]">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
@@ -21,18 +11,17 @@ export function ThesisPanel() {
           <div className="lg:col-span-3">
             <p className="card-label mb-2">Thesis summary</p>
             <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-              Why {quote.symbol}?
+              The market may have both wrong
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
-              Strategy is the largest publicly traded Bitcoin treasury company.
-              Its common stock provides amplified exposure to Bitcoin through an
-              actively managed capital structure. The market remains divided over
-              whether that structure represents an advantage or a liability.
-              Roaring Saylor turns that debate into an onchain cultural market.
+              Our thesis is that the market may be underestimating the
+              relationship between MSTR, Strategy&apos;s access to capital, and
+              future Bitcoin demand. This is a thesis — not a guaranteed causal
+              chain.
             </p>
 
             <ul className="mt-8 space-y-4">
-              {bullets.map((b) => (
+              {thesisSummaryBullets.map((b) => (
                 <li
                   key={b}
                   className="flex gap-3 text-sm leading-relaxed text-[var(--text-muted)]"
@@ -63,36 +52,31 @@ export function ThesisPanel() {
                 <BrandMark size="lg" />
               </div>
               <p className="card-label mb-2 text-[var(--accent)]">
-                Research context
+                Core lines
               </p>
-              <p className="stat-value text-4xl font-medium text-white">
-                {strategy.shortInterestFloatPct}%+
+              <p className="text-lg font-semibold leading-snug text-white">
+                {siteConfig.thesisLine}
               </p>
-              <p className="mt-1 text-sm text-[var(--text-muted)]">
-                short interest of float · {strategy.shortSharesNote}
+              <p className="mt-3 text-sm text-[var(--text-muted)]">
+                {siteConfig.catalystLine}
               </p>
-              <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
-                {strategy.shortInterestCallout} Snapshot as of{" "}
-                {strategy.dataAsOf} — figures change over time.
+              <p className="mt-4 text-xs uppercase tracking-wider text-[var(--text-dim)]">
+                {siteConfig.creed}
               </p>
             </div>
 
             <div className="card p-5">
-              <div className="mb-3 flex items-center gap-3">
-                <BrandMark size="xs" />
-                <p className="card-label mb-0">What this is not</p>
-              </div>
+              <p className="card-label mb-2">What this is not</p>
               <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-                Not a claim that {quote.symbol} has limited downside. Not a
-                short-squeeze product. Not affiliation with Strategy or any
-                public figure. A cultural market denominated in tokenized{" "}
-                {quote.symbol} exposure.
+                Not a claim that MSTR has limited downside. Not a short-squeeze
+                product. Not a promise that Strategy will raise capital or buy
+                Bitcoin. Not affiliation with Strategy or any public figure.
               </p>
               <p className="mt-4 text-xs font-medium uppercase tracking-wider text-[var(--text-dim)]">
-                Supporting phrase
+                Community
               </p>
               <p className="mt-1 text-sm text-white">
-                {siteConfig.supportingPhrase}
+                {siteConfig.communityName}
               </p>
             </div>
           </div>

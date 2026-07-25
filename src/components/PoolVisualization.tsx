@@ -21,7 +21,7 @@ export function PoolVisualization({ data }: Props) {
             The meme is denominated in {quote.symbol}
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
-            Trading Roaring Saylor changes the amount of tokenized {quote.symbol}{" "}
+            Trading Roaring Stacker changes the amount of tokenized {quote.symbol}{" "}
             exposure held by the primary liquidity pool. Pool assets belong to
             the liquidity position — not to individual tokenholders.
           </p>

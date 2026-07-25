@@ -7,9 +7,8 @@ import { siteConfig } from "../lib/config";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: siteConfig.projectName,
-    short_name: "Roaring Saylor",
-    description:
-      "Independent cultural meme denominated in tokenized MSTR exposure. We like the stock.",
+    short_name: "Roaring Stacker",
+    description: siteConfig.metaDescription,
     start_url: "/",
     display: "standalone",
     background_color: "#070708",

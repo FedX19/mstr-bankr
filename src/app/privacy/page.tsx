@@ -5,7 +5,7 @@ import { siteConfig } from "../../lib/config";
 export const metadata: Metadata = {
   title: `Privacy — ${siteConfig.projectName}`,
   description:
-    "Privacy practices for the Roaring Saylor website. Minimal data collection; no seed phrases; no unnecessary location logging.",
+    "Privacy practices for the Roaring Stacker website. Minimal data collection; no seed phrases; no unnecessary location logging.",
 };
 
 export default function PrivacyPage() {

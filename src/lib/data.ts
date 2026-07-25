@@ -44,8 +44,8 @@ export type DashboardData = {
     tradingFeeBps: number;
   };
   market: {
-    btcHoldings: number;
-    shortInterestFloatPct: number;
+    btcHoldings: number | null;
+    shortInterestFloatPct: number | null;
     cycleNote: string;
     stockSymbol: string;
   };

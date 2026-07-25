@@ -1,4 +1,4 @@
-import { getQuoteAsset, siteConfig } from "../lib/config";
+import { getQuoteAsset, siteConfig, strategyDataLabel } from "../lib/config";
 import type { DashboardData } from "../lib/data";
 import { formatBtc, formatNumber } from "../lib/format";
 
@@ -19,18 +19,18 @@ export function MarketContext({ data }: Props) {
             Bitcoin, {quote.symbol} & the thesis
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
-            Research context only — not live trading signals. Token performance
-            charts will appear after launch.
+            Research context only. Live financial figures require a source and
+            date; otherwise we show “Data source pending.”
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="card p-5">
-            <p className="card-label mb-3">Why it matters</p>
+            <p className="card-label mb-3">Why it may matter</p>
             <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-              Strategy is widely watched as a public Bitcoin treasury company.
-              That debate — bullish and bearish — is the cultural backdrop for
-              this market.
+              Our thesis is that the market may understate the link between MSTR,
+              Strategy&apos;s access to capital, and Bitcoin demand. That is a
+              thesis — not a guarantee.
             </p>
           </div>
 
@@ -39,21 +39,22 @@ export function MarketContext({ data }: Props) {
               {siteConfig.strategy.name} BTC holdings
             </p>
             <p className="stat-value text-3xl font-medium text-white">
-              {formatNumber(holdings)}
+              {holdings != null ? formatNumber(holdings) : "—"}
             </p>
             <p className="mt-1 text-sm text-[var(--accent)]">
-              BTC (research snapshot)
+              {holdings != null
+                ? "BTC (research snapshot)"
+                : siteConfig.strategy.dataNote}
             </p>
             <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
-              About {formatBtc(holdings)} as of {siteConfig.strategy.dataAsOf}.
-              Figures change; check primary sources for updates.
+              {holdings != null
+                ? `About ${formatBtc(holdings)}. ${strategyDataLabel()}`
+                : strategyDataLabel()}
             </p>
           </div>
 
           <div className="card p-5">
-            <p className="card-label mb-3">
-              {quote.symbol} vs pure BTC
-            </p>
+            <p className="card-label mb-3">{quote.symbol} vs pure BTC</p>
             <p className="text-sm leading-relaxed text-[var(--text-muted)]">
               Strategy stock can move with{" "}
               <span className="text-white">amplified sensitivity</span> to

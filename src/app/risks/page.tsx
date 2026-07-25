@@ -4,14 +4,17 @@ import { getQuoteAsset, siteConfig } from "../../lib/config";
 
 export const metadata: Metadata = {
   title: `Risks — ${siteConfig.projectName}`,
-  description:
-    "Risk disclosures for Roaring Saylor: meme-token risk, MSTR and Bitcoin risk, Stock Token issuer risk, liquidity, oracle, smart-contract, regulatory and jurisdictional risk.",
+  description: `Risk disclosures for ${siteConfig.projectName}: meme-token risk, MSTR and Bitcoin risk, Stock Token issuer risk, liquidity, oracle, smart-contract, regulatory and jurisdictional risk.`,
 };
 
 const riskCategories: { title: string; body: string }[] = [
   {
     title: "Meme-token risk",
-    body: "Roaring Saylor is a highly speculative cultural token. It may lose some or all of its value. It provides no equity, debt, ownership, income, dividends, voting, redemption or liquidation rights.",
+    body: `${siteConfig.projectName} is a highly speculative cultural meme. It may lose some or all of its value. It provides no equity, debt, ownership, income, dividends, voting, redemption or liquidation rights.`,
+  },
+  {
+    title: "Thesis risk",
+    body: "The MSTR–Bitcoin capital-engine thesis may be wrong. A higher MSTR price does not automatically cause Strategy to raise capital or purchase Bitcoin. Financing, management decisions, Bitcoin prices, demand, and obligations all matter.",
   },
   {
     title: "MSTR market risk",
@@ -27,7 +30,7 @@ const riskCategories: { title: string; body: string }[] = [
   },
   {
     title: "Liquidity risk",
-    body: "Tokenized MSTR markets may be thin. Spreads, price impact and failed quotes can be severe, especially outside U.S. market hours or during volatility. Illiquid pairs may force a quote-asset fallback.",
+    body: "Tokenized MSTR markets may be thin. Spreads, price impact and failed quotes can be severe. Illiquid pairs may prevent a healthy stock-paired launch or force a quote-asset fallback.",
   },
   {
     title: "Oracle risk",
@@ -43,7 +46,7 @@ const riskCategories: { title: string; body: string }[] = [
   },
   {
     title: "Regulatory risk",
-    body: "Securities, commodities, consumer-protection and tax regimes may change. Platform or issuer actions can restrict trading, transfers or access without notice.",
+    body: "Securities, commodities, consumer-protection and tax regimes may change. Platform or issuer actions can restrict trading, transfers or access without notice. The proposed launch remains subject to legal review.",
   },
   {
     title: "Jurisdictional restrictions",
@@ -51,19 +54,19 @@ const riskCategories: { title: string; body: string }[] = [
   },
   {
     title: "Counterparty risk",
-    body: "Bankr, Doppler, Robinhood entities, market makers, RPC providers and data vendors are external counterparties. Failures or policy changes can affect the product.",
+    body: "Bankr, Doppler, Robinhood entities, market makers, RPC providers and data vendors are external counterparties. Failures or policy changes can affect the product. Platform support for a stock-paired launch is not confirmed.",
   },
   {
     title: "Creator-fee conflicts",
-    body: "Creator fees belong to the project company, not tokenholders. Fee beneficiaries may have incentives that differ from holders. Fee denomination and routing for stock-paired pools require Bankr confirmation.",
+    body: "If live, creator fees would belong to the project company, not tokenholders. Fee beneficiaries may have incentives that differ from holders. There are no promised buybacks, price floors, or permanent MSTR purchases for holders.",
   },
   {
     title: "Website and data-source risk",
-    body: "Dashboards can show stale, incomplete or incorrect data. Always verify contracts and balances onchain. Phishing sites and fake contracts are common.",
+    body: "Dashboards can show stale, incomplete or incorrect data. Always verify contracts and balances onchain. Phishing sites and fake contracts are common. Research figures without a source and date are shown as data source pending.",
   },
   {
-    title: "No permanent treasury",
-    body: "Pool MSTR exposure is dynamic. Sells reduce pool exposure. Holders do not own pool assets. There is no promise of permanent MSTR accumulation for holders.",
+    title: "No permanent treasury / no MSTR backing",
+    body: "Pool MSTR exposure would be dynamic. Sells reduce pool exposure. Holders do not own pool assets. The project token is not backed by MSTR. There is no promise of permanent MSTR accumulation for holders.",
   },
 ];
 
@@ -79,8 +82,8 @@ export default function RisksPage() {
         Risks
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-[var(--text-muted)]">
-        Read carefully. Roaring Saylor is not suitable for anyone who cannot
-        afford total loss of capital.
+        Read carefully. {siteConfig.projectName} is not suitable for anyone who
+        cannot afford total loss of capital.
       </p>
 
       <hr className="section-rule my-10" />
@@ -106,10 +109,11 @@ export default function RisksPage() {
       <section className="prose-section">
         <h2>Primary market context</h2>
         <p>
-          The intended pair is Roaring Saylor / tokenized {quote.symbol}. Fallback
-          quote assets may be used if liquidity or platform constraints require
-          it. Any change will flow through central configuration and public
-          disclosure — not silent redesign.
+          The proposed pair is {siteConfig.proposedPair}. The pair is not yet
+          confirmed. Fallback quote assets may be used if liquidity or platform
+          constraints require it. Any change will flow through central
+          configuration and public disclosure — not silent redesign. Tokenized{" "}
+          {quote.symbol} remains subject to issuer and jurisdictional rules.
         </p>
       </section>
     </PageShell>
