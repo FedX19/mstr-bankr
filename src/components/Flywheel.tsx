@@ -1,3 +1,6 @@
+import { siteConfig } from "../lib/config";
+import { MascotFrame } from "./MascotFrame";
+
 const steps = [
   "MSTR Strength",
   "Access to Capital",
@@ -11,24 +14,44 @@ export function Flywheel() {
   return (
     <section id="flywheel" className="border-b border-[var(--border)]">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
-        <div className="mb-8 max-w-2xl">
-          <p className="card-label mb-2">Capital engine</p>
-          <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-            MSTR–Bitcoin flywheel
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
-            Our thesis is that a sustained MSTR recovery could improve
-            Strategy&apos;s financing flexibility. If new capital is raised and
-            deployed into Bitcoin, the capital engine may contribute to
-            Bitcoin&apos;s next major move.
-          </p>
-          <p className="mt-2 text-sm font-medium text-[var(--accent)]">
-            This is a thesis, not a guaranteed causal chain.
-          </p>
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:gap-10">
+          <div>
+            <p className="card-label mb-2">Capital engine</p>
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              MSTR–Bitcoin flywheel
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
+              Our thesis is that a sustained MSTR recovery could improve
+              Strategy&apos;s financing flexibility. If new capital is raised and
+              deployed into Bitcoin, the capital engine may contribute to
+              Bitcoin&apos;s next major move.
+            </p>
+            <p className="mt-2 text-sm font-medium text-[var(--accent)]">
+              This is a thesis, not a guaranteed causal chain.
+            </p>
+
+            <p className="mt-5 rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-3 text-sm leading-relaxed text-white">
+              Buy ${siteConfig.ticker} → tokenized MSTR enters the pool → the
+              market grows → the thesis spreads → repeat.
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-[var(--text-dim)]">
+              Buying ${siteConfig.ticker} through the MSTR pair adds tokenized
+              MSTR exposure to the pool. Holders do not own pool assets, MSTR, or
+              Bitcoin.
+            </p>
+          </div>
+
+          <div className="mx-auto w-full max-w-md lg:max-w-none">
+            <MascotFrame
+              src={siteConfig.brand.flywheel}
+              alt={siteConfig.brand.flywheelAlt}
+              sizes="(max-width: 1024px) 100vw, 480px"
+            />
+          </div>
         </div>
 
         {/* Desktop horizontal */}
-        <div className="hidden flex-wrap items-center justify-center gap-2 lg:flex">
+        <div className="mt-10 hidden flex-wrap items-center justify-center gap-2 lg:flex">
           {steps.map((step, i) => (
             <div key={step} className="flex items-center gap-2">
               <div className="flywheel-node card border-[var(--accent-border)]/50 px-3 py-2.5">
@@ -54,7 +77,7 @@ export function Flywheel() {
         </div>
 
         {/* Mobile vertical */}
-        <ol className="space-y-0 lg:hidden">
+        <ol className="mt-8 space-y-0 lg:hidden">
           {steps.map((step, i) => (
             <li key={step} className="flex gap-3 pb-3 last:pb-0">
               <div className="flex flex-col items-center">

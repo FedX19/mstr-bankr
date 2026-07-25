@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { MascotFrame } from "../../components/MascotFrame";
 import { PageShell } from "../../components/PageShell";
 import {
   bearCase,
@@ -31,6 +32,14 @@ export default function ThesisPage() {
         {siteConfig.creed} — {siteConfig.communityName}.
       </p>
 
+      <div className="not-prose mx-auto mt-8 max-w-lg">
+        <MascotFrame
+          src={siteConfig.brand.thesis}
+          alt={siteConfig.brand.thesisAlt}
+          sizes="(max-width: 768px) 100vw, 520px"
+        />
+      </div>
+
       <hr className="section-rule my-10" />
 
       <section className="prose-section">
@@ -50,7 +59,7 @@ export default function ThesisPage() {
       </section>
 
       <section className="prose-section">
-        <h2>Our disagreement</h2>
+        <h2>MSTR capital engine</h2>
         <p>
           Our thesis is that the market{" "}
           <strong>may be underestimating</strong> the relationship between MSTR,
@@ -122,11 +131,13 @@ export default function ThesisPage() {
       <section className="prose-section">
         <h2>What ${siteConfig.ticker} is (and is not)</h2>
         <p>
-          Roaring Stacker is an independent cultural meme. Proposed pair: $
+          Roaring Stacker is an independent cultural meme. Primary pair: $
           {siteConfig.ticker} / tokenized MSTR on Bankr / {siteConfig.chainName}.
-          Not Strategy equity. Not Bitcoin. Not backed by MSTR. Not a claim on
-          pool assets.
+          Buying ${siteConfig.ticker} through the MSTR pair adds tokenized MSTR
+          exposure to the pool. Not Strategy equity. Not Bitcoin. Not backed by
+          MSTR. Not a claim on pool assets.
         </p>
+        <p>{siteConfig.memeDisclaimer}</p>
       </section>
 
       <div className="card mt-12 border-[var(--accent-border)] bg-[var(--accent-soft)] p-6">

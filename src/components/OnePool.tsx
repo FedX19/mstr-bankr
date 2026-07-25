@@ -1,10 +1,8 @@
-import { getPairLabel, getQuoteAsset, siteConfig } from "../lib/config";
+import { getPairLabel, siteConfig } from "../lib/config";
 import { BrandMark } from "./BrandMark";
 import { StockTokenMark } from "./StockTokenMark";
 
 export function OnePool() {
-  const quote = getQuoteAsset();
-
   return (
     <section id="pool" className="border-b border-[var(--border)]">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
@@ -28,7 +26,7 @@ export function OnePool() {
             <StockTokenMark size="md" glow />
             <p className="card-label mt-4">The Stock</p>
             <p className="mt-1 text-xl font-semibold text-white">
-              {quote.displayName}
+              Tokenized MSTR
             </p>
           </div>
 
@@ -42,21 +40,14 @@ export function OnePool() {
         </div>
 
         <p className="mx-auto mt-6 max-w-2xl text-center text-sm leading-relaxed text-[var(--text-muted)]">
-          Buying through the primary pool adds tokenized {quote.symbol} exposure
-          to the pool. Selling removes it. Pool composition changes continuously
-          and is publicly visible.
+          Buying ${siteConfig.ticker} through the MSTR pair adds tokenized MSTR
+          exposure to the pool. Selling removes it. Pool composition changes
+          continuously and is publicly visible.
         </p>
 
         <div className="card mx-auto mt-5 max-w-2xl border-[var(--border-strong)] p-4 sm:p-5">
           <p className="text-xs leading-relaxed text-[var(--text-dim)] sm:text-sm">
-            ${siteConfig.ticker} holders do not own the tokenized{" "}
-            {quote.symbol} in the pool. The token is not backed by{" "}
-            {quote.symbol} and provides no redemption, dividend, ownership, or
-            income rights. Pair status:{" "}
-            <span className="text-[var(--text-muted)]">
-              {siteConfig.pairStatus}
-            </span>
-            . Subject to Bankr platform rules and eligibility.
+            {siteConfig.memeDisclaimer}
           </p>
         </div>
       </div>

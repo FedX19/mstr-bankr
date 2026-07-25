@@ -6,9 +6,9 @@ export function RiskStrip() {
     <section id="risks-summary" className="border-b border-[var(--border)]">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
         <div className="card border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.05)] p-5 sm:p-6">
-          <p className="card-label mb-2 text-[var(--negative)]">Risk</p>
+          <p className="card-label mb-2 text-[var(--negative)]">Disclaimer</p>
           <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-            {siteConfig.riskStatementShort}
+            {siteConfig.memeDisclaimer}
           </p>
           <Link
             href="/risks"

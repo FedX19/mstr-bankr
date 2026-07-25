@@ -51,21 +51,15 @@ export function TerminalDashboard({ data }: Props) {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="card-label mb-1">Market terminal</p>
-          <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-            ${siteConfig.ticker} Terminal
-          </h1>
-          <p className="mt-2 text-sm text-[var(--text-muted)]">
-            {getPairLabel()} · {siteConfig.chainName}
-          </p>
-        </div>
-        <div className="text-left sm:text-right">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-[var(--text-muted)]">
+          {getPairLabel()} · {siteConfig.chainName}
+        </p>
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           <span className={live ? "badge badge-live" : "badge"}>
             {live ? "Live" : "Prelaunch"}
           </span>
-          <p className="mt-2 text-xs text-[var(--text-dim)]">
+          <p className="text-xs text-[var(--text-dim)]">
             Source: {data.meta.source}
             {data.meta.lastUpdated
               ? ` · Updated ${data.meta.lastUpdated}`

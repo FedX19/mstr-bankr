@@ -124,16 +124,34 @@ export const siteConfig = {
     androidChrome192: "/icons/android-chrome-192.png",
     androidChrome512: "/icons/android-chrome-512.png",
     vaultAbstract: "/brand/vault-abstract.png",
+    /** New STACKR mascot set — under /public/images */
+    mascotHero: "/images/stackr-mascot-hero.png",
+    flywheel: "/images/stackr-flywheel.png",
+    thesis: "/images/stackr-thesis.png",
+    commandCenter: "/images/stackr-command-center.png",
+    mstrBitcoin: "/images/stackr-mstr-bitcoin.png",
     heroAlt:
-      "Roaring Stacker mascot — Treasury Lion with red headband and orange eyes in a Bitcoin trading command center",
+      "The Roaring Stacker mascot in a crypto command center.",
     heroMobileAlt:
-      "Roaring Stacker mascot — Treasury Lion portrait with red headband",
+      "The Roaring Stacker mascot in a crypto command center.",
     tokenIconAlt:
       "Roaring Stacker token mark — Treasury Lion guardian with orange ring",
     mstrLogoAlt: "Tokenized MSTR mark",
     ogShareAlt: "Roaring Stacker — The Stack Never Stops. We like the stock.",
     vaultAlt: "Abstract Bitcoin treasury vault atmosphere",
+    flywheelAlt:
+      "The Roaring Stacker turning the STACKR MSTR flywheel.",
+    thesisAlt:
+      "The Roaring Stacker explaining the MSTR and Bitcoin thesis.",
+    commandCenterAlt:
+      "The Roaring Stacker inside the trading command center.",
+    mstrBitcoinAlt:
+      "The Roaring Stacker with MSTR stock and Bitcoin.",
   },
+
+  /** Consumer disclaimer — keep visible near risk / pool sections */
+  memeDisclaimer:
+    "$STACKR is a meme token and cultural market expression. It does not represent ownership in Strategy, MSTR, Bitcoin, Robinhood, Bankr, or pool/treasury assets. Nothing here is financial advice.",
 
   chain: robinhoodChain,
 

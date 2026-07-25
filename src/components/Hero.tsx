@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   getQuoteAsset,
@@ -8,6 +7,7 @@ import {
 } from "../lib/config";
 import { BrandMark } from "./BrandMark";
 import { BuyNowButton } from "./BuyNowButton";
+import { MascotFrame } from "./MascotFrame";
 
 export function Hero() {
   const live = isLive();
@@ -16,41 +16,10 @@ export function Hero() {
 
   return (
     <section className="border-b border-[var(--border)]">
-      <div className="relative isolate min-h-[min(78svh,640px)] overflow-hidden sm:min-h-[min(72vh,680px)]">
-        <div className="absolute inset-0">
-          <Image
-            src={siteConfig.brand.heroMobile}
-            alt={siteConfig.brand.heroMobileAlt}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_18%] opacity-90 md:hidden"
-          />
-          <Image
-            src={siteConfig.brand.hero}
-            alt={siteConfig.brand.heroAlt}
-            fill
-            priority
-            sizes="100vw"
-            className="hidden object-cover object-[70%_center] md:block"
-          />
-          {/* Keep text dominant — heavy scrim on left / bottom */}
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-[#050506] via-[#050506]/80 to-black/30 md:hidden"
-            aria-hidden
-          />
-          <div
-            className="absolute inset-0 hidden bg-gradient-to-r from-[#050506] via-[#050506]/88 to-[#050506]/25 md:block"
-            aria-hidden
-          />
-          <div
-            className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[var(--bg)] to-transparent"
-            aria-hidden
-          />
-        </div>
-
-        <div className="relative mx-auto flex min-h-[min(78svh,640px)] max-w-6xl flex-col justify-end px-4 pb-10 pt-16 sm:min-h-[min(72vh,680px)] sm:px-6 sm:pb-14 sm:pt-24 md:justify-center">
-          <div className="max-w-xl lg:max-w-2xl">
+      <div className="bg-radial-glow relative overflow-hidden">
+        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-12 lg:py-20">
+          {/* Copy — left on desktop, first on mobile */}
+          <div className="order-1 max-w-xl">
             <div className="mb-4 flex flex-wrap items-center gap-2.5">
               <BrandMark size="sm" priority glow />
               <span className="badge badge-accent">${siteConfig.ticker}</span>
@@ -61,20 +30,22 @@ export function Hero() {
               ROARING STACKER
             </p>
 
-            <h1 className="text-[2.25rem] font-semibold leading-[1.05] tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)] sm:text-5xl md:text-6xl lg:text-[3.5rem]">
+            <h1 className="text-[2.25rem] font-semibold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[3.5rem]">
               {siteConfig.mainHeadline}
             </h1>
 
-            <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-zinc-100/90 drop-shadow-[0_2px_12px_rgba(0,0,0,0.75)] sm:text-lg">
-              Bitcoin trades 24/7. Roaring Stacker is being built around a
-              primary market paired with {quote.displayName.toLowerCase()}.
-            </p>
-
-            <p className="mt-3 text-sm font-medium tracking-wide text-[var(--accent)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] sm:text-base">
+            <p className="mt-4 text-base font-medium tracking-wide text-[var(--accent)] sm:text-lg">
               {siteConfig.thesisLine}
             </p>
 
-            <p className="mt-2 text-[11px] text-zinc-500 sm:text-xs">
+            <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-[var(--text-muted)] sm:text-lg">
+              Bitcoin trades 24/7. ${siteConfig.ticker} is a cultural market
+              paired with {quote.displayName.toLowerCase()}. Buying $
+              {siteConfig.ticker} through the MSTR pair adds tokenized MSTR
+              exposure to the pool.
+            </p>
+
+            <p className="mt-2 text-[11px] text-[var(--text-dim)] sm:text-xs">
               {siteConfig.primarySlogan}
               {" · "}
               {siteConfig.creed}
@@ -116,6 +87,16 @@ export function Hero() {
                 </>
               )}
             </div>
+          </div>
+
+          {/* Mascot — right on desktop, below copy on mobile */}
+          <div className="order-2 w-full max-w-xl justify-self-center lg:max-w-none lg:justify-self-end">
+            <MascotFrame
+              src={siteConfig.brand.mascotHero}
+              alt={siteConfig.brand.heroAlt}
+              priority
+              sizes="(max-width: 1024px) 100vw, 520px"
+            />
           </div>
         </div>
       </div>
