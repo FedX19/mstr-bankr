@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../../components/PageShell";
-import { getQuoteAsset, siteConfig } from "../../lib/config";
+import { getPairLabel, getQuoteAsset, siteConfig } from "../../lib/config";
 
 export const metadata: Metadata = {
   title: `How It Works — ${siteConfig.projectName}`,
-  description: `How the proposed ${siteConfig.proposedPair} market would work: buy and sell mechanics, dynamic pool composition, and clear limits on what holders own.`,
+  description: `How the proposed ${getPairLabel()} market works on ${siteConfig.chainName}.`,
 };
 
 export default function HowItWorksPage() {
@@ -20,92 +20,64 @@ export default function HowItWorksPage() {
         How it works
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-[var(--text-muted)]">
-        {siteConfig.projectName} is an independent cultural meme. The{" "}
-        <strong>proposed</strong> primary market pairs it with tokenized{" "}
-        {quote.symbol} exposure on {siteConfig.chain.chainName}. The pair is not
-        yet confirmed. Launch remains subject to platform and legal approval.
+        Proposed primary market: <strong>{getPairLabel()}</strong> on{" "}
+        {siteConfig.chainName} via Bankr. Pair status:{" "}
+        {siteConfig.pairStatus}. Subject to platform rules and eligibility.
       </p>
 
       <hr className="section-rule my-10" />
 
       <section className="prose-section">
-        <h2>The proposed primary pair</h2>
-        <p>
-          <strong>{siteConfig.proposedPair}</strong>. You would trade the meme
-          against tokenized {quote.symbol} — not against a holder-owned stock
-          reserve.
-        </p>
-      </section>
-
-      <section className="prose-section">
         <h2>When users buy</h2>
         <p>
-          When users buy through the proposed pool, tokenized MSTR enters the
-          pool and Roaring Stacker leaves it.
+          Tokenized {quote.symbol} enters the pool. ${siteConfig.ticker} leaves
+          the pool.
         </p>
       </section>
 
       <section className="prose-section">
         <h2>When users sell</h2>
         <p>
-          When users sell, Roaring Stacker enters the pool and tokenized MSTR
-          leaves it.
+          ${siteConfig.ticker} enters the pool. Tokenized {quote.symbol} leaves
+          the pool.
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>What this means</h2>
+        <h2>What holders do not get</h2>
         <ul>
-          <li>
-            The MSTR balance is <strong>dynamic</strong>
-          </li>
-          <li>
-            It is <strong>not a permanent treasury</strong>
-          </li>
-          <li>
-            Holders <strong>do not own</strong> the MSTR in the pool
-          </li>
-          <li>
-            The project token is <strong>not backed by MSTR</strong>
-          </li>
-          <li>
-            The pair is <strong>not yet confirmed</strong>
-          </li>
-          <li>
-            Launch remains subject to <strong>platform and legal approval</strong>
-          </li>
+          <li>Ownership of tokenized {quote.symbol} in the pool</li>
+          <li>MSTR “backing” or redemption rights</li>
+          <li>Dividends, income, or voting rights</li>
+          <li>A permanent treasury claim</li>
         </ul>
       </section>
 
       <section className="prose-section">
-        <h2>Fees (if live)</h2>
+        <h2>Platform rules</h2>
         <p>
-          Under a standard launch structure, trading would use a swap fee.
-          Creator fees would belong to the project company, not to
-          tokenholders. There are no promised buybacks, dividends, price floors,
-          or permanent MSTR purchases for holders.
+          Bankr location checks, KYC, wallet restrictions, and eligibility rules
+          apply. This project does not bypass them. If the MSTR stock-token path
+          is blocked, configuration can switch the quote asset to{" "}
+          {siteConfig.fallbackPair} without redesigning the site.
         </p>
       </section>
 
-      <section className="prose-section">
-        <h2>Eligibility</h2>
-        <p>
-          Robinhood Stock Tokens are restricted in the United States and other
-          jurisdictions. You are responsible for determining whether you can
-          participate.
-        </p>
-      </section>
-
-      <div className="card mt-10 border-[var(--accent-border)] bg-[var(--accent-soft)] p-5">
-        <p className="text-sm text-[var(--text-muted)]">
-          Prelaunch: no official token. Do not trust any contract unless
-          published on this site and the official social account.
-        </p>
+      <div className="mt-8 flex flex-wrap gap-4 text-sm">
+        <Link href="/thesis" className="text-[var(--accent)] hover:opacity-85">
+          Thesis →
+        </Link>
         <Link
-          href="/transparency"
-          className="mt-3 inline-flex text-sm font-medium text-[var(--accent)] hover:opacity-85"
+          href="/terminal"
+          className="text-[var(--text-muted)] hover:text-white"
         >
-          Transparency →
+          Terminal
+        </Link>
+        <Link
+          href="/risks"
+          className="text-[var(--text-muted)] hover:text-white"
+        >
+          Risks
         </Link>
       </div>
     </PageShell>

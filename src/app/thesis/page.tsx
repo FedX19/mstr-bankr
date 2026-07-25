@@ -8,10 +8,10 @@ import {
   flywheelSteps,
   invalidationConditions,
 } from "../../lib/content";
-import { siteConfig } from "../../lib/config";
+import { siteConfig, strategyDataLabel } from "../../lib/config";
 
 export const metadata: Metadata = {
-  title: `Full Thesis — ${siteConfig.projectName}`,
+  title: `Thesis — ${siteConfig.projectName}`,
   description: siteConfig.metaDescription,
 };
 
@@ -19,15 +19,15 @@ export default function ThesisPage() {
   return (
     <PageShell>
       <p className="mt-8 text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
-        {siteConfig.projectName} Thesis
+        Thesis
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-        {siteConfig.primarySlogan}
+        {siteConfig.mainHeadline}
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-[var(--text-muted)]">
-        {siteConfig.thesisLine} {siteConfig.catalystLine}
+        {siteConfig.thesisLine} {siteConfig.primarySlogan}
       </p>
-      <p className="mt-3 text-sm text-[var(--text-dim)]">
+      <p className="mt-2 text-sm text-[var(--text-dim)]">
         {siteConfig.creed} — {siteConfig.communityName}.
       </p>
 
@@ -36,16 +36,16 @@ export default function ThesisPage() {
       <section className="prose-section">
         <h2>The market&apos;s bearish view</h2>
         <p>
-          Parts of the market have written off Bitcoin after a deep and painful
-          drawdown. Separately, parts of the market have written off Strategy
-          (MSTR) as a broken capital engine — too levered, too complex, or too
-          dependent on continuous access to equity and credit markets.
+          Parts of the market have written off Bitcoin after a deep drawdown.
+          Separately, parts of the market have written off Strategy (MSTR) as a
+          broken capital engine — too levered, too complex, or too dependent on
+          continuous access to equity and credit markets.
         </p>
         <p>
-          In that framing, MSTR is often reduced to a risky levered beta trade:
-          when Bitcoin falls, the equity story supposedly dies with it. The
-          possibility that MSTR strength could again support capital formation
-          and, over time, Bitcoin demand is discounted or ignored.
+          In that framing, MSTR is reduced to risky levered beta: when Bitcoin
+          falls, the equity story dies with it. The possibility that MSTR
+          strength could again support capital formation — and, over time,
+          Bitcoin demand — is discounted or ignored.
         </p>
       </section>
 
@@ -57,23 +57,20 @@ export default function ThesisPage() {
           Strategy&apos;s access to capital, and future Bitcoin demand.
         </p>
         <p>
-          Bitcoin has been written off. MSTR&apos;s capital engine has been
-          written off. The Roaring Stacker thesis is that the market may have
-          both wrong.
+          A sustained MSTR recovery could improve Strategy&apos;s financing
+          flexibility. If new capital is raised and deployed into Bitcoin, the
+          capital engine may contribute to Bitcoin&apos;s next major move.
         </p>
         <p>
           This is a thesis, not a guaranteed causal chain. A higher MSTR price
           does not automatically cause Strategy to raise capital, buy Bitcoin, or
-          move Bitcoin&apos;s price. Outcomes depend on financing conditions,
-          management decisions, Bitcoin prices, investor demand, and Strategy&apos;s
-          obligations.
+          move Bitcoin&apos;s price.
         </p>
         <p className="accent-line">{siteConfig.tagline}</p>
       </section>
 
       <section className="prose-section">
-        <h2>The MSTR–Bitcoin flywheel</h2>
-        <p>Potential sequence (if conditions allow):</p>
+        <h2>The capital flywheel</h2>
         <ol>
           {flywheelSteps.map((step) => (
             <li key={step.id}>
@@ -82,33 +79,12 @@ export default function ThesisPage() {
           ))}
         </ol>
         <p>
-          Then the cycle may strengthen again —{" "}
-          <em>if</em> each link holds. That is the core of the Stacker view:
-          MSTR is the stock; Bitcoin is the stack; the stock{" "}
-          <em>may</em> be capable of restarting the stack.
-        </p>
-        <p>
           <strong>Disclaimer:</strong> {flywheelDisclaimer}
         </p>
       </section>
 
       <section className="prose-section">
-        <h2>Why the setup may matter now</h2>
-        <p>
-          When both Bitcoin and the corporate treasury narrative are deeply
-          discounted, the asymmetric question is not whether every path works —
-          it is whether the market has fully priced the possibility that capital
-          markets and Bitcoin demand could reinforce each other again.
-        </p>
-        <p>
-          Roaring Stacker is a Bitcoin-native cultural meme around that debate.
-          It is not Strategy equity, not Bitcoin ownership, and not a claim on
-          any treasury or pool.
-        </p>
-      </section>
-
-      <section className="prose-section">
-        <h2>What could go right</h2>
+        <h2>Bull case</h2>
         <ul>
           {bullCase.map((item) => (
             <li key={item}>{item}</li>
@@ -117,7 +93,7 @@ export default function ThesisPage() {
       </section>
 
       <section className="prose-section">
-        <h2>What could go wrong</h2>
+        <h2>Bear case</h2>
         <ul>
           {bearCase.map((item) => (
             <li key={item}>{item}</li>
@@ -126,10 +102,7 @@ export default function ThesisPage() {
       </section>
 
       <section className="prose-section">
-        <h2>Clear invalidation conditions</h2>
-        <p>
-          The thesis weakens materially if several of the following persist:
-        </p>
+        <h2>What would prove the thesis wrong</h2>
         <ul>
           {invalidationConditions.map((item) => (
             <li key={item}>{item}</li>
@@ -138,17 +111,21 @@ export default function ThesisPage() {
       </section>
 
       <section className="prose-section">
-        <h2>What Roaring Stacker is (and is not)</h2>
+        <h2>Market facts</h2>
         <p>
-          Roaring Stacker is an independent cultural meme. Working ticker: $
-          {siteConfig.ticker}. Community: {siteConfig.communityName}. Proposed
-          primary market: {siteConfig.proposedPair}. The pair is not yet
-          confirmed. No official token is live.
+          Holdings, short interest, and other Strategy metrics must be published
+          with a source and date. Current status:{" "}
+          <strong>{strategyDataLabel()}</strong>
         </p>
+      </section>
+
+      <section className="prose-section">
+        <h2>What ${siteConfig.ticker} is (and is not)</h2>
         <p>
-          It is not Strategy stock, not Bitcoin, not redeemable for MSTR, not
-          backed by a holder-owned reserve, and not affiliated with Strategy,
-          Michael Saylor, Keith Gill, Robinhood, or Bankr.
+          Roaring Stacker is an independent cultural meme. Proposed pair: $
+          {siteConfig.ticker} / tokenized MSTR on Bankr / {siteConfig.chainName}.
+          Not Strategy equity. Not Bitcoin. Not backed by MSTR. Not a claim on
+          pool assets.
         </p>
       </section>
 
@@ -161,17 +138,17 @@ export default function ThesisPage() {
           <br />
           Bitcoin is the stack.
           <br />
-          The stock may be capable of restarting the stack.
+          The stack never stops.
         </p>
         <p className="mt-4 text-lg font-semibold text-[var(--accent)]">
           We like the stock.
         </p>
         <div className="mt-6 flex flex-wrap gap-4">
           <Link
-            href="/how-it-works"
+            href="/terminal"
             className="text-sm font-medium text-[var(--accent)] hover:opacity-85"
           >
-            See how it works →
+            Terminal →
           </Link>
           <Link
             href="/risks"

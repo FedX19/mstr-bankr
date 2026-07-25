@@ -1,8 +1,7 @@
 /**
- * Dashboard data layer for the stock-paired market.
- *
- * Prelaunch: null / zero placeholders — never fabricate live values in production.
- * Post-launch: wire Robinhood Chain RPC, Bankr fee API, Blockscout, Chainlink.
+ * Dashboard data layer.
+ * Prelaunch: null placeholders — never fabricate live values.
+ * Post-launch: wire RPC / Bankr / oracles here.
  */
 
 import { getQuoteAsset, isLive, siteConfig } from "./config";
@@ -22,7 +21,9 @@ export type DashboardData = {
     priceInStock: number | null;
     marketCapUsd: number | null;
     volume24hUsd: number | null;
+    cumulativeVolumeUsd: number | null;
     holders: number | null;
+    uniqueTraders: number | null;
     priceChange24hPct: number | null;
   };
   pool: {
@@ -48,6 +49,9 @@ export type DashboardData = {
     shortInterestFloatPct: number | null;
     cycleNote: string;
     stockSymbol: string;
+    mstrPriceUsd: number | null;
+    btcPriceUsd: number | null;
+    mstrVsBtcRelativePct: number | null;
   };
   meta: {
     lastUpdated: string | null;
@@ -65,13 +69,15 @@ export function createEmptyDashboard(): DashboardData {
       priceInStock: null,
       marketCapUsd: null,
       volume24hUsd: null,
+      cumulativeVolumeUsd: null,
       holders: null,
+      uniqueTraders: null,
       priceChange24hPct: null,
     },
     pool: {
       totalLiquidityUsd: null,
       meme: {
-        symbol: siteConfig.projectName,
+        symbol: `$${siteConfig.ticker}`,
         units: null,
         usdValue: null,
         poolSharePct: null,
@@ -99,9 +105,11 @@ export function createEmptyDashboard(): DashboardData {
     market: {
       btcHoldings: siteConfig.strategy.btcHoldings,
       shortInterestFloatPct: siteConfig.strategy.shortInterestFloatPct,
-      cycleNote:
-        "Strategy is a high-profile Bitcoin treasury stock. Narratives and numbers change — treat research figures as snapshots, not live signals.",
+      cycleNote: "Data source pending.",
       stockSymbol: quote.symbol,
+      mstrPriceUsd: null,
+      btcPriceUsd: null,
+      mstrVsBtcRelativePct: null,
     },
     meta: {
       lastUpdated: null,
@@ -112,16 +120,15 @@ export function createEmptyDashboard(): DashboardData {
   };
 }
 
-/**
- * Fetch dashboard data.
- * Prelaunch returns empty placeholders. Live adapters go here later.
- */
 export async function getDashboardData(): Promise<DashboardData> {
-  // TODO: Robinhood Chain pool balances, Bankr fees, Chainlink valuation, Blockscout holders.
+  // Live adapters reserved — do not invent values.
   if (!isLive()) {
     return createEmptyDashboard();
   }
-
-  // Live path reserved — do not invent values.
   return createEmptyDashboard();
+}
+
+/** Display helper for null metrics. */
+export function pendingLabel(isLiveData: boolean): string {
+  return isLiveData ? "Data pending" : "Not live";
 }

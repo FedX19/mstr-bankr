@@ -7,7 +7,7 @@ import { siteConfig } from "../lib/config";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: siteConfig.projectName,
-    short_name: "Roaring Stacker",
+    short_name: "Stacker",
     description: siteConfig.metaDescription,
     start_url: "/",
     display: "standalone",

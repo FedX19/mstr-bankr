@@ -11,7 +11,7 @@ export function MarketMissing() {
             What the market may be missing
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
-            {siteConfig.positioning}
+            {siteConfig.metaDescription}
           </p>
         </div>
 
@@ -34,9 +34,9 @@ export function MarketMissing() {
             </p>
           </div>
           <div className="card p-5">
-            <p className="card-label mb-2">Catalyst line</p>
+            <p className="card-label mb-2">Headline</p>
             <p className="text-base font-medium text-white">
-              {siteConfig.catalystLine}
+              {siteConfig.mainHeadline}
             </p>
             <p className="mt-3 text-xs text-[var(--text-dim)]">
               Creed: {siteConfig.creed}

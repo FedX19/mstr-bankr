@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageShell } from "../../components/PageShell";
-import { getQuoteAsset, siteConfig } from "../../lib/config";
+import { getPairLabel, getQuoteAsset, siteConfig } from "../../lib/config";
 
 export const metadata: Metadata = {
   title: `Risks — ${siteConfig.projectName}`,
@@ -109,11 +109,12 @@ export default function RisksPage() {
       <section className="prose-section">
         <h2>Primary market context</h2>
         <p>
-          The proposed pair is {siteConfig.proposedPair}. The pair is not yet
-          confirmed. Fallback quote assets may be used if liquidity or platform
-          constraints require it. Any change will flow through central
-          configuration and public disclosure — not silent redesign. Tokenized{" "}
-          {quote.symbol} remains subject to issuer and jurisdictional rules.
+          The proposed pair is {getPairLabel()}. Pair status:{" "}
+          {siteConfig.pairStatus}. Fallback if Bankr blocks the stock-token
+          path: {siteConfig.fallbackPair}. Any change flows through central
+          configuration and public disclosure. Tokenized {quote.symbol} remains
+          subject to issuer rules, Bankr eligibility, and jurisdictional limits.
+          This site does not bypass platform checks.
         </p>
       </section>
     </PageShell>

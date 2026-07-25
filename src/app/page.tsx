@@ -1,34 +1,26 @@
-import { BullVsBear } from "../components/BullVsBear";
-import { FaqSummary } from "../components/FaqSummary";
 import { Flywheel } from "../components/Flywheel";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { Hero } from "../components/Hero";
-import { HowTradingWorks } from "../components/HowTradingWorks";
-import { Invalidation } from "../components/Invalidation";
-import { MarketMissing } from "../components/MarketMissing";
-import { RiskSummary } from "../components/RiskSummary";
+import { MissionScoreboard } from "../components/MissionScoreboard";
+import { OnePool } from "../components/OnePool";
+import { RiskStrip } from "../components/RiskStrip";
 import { StatusBar } from "../components/StatusBar";
-import { ThesisPanel } from "../components/ThesisPanel";
-import { TransparencySummary } from "../components/TransparencySummary";
+import { getDashboardData } from "../lib/data";
 
-export default function Home() {
+export default async function Home() {
+  const data = await getDashboardData();
+
   return (
     <>
       <StatusBar />
       <Header />
       <main className="flex-1">
-        {/* 1 Prelaunch status · 2 Hero · 3 Thesis · 4 Flywheel · 5 Missing · 6 Mechanics · 7 Bull/Bear · 8 Invalidation · 9 Transparency · 10 Risks · 11 FAQ · 12 Footer */}
         <Hero />
-        <ThesisPanel />
+        <OnePool />
         <Flywheel />
-        <MarketMissing />
-        <HowTradingWorks />
-        <BullVsBear />
-        <Invalidation />
-        <TransparencySummary />
-        <RiskSummary />
-        <FaqSummary />
+        <MissionScoreboard data={data} />
+        <RiskStrip />
       </main>
       <Footer />
     </>

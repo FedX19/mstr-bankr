@@ -3,13 +3,10 @@ import { isLive, siteConfig } from "../lib/config";
 import { BrandMark } from "./BrandMark";
 
 const nav = [
-  { href: "/#thesis", label: "Thesis" },
-  { href: "/#flywheel", label: "Flywheel" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/thesis", label: "Full Thesis" },
-  { href: "/#transparency", label: "Transparency" },
+  { href: "/", label: "Home" },
+  { href: "/thesis", label: "Thesis" },
+  { href: "/terminal", label: "Terminal" },
   { href: "/risks", label: "Risks" },
-  { href: "/faq", label: "FAQ" },
 ];
 
 export function Header() {
@@ -29,7 +26,7 @@ export function Header() {
         </Link>
 
         <nav
-          className="hidden items-center gap-4 xl:flex"
+          className="hidden items-center gap-6 md:flex"
           aria-label="Primary"
         >
           {nav.map((item) => (
@@ -47,7 +44,7 @@ export function Header() {
           <span className="badge badge-accent hidden sm:inline-flex">
             {live ? "Live" : "Prelaunch"}
           </span>
-          <span className="hidden text-xs text-[var(--text-dim)] md:inline">
+          <span className="text-xs text-[var(--text-dim)]">
             ${siteConfig.ticker}
           </span>
           <a
@@ -62,14 +59,14 @@ export function Header() {
       </div>
 
       <nav
-        className="flex gap-1 overflow-x-auto overscroll-x-contain border-t border-[var(--border)] px-2 py-1.5 [-ms-overflow-style:none] [scrollbar-width:none] xl:hidden [&::-webkit-scrollbar]:hidden"
+        className="flex gap-1 overflow-x-auto overscroll-x-contain border-t border-[var(--border)] px-2 py-1.5 [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
         aria-label="Mobile"
       >
         {nav.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-[var(--text-dim)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text)] active:bg-[var(--bg-card)]"
+            className="shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-[var(--text-dim)] transition-colors hover:bg-[var(--bg-elevated)] hover:text-[var(--text)]"
           >
             {item.label}
           </Link>

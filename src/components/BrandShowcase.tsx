@@ -36,10 +36,10 @@ export function BrandShowcase() {
           {siteConfig.tagline}
         </h2>
         <p className="mt-3 max-w-md text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-          {siteConfig.secondarySlogan}
+          {siteConfig.thesisLine}
         </p>
         <p className="mt-4 text-sm font-medium text-[var(--accent)] sm:mt-5">
-          {siteConfig.supportingPhrase}
+          {siteConfig.primarySlogan}
         </p>
       </div>
     </section>

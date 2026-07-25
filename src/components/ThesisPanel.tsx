@@ -58,7 +58,7 @@ export function ThesisPanel() {
                 {siteConfig.thesisLine}
               </p>
               <p className="mt-3 text-sm text-[var(--text-muted)]">
-                {siteConfig.catalystLine}
+                {siteConfig.mainHeadline}
               </p>
               <p className="mt-4 text-xs uppercase tracking-wider text-[var(--text-dim)]">
                 {siteConfig.creed}

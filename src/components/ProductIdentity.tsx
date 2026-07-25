@@ -13,7 +13,7 @@ export function ProductIdentity() {
               What this is
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
-              {siteConfig.positioning}
+              {siteConfig.metaDescription}
             </p>
           </div>
           <BrandMark size="md" glow className="self-start sm:self-auto" />

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** Old internal roadmap URL → consumer status section. */
+/** Legacy URL → mission / terminal */
 export default function RoadmapRedirect() {
-  redirect("/#transparency");
+  redirect("/terminal");
 }

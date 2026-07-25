@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { getMemeContractDisplay, siteConfig } from "../lib/config";
+import {
+  getMemeContractDisplay,
+  getPairLabel,
+  siteConfig,
+} from "../lib/config";
 
 export function TransparencySummary() {
   const rows: { label: string; value: string; mono?: boolean }[] = [
@@ -12,7 +16,7 @@ export function TransparencySummary() {
     },
     {
       label: "Proposed pair",
-      value: siteConfig.proposedPair,
+      value: getPairLabel(),
     },
     { label: "Presale", value: "None planned" },
     { label: "Creator allocation", value: "None planned" },
@@ -22,7 +26,7 @@ export function TransparencySummary() {
     },
     {
       label: "Chain",
-      value: siteConfig.chainStatus,
+      value: `${siteConfig.chainName} (${siteConfig.chainId})`,
     },
   ];
 

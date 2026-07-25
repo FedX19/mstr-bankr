@@ -1,6 +1,11 @@
 /**
  * Central project configuration.
- * Single source of truth for brand, launch status, chain, contracts, and copy.
+ * Single source of truth for brand, launch status, pair/chain, and contracts.
+ *
+ * To switch quote asset if Bankr blocks MSTR:
+ *   1. Set quoteAssetKey to "WETH" or "USDG"
+ *   2. Optionally update pairStatus / hero copy via fields below
+ * Do not evade platform eligibility, KYC, or geo rules.
  */
 
 export type LaunchStatus =
@@ -10,7 +15,13 @@ export type LaunchStatus =
   | "live"
   | "paused";
 
-export type TickerCandidate = "STACKR" | "STACK" | "ROAR";
+export type PairStatus =
+  | "pending-bankr-approval"
+  | "approved"
+  | "fallback"
+  | "live";
+
+export type FallbackPair = "WETH" | "USDG";
 
 /** Canonical Robinhood Chain assets — verify against live registry before deploy. */
 export const robinhoodChain = {
@@ -27,70 +38,79 @@ export const robinhoodChain = {
 } as const;
 
 /**
- * Quote-asset registry. Primary pair uses the selected key.
- * Fallback hierarchy: MSTR → COIN → PLTR → TSLA.
+ * Quote-asset registry. Primary pair uses quoteAssetKey.
+ * Intended: MSTR. Fallbacks: WETH / USDG if Bankr blocks stock-pair path.
  */
-export const stockTokens = {
+export const quoteAssets = {
   MSTR: {
     symbol: "MSTR",
     name: "Strategy",
-    displayName: "MSTR Stock Token",
-    address: "0xec262a75e413fAfD0dF80480274532C79D42da09",
+    displayName: "Tokenized MSTR",
+    address: "0xec262a75e413fAfD0dF80480274532C79D42da09" as string | null,
+    kind: "stock-token" as const,
     description:
       "Robinhood tokenized MSTR — economic exposure, not share ownership.",
+  },
+  WETH: {
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    displayName: "WETH",
+    address: robinhoodChain.weth as string | null,
+    kind: "crypto" as const,
+    description: "Fallback quote if stock-paired launch is blocked.",
+  },
+  USDG: {
+    symbol: "USDG",
+    name: "USDG",
+    displayName: "USDG",
+    address: robinhoodChain.usdg as string | null,
+    kind: "stable" as const,
+    description: "Fallback quote if stock-paired launch is blocked.",
   },
   COIN: {
     symbol: "COIN",
     name: "Coinbase",
-    displayName: "COIN Stock Token",
+    displayName: "Tokenized COIN",
     address: null as string | null,
-    description: "Fallback quote asset if MSTR fails liquidity gates.",
-  },
-  PLTR: {
-    symbol: "PLTR",
-    name: "Palantir",
-    displayName: "PLTR Stock Token",
-    address: null as string | null,
-    description: "Secondary fallback quote asset.",
-  },
-  TSLA: {
-    symbol: "TSLA",
-    name: "Tesla",
-    displayName: "TSLA Stock Token",
-    address: null as string | null,
-    description: "Tertiary fallback quote asset.",
+    kind: "stock-token" as const,
+    description: "Secondary stock-token fallback.",
   },
 } as const;
 
-export type StockTokenKey = keyof typeof stockTokens;
+export type QuoteAssetKey = keyof typeof quoteAssets;
+
+/** @deprecated use quoteAssets — kept for older imports */
+export const stockTokens = quoteAssets;
+export type StockTokenKey = QuoteAssetKey;
 
 export const siteConfig = {
-  /** Required brand fields */
   projectName: "Roaring Stacker",
-  ticker: "STACKR" as TickerCandidate,
-  tickerCandidates: ["STACKR", "STACK", "ROAR"] as const,
+  ticker: "STACKR",
   communityName: "The Stackers",
+
+  /** Main hero headline */
+  mainHeadline: "THE STACK NEVER STOPS.",
+  /** Primary brand phrase */
   primarySlogan: "WE LIKE THE STOCK.",
-  /** Display form for headings that need sentence case */
   tagline: "We like the stock.",
   thesisLine: "MSTR is the stock. Bitcoin is the stack.",
-  catalystLine: "The stock can restart the stack.",
   creed: "Conviction before confirmation.",
 
   launchStatus: "prelaunch" as LaunchStatus,
   tradingEnabled: false,
-  jurisdictionNoticeEnabled: true,
 
-  category: "Bitcoin-native cultural meme",
-  secondarySlogan: "MSTR is the stock. Bitcoin is the stack.",
-  supportingPhrase: "The stock can restart the stack.",
-  positioning:
-    "Roaring Stacker is an independent Bitcoin-native cultural meme built around the thesis that a recovery in MSTR could help reactivate Strategy’s capital engine and contribute to Bitcoin’s next major move.",
+  /** Pair / chain — switch without redesign */
+  chainName: "Robinhood Chain",
+  chainId: 4663,
+  quoteAssetKey: "MSTR" as QuoteAssetKey,
+  quoteAssetSymbol: "MSTR",
+  pairStatus: "pending-bankr-approval" as PairStatus,
+  fallbackPair: "WETH" as FallbackPair,
+
+  metaTitle: "Roaring Stacker — The Stack Never Stops",
   metaDescription:
-    "Roaring Stacker is an independent Bitcoin-native cultural meme built around the thesis that a recovery in MSTR could help reactivate Strategy’s capital engine and contribute to Bitcoin’s next major move.",
-  metaTitle: "Roaring Stacker — MSTR Is the Stock. Bitcoin Is the Stack.",
+    "A Bitcoin-native meme built around the MSTR–Bitcoin capital flywheel. MSTR is the stock. Bitcoin is the stack.",
 
-  /** Brand assets in /public/brand — Treasury Lion mascot preserved */
   brand: {
     hero: "/brand/hero.png",
     heroMobile: "/brand/hero-mobile.png",
@@ -105,33 +125,33 @@ export const siteConfig = {
     androidChrome512: "/icons/android-chrome-512.png",
     vaultAbstract: "/brand/vault-abstract.png",
     heroAlt:
-      "Roaring Stacker mascot — Treasury Lion with red headband and orange eyes in a Bitcoin command center",
+      "Roaring Stacker mascot — Treasury Lion with red headband and orange eyes in a Bitcoin trading command center",
     heroMobileAlt:
       "Roaring Stacker mascot — Treasury Lion portrait with red headband",
     tokenIconAlt:
       "Roaring Stacker token mark — Treasury Lion guardian with orange ring",
     mstrLogoAlt: "Tokenized MSTR mark",
-    ogShareAlt:
-      "Roaring Stacker — We like the stock. MSTR is the stock. Bitcoin is the stack.",
+    ogShareAlt: "Roaring Stacker — The Stack Never Stops. We like the stock.",
     vaultAlt: "Abstract Bitcoin treasury vault atmosphere",
   },
 
-  /** Selected quote asset — change this key to re-point the entire site. */
-  quoteAssetKey: "MSTR" as StockTokenKey,
-
   chain: robinhoodChain,
 
-  /** Official meme token — null until launch. Never invent an address. */
   memeTokenAddress: null as string | null,
   poolId: null as string | null,
   poolAddress: null as string | null,
   feeBeneficiary: null as string | null,
   deploymentTx: null as string | null,
 
+  bankrUrl: "https://bankr.bot",
   bankrLaunchUrl: null as string | null,
   bankrBaseUrl: "https://bankr.bot",
+  explorerUrl: robinhoodChain.explorerUrl,
+
   platformName: "Bankr",
+  /** Optional flags / labels used by secondary pages */
   platformStatus: "subject to confirmation",
+  jurisdictionNoticeEnabled: true,
 
   officialWebsite: "https://mstr-bankr.vercel.app",
   officialX: "https://x.com",
@@ -140,7 +160,6 @@ export const siteConfig = {
   officialGitHub: "https://github.com/FedX19/mstr-bankr",
   contactEmail: null as string | null,
 
-  /** Bankr standard fee structure (confirm for stock-paired before launch). */
   tradingFeeBps: 70,
   creatorFeeSharePct: 95,
   protocolFeeSharePct: 5,
@@ -148,10 +167,6 @@ export const siteConfig = {
   vesting: "none" as const,
   presale: "none" as const,
 
-  /**
-   * Research context — only publish figures with a source + date.
-   * Otherwise UI shows “Data source pending.”
-   */
   strategy: {
     ticker: "MSTR",
     name: "Strategy",
@@ -164,31 +179,55 @@ export const siteConfig = {
     dataNote: "Data source pending.",
   },
 
-  proposedPair: "Roaring Stacker / tokenized MSTR",
-  chainStatus: "Robinhood Chain, subject to final approval",
-
   nonAffiliation:
     "Roaring Stacker is an independent cultural project. It is not affiliated with, sponsored by, endorsed by or connected to Strategy Inc., Michael Saylor, Keith Gill, Robinhood Markets, Robinhood Assets (Jersey) Limited, Bankr, Doppler or their respective affiliates. All company names, ticker symbols and trademarks belong to their respective owners.",
 
+  /** Short homepage risk blurb */
+  riskStatementShort:
+    "Roaring Stacker is a highly speculative cultural token. It does not represent MSTR, Bitcoin, Strategy equity, project revenue, or liquidity-pool ownership. The token and all related assets may lose all value. Tokenized-stock availability depends on jurisdiction and platform eligibility.",
+
   riskStatement:
-    "Roaring Stacker is a highly speculative cultural meme that may lose some or all of its value. It does not represent equity, debt, ownership, income, dividends, voting rights, redemption rights or claims against any company, security, liquidity pool or project asset. Robinhood Stock Tokens are tokenized debt securities that provide economic exposure to referenced securities but do not provide legal or beneficial ownership in the referenced companies. Stock Tokens are unavailable in the United States and other restricted jurisdictions. Users are responsible for determining their eligibility and complying with applicable laws.",
+    "Roaring Stacker is a highly speculative cultural token. It does not represent MSTR, Bitcoin, Strategy equity, project revenue, or liquidity-pool ownership. The token and all related assets may lose all value. Tokenized-stock availability depends on jurisdiction and platform eligibility. Robinhood Stock Tokens are tokenized debt securities that provide economic exposure to referenced securities but do not provide legal or beneficial ownership in the referenced companies. Users are responsible for determining their eligibility and complying with applicable laws.",
 
   statusMessages: {
     prelaunch:
-      "PRELAUNCH — No official token is live. The proposed stock-paired launch remains subject to platform support, liquidity testing, jurisdictional eligibility, and legal review.",
+      "PRELAUNCH — No official token is live. Verify all future contract information through this website and the official X account.",
     research:
-      "PRELAUNCH — No official token is live. The proposed stock-paired launch remains subject to platform support, liquidity testing, jurisdictional eligibility, and legal review.",
+      "PRELAUNCH — No official token is live. Verify all future contract information through this website and the official X account.",
     cleared:
-      "Launching soon — Official contract will be published on this site and official social accounts first.",
-    live: "LIVE ON ROBINHOOD CHAIN — Verify the contract on this site before trading.",
+      "Launching soon — Official contract will be published on this site and the official X account first.",
+    live: "LIVE ON ROBINHOOD CHAIN — Verify the official contract before trading.",
     paused: "PAUSED — Trading is temporarily unavailable.",
   },
+
+  /** Prelaunch mission milestones */
+  missionMilestones: [
+    "Launch $STACKR",
+    "Establish the STACKR/MSTR pool",
+    "Reach 10 tokenized MSTR in liquidity",
+    "Reach $1M cumulative volume",
+    "Reach $1M pool liquidity",
+    "Become the leading MSTR market on Robinhood Chain",
+  ] as const,
 } as const;
 
 export type SiteConfig = typeof siteConfig;
 
 export function getQuoteAsset() {
-  return stockTokens[siteConfig.quoteAssetKey];
+  return quoteAssets[siteConfig.quoteAssetKey];
+}
+
+/** Effective quote symbol (follows key; override via quoteAssetSymbol when needed). */
+export function getQuoteSymbol(): string {
+  return getQuoteAsset().symbol;
+}
+
+export function getQuoteAssetAddress(): string | null {
+  return getQuoteAsset().address;
+}
+
+export function getPairLabel(): string {
+  return `$${siteConfig.ticker} / ${getQuoteAsset().displayName}`;
 }
 
 export function isLive(): boolean {
@@ -203,7 +242,11 @@ export function isPrelaunch(): boolean {
 }
 
 export function getMemeContractDisplay(): string {
-  return siteConfig.memeTokenAddress ?? "Not available";
+  return siteConfig.memeTokenAddress ?? "Not live";
+}
+
+export function getBankrUrl(): string {
+  return siteConfig.bankrLaunchUrl ?? siteConfig.bankrUrl;
 }
 
 export function explorerAddressUrl(address: string): string {
@@ -214,7 +257,6 @@ export function explorerTxUrl(txHash: string): string {
   return `${siteConfig.chain.explorerTxBase}${txHash}`;
 }
 
-/** Research figures only when source + date exist. */
 export function strategyDataLabel(): string {
   const { strategy } = siteConfig;
   if (strategy.dataSource && strategy.dataAsOf) {

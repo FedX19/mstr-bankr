@@ -56,21 +56,13 @@ export const metadata: Metadata = {
         type: "image/png",
       },
     ],
-    other: [
-      {
-        rel: "apple-touch-icon-precomposed",
-        url: "/icons/apple-touch-icon.png",
-      },
-    ],
   },
   appleWebApp: {
     capable: true,
     title: siteConfig.projectName,
     statusBarStyle: "black-translucent",
   },
-  formatDetection: {
-    telephone: false,
-  },
+  formatDetection: { telephone: false },
   openGraph: {
     title: siteConfig.metaTitle,
     description: siteConfig.metaDescription,
@@ -103,11 +95,7 @@ export default function RootLayout({
     name: siteConfig.projectName,
     description: siteConfig.metaDescription,
     url: siteConfig.officialWebsite,
-    about: {
-      "@type": "Thing",
-      name: "Roaring Stacker thesis",
-      description: siteConfig.thesisLine,
-    },
+    slogan: siteConfig.mainHeadline,
   };
 
   return (

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageShell } from "../../components/PageShell";
 import {
   getMemeContractDisplay,
+  getPairLabel,
   getQuoteAsset,
   siteConfig,
 } from "../../lib/config";
@@ -26,10 +27,14 @@ export default function TransparencyPage() {
     },
     {
       label: "Proposed pair",
-      value: siteConfig.proposedPair,
+      value: getPairLabel(),
     },
     {
-      label: `Canonical ${quote.symbol} Stock Token (reference)`,
+      label: "Pair status",
+      value: siteConfig.pairStatus,
+    },
+    {
+      label: `Quote asset (${quote.symbol})`,
       value: quote.address ?? "—",
       mono: true,
     },
@@ -50,18 +55,17 @@ export default function TransparencyPage() {
     },
     { label: "Presale", value: "None planned" },
     { label: "Creator allocation", value: "None planned" },
-    { label: "Creator vesting", value: "None planned" },
     {
       label: "Platform",
       value: `${siteConfig.platformName}, ${siteConfig.platformStatus}`,
     },
     {
       label: "Chain",
-      value: siteConfig.chainStatus,
+      value: `${siteConfig.chainName} (${siteConfig.chainId})`,
     },
     {
       label: "Explorer",
-      value: siteConfig.chain.explorerUrl,
+      value: siteConfig.explorerUrl,
     },
   ];
 

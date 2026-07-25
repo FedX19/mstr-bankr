@@ -16,10 +16,11 @@ export function HowTradingWorks() {
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-[var(--text-muted)]">
               Intended primary market:{" "}
-              <strong className="text-white">{siteConfig.proposedPair}</strong>.
-              The pair is not yet confirmed. Launch remains subject to platform
-              support, liquidity testing, jurisdictional eligibility, and legal
-              review.
+              <strong className="text-white">
+                ${siteConfig.ticker} / {quote.displayName}
+              </strong>
+              . Pair status: {siteConfig.pairStatus}. Subject to Bankr rules and
+              eligibility.
             </p>
           </div>
           <Link
