@@ -85,6 +85,85 @@ body {
     radial-gradient(ellipse 60% 40% at 80% 0%, rgba(34, 197, 94, 0.04), transparent 50%);
 }
 
+/* Mascot art — soft blend into page bg, no card/modal chrome */
+.mascot-scene {
+  isolation: isolate;
+}
+
+.mascot-scene img {
+  display: block;
+}
+
+/* Soft vignette + slight orange bloom so subject stays vivid */
+.mascot-blend-ambient {
+  -webkit-mask-image:
+    radial-gradient(ellipse 88% 88% at 50% 45%, #000 42%, transparent 78%),
+    linear-gradient(#000, #000);
+  mask-image:
+    radial-gradient(ellipse 88% 88% at 50% 45%, #000 42%, transparent 78%);
+  filter: drop-shadow(0 0 48px rgba(247, 147, 26, 0.14));
+}
+
+.mascot-blend-edge-left {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 18%,
+    #000 78%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 18%,
+    #000 78%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 56px rgba(247, 147, 26, 0.16));
+}
+
+.mascot-blend-edge-right {
+  -webkit-mask-image: linear-gradient(
+    270deg,
+    transparent 0%,
+    #000 18%,
+    #000 78%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    270deg,
+    transparent 0%,
+    #000 18%,
+    #000 78%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 56px rgba(247, 147, 26, 0.16));
+}
+
+.mascot-blend-soft {
+  -webkit-mask-image: radial-gradient(
+    ellipse 95% 90% at 50% 50%,
+    #000 55%,
+    transparent 88%
+  );
+  mask-image: radial-gradient(
+    ellipse 95% 90% at 50% 50%,
+    #000 55%,
+    transparent 88%
+  );
+  filter: drop-shadow(0 0 40px rgba(247, 147, 26, 0.12));
+}
+
+/* Fallback when mask not great: keep opacity high so art stays readable */
+@supports not (mask-image: linear-gradient(black, black)) {
+  .mascot-blend-ambient,
+  .mascot-blend-edge-left,
+  .mascot-blend-edge-right,
+  .mascot-blend-soft {
+    opacity: 0.95;
+  }
+}
+
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);

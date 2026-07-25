@@ -32,11 +32,12 @@ export default function ThesisPage() {
         {siteConfig.creed} — {siteConfig.communityName}.
       </p>
 
-      <div className="not-prose mx-auto mt-8 max-w-lg">
+      <div className="not-prose relative mx-auto mt-8 max-w-xl">
         <MascotFrame
           src={siteConfig.brand.thesis}
           alt={siteConfig.brand.thesisAlt}
-          sizes="(max-width: 768px) 100vw, 520px"
+          blend="ambient"
+          sizes="(max-width: 768px) 100vw, 560px"
         />
       </div>
 

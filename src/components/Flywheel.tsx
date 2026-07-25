@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { siteConfig } from "../lib/config";
 import { MascotFrame } from "./MascotFrame";
 
@@ -12,10 +13,31 @@ const steps = [
 
 export function Flywheel() {
   return (
-    <section id="flywheel" className="border-b border-[var(--border)]">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
-        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:gap-10">
-          <div>
+    <section
+      id="flywheel"
+      className="relative isolate overflow-hidden border-b border-[var(--border)]"
+    >
+      {/* Blended side atmosphere (desktop) */}
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 hidden w-[48%] lg:block"
+        aria-hidden
+      >
+        <Image
+          src={siteConfig.brand.flywheel}
+          alt=""
+          fill
+          sizes="48vw"
+          className="object-cover object-center opacity-95"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg)] via-[var(--bg)]/55 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-transparent to-[var(--bg)]/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--bg)]/80" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_75%_50%,rgba(247,147,26,0.1),transparent_70%)]" />
+      </div>
+
+      <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-10">
+          <div className="relative z-10 max-w-xl">
             <p className="card-label mb-2">Capital engine</p>
             <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
               MSTR–Bitcoin flywheel
@@ -30,7 +52,7 @@ export function Flywheel() {
               This is a thesis, not a guaranteed causal chain.
             </p>
 
-            <p className="mt-5 rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-3 text-sm leading-relaxed text-white">
+            <p className="mt-5 text-sm leading-relaxed text-white">
               Buy ${siteConfig.ticker} → tokenized MSTR enters the pool → the
               market grows → the thesis spreads → repeat.
             </p>
@@ -41,20 +63,24 @@ export function Flywheel() {
             </p>
           </div>
 
-          <div className="mx-auto w-full max-w-md lg:max-w-none">
+          {/* Mobile / tablet: blended plate under copy */}
+          <div className="relative z-10 mx-auto w-full max-w-md lg:hidden">
             <MascotFrame
               src={siteConfig.brand.flywheel}
               alt={siteConfig.brand.flywheelAlt}
+              blend="soft"
               sizes="(max-width: 1024px) 100vw, 480px"
             />
           </div>
+          <span className="sr-only lg:not-sr-only lg:absolute lg:opacity-0">
+            {siteConfig.brand.flywheelAlt}
+          </span>
         </div>
 
-        {/* Desktop horizontal */}
-        <div className="mt-10 hidden flex-wrap items-center justify-center gap-2 lg:flex">
+        <div className="relative z-10 mt-10 hidden flex-wrap items-center justify-center gap-2 lg:flex">
           {steps.map((step, i) => (
             <div key={step} className="flex items-center gap-2">
-              <div className="flywheel-node card border-[var(--accent-border)]/50 px-3 py-2.5">
+              <div className="flywheel-node rounded-lg border border-[var(--accent-border)]/40 bg-[var(--bg)]/70 px-3 py-2.5 backdrop-blur-sm">
                 <p className="text-xs font-semibold text-white">{step}</p>
               </div>
               {i < steps.length - 1 ? (
@@ -76,8 +102,7 @@ export function Flywheel() {
           ))}
         </div>
 
-        {/* Mobile vertical */}
-        <ol className="mt-8 space-y-0 lg:hidden">
+        <ol className="relative z-10 mt-8 space-y-0 lg:hidden">
           {steps.map((step, i) => (
             <li key={step} className="flex gap-3 pb-3 last:pb-0">
               <div className="flex flex-col items-center">
