@@ -8,8 +8,10 @@ import { getDashboardData } from "../../lib/data";
 
 export const metadata: Metadata = {
   title: `Terminal — ${siteConfig.projectName}`,
-  description: `$${siteConfig.ticker} market terminal: pool balances, fees, and contract verification. No fake data before launch.`,
+  description: `$${siteConfig.ticker} market terminal: pool balances, fees, and contract verification.`,
 };
+
+export const revalidate = 60;
 
 export default async function TerminalPage() {
   const data = await getDashboardData();

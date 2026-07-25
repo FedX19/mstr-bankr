@@ -16,7 +16,14 @@ export function formatUsd(
 
   const abs = Math.abs(value);
   const fractionDigits =
-    digits ?? (abs > 0 && abs < 0.01 ? 6 : abs < 1 ? 4 : 2);
+    digits ??
+    (abs > 0 && abs < 1e-6
+      ? 10
+      : abs > 0 && abs < 0.01
+        ? 8
+        : abs < 1
+          ? 4
+          : 2);
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",

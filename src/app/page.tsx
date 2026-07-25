@@ -8,6 +8,9 @@ import { RiskStrip } from "../components/RiskStrip";
 import { StatusBar } from "../components/StatusBar";
 import { getDashboardData } from "../lib/data";
 
+/** Refresh market data about once a minute. */
+export const revalidate = 60;
+
 export default async function Home() {
   const data = await getDashboardData();
 

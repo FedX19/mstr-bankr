@@ -38,8 +38,12 @@ function Metric({
 }
 
 export function TerminalDashboard({ data }: Props) {
-  const live = isLive() && data.meta.isLive;
-  const empty = pendingLabel(live);
+  const live =
+    data.meta.isLive ||
+    data.meta.status === "ok" ||
+    isLive() ||
+    data.token.priceUsd != null;
+  const empty = pendingLabel(Boolean(live));
   const quote = getQuoteAsset();
   const quoteAddr = getQuoteAssetAddress();
 
@@ -98,10 +102,27 @@ export function TerminalDashboard({ data }: Props) {
               View on Bankr →
             </a>
           </div>
-          {live && data.meta.status === "stale" ? (
-            <p className="mt-3 text-xs text-[var(--text-dim)]">
-              Contract is live. Market metrics show “Data pending” until on-chain
-              feeds are wired — we do not invent prices or balances.
+          {data.pool.pairUrl ? (
+            <p className="mt-3 text-xs">
+              <a
+                href={data.pool.pairUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-[var(--accent)] hover:opacity-85"
+              >
+                Chart on DexScreener →
+              </a>
+            </p>
+          ) : siteConfig.dexscreenerUrl ? (
+            <p className="mt-3 text-xs">
+              <a
+                href={siteConfig.dexscreenerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-[var(--accent)] hover:opacity-85"
+              >
+                Chart on DexScreener →
+              </a>
             </p>
           ) : null}
         </div>
@@ -209,7 +230,7 @@ export function TerminalDashboard({ data }: Props) {
             }
           />
           <Metric
-            label="Unique traders"
+            label="24h trades (buys+sells)"
             value={
               data.token.uniqueTraders != null
                 ? formatNumber(data.token.uniqueTraders)
@@ -271,8 +292,23 @@ export function TerminalDashboard({ data }: Props) {
                 mono: true,
               },
               {
-                label: "Pool",
-                value: siteConfig.poolAddress ?? "Not live",
+                label: "Pool manager",
+                value: siteConfig.poolAddress ?? "—",
+                mono: true,
+              },
+              {
+                label: "Pair id (V4)",
+                value: siteConfig.poolId ?? data.pool.pairAddress ?? "—",
+                mono: true,
+              },
+              {
+                label: "Deployment tx",
+                value: siteConfig.deploymentTx ?? "—",
+                mono: true,
+              },
+              {
+                label: "Fee beneficiary",
+                value: siteConfig.feeBeneficiary ?? "—",
                 mono: true,
               },
               {

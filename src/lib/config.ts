@@ -139,15 +139,28 @@ export const siteConfig = {
 
   memeTokenAddress:
     "0x35B97a24b18B8b4e09cB43F7805740792Af43ba3" as string | null,
-  poolId: null as string | null,
-  poolAddress: null as string | null,
-  feeBeneficiary: null as string | null,
-  deploymentTx: null as string | null,
+  /** Uniswap V4 pair id (DexScreener / pool identity) */
+  poolId:
+    "0xfc1fe65f39e60ae8da0f7444d4e2143b652a4f88bc91e4306fc45143ee2d64b6" as
+      | string
+      | null,
+  /** Uniswap V4 PoolManager on Robinhood Chain */
+  poolAddress: "0x8366a39CC670B4001A1121B8F6A443A643e40951" as string | null,
+  feeBeneficiary:
+    "0x1B37D3a72082029c44B35B604Ea473617580b69a" as string | null,
+  deploymentTx:
+    "0xa6271720ecec42b19edd31de2d4aacbef7178a8f4d3f9913c84014fbfaabf8c1" as
+      | string
+      | null,
 
   bankrUrl: "https://bankr.bot",
   /** Prefer token-specific Bankr page when known */
   bankrLaunchUrl:
     "https://bankr.bot/token/0x35B97a24b18B8b4e09cB43F7805740792Af43ba3" as
+      | string
+      | null,
+  dexscreenerUrl:
+    "https://dexscreener.com/robinhood/0xfc1fe65f39e60ae8da0f7444d4e2143b652a4f88bc91e4306fc45143ee2d64b6" as
       | string
       | null,
   bankrBaseUrl: "https://bankr.bot",

@@ -8,9 +8,13 @@ type Props = {
 };
 
 export function MissionScoreboard({ data }: Props) {
-  const live = isLive() && data.meta.isLive;
+  // Show live metrics whenever feeds return data (or config is live).
+  const live =
+    data.meta.isLive ||
+    data.meta.status === "ok" ||
+    (isLive() && data.token.priceUsd != null);
   const quote = getQuoteAsset();
-  const empty = pendingLabel(live);
+  const empty = pendingLabel(Boolean(live));
 
   const liveMetrics: { label: string; value: string }[] = [
     {
@@ -33,7 +37,7 @@ export function MissionScoreboard({ data }: Props) {
       value: formatUsd(data.token.cumulativeVolumeUsd, { compact: true }),
     },
     {
-      label: "Unique traders",
+      label: "24h trades",
       value:
         data.token.uniqueTraders != null
           ? formatNumber(data.token.uniqueTraders)
