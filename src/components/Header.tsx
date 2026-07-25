@@ -4,7 +4,8 @@ import { BrandMark } from "./BrandMark";
 
 const nav = [
   { href: "/", label: "Home" },
-  { href: "/buy", label: "Buy" },
+  { href: "/swap", label: "Swap" },
+  { href: "/buy", label: "Guide" },
   { href: "/thesis", label: "Thesis" },
   { href: "/terminal", label: "Terminal" },
   { href: "/risks", label: "Risks" },
@@ -47,10 +48,10 @@ export function Header() {
           </span>
           {live ? (
             <Link
-              href="/buy"
+              href="/swap"
               className="btn-primary hidden rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider sm:inline-flex"
             >
-              Buy ${siteConfig.ticker}
+              Swap
             </Link>
           ) : (
             <span className="text-xs text-[var(--text-dim)]">

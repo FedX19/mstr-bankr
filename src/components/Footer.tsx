@@ -8,7 +8,8 @@ import { BrandMark } from "./BrandMark";
 
 export function Footer() {
   const links: { label: string; href: string; external?: boolean }[] = [
-    { label: "Buy", href: "/buy" },
+    { label: "Swap", href: "/swap" },
+    { label: "Guide", href: "/buy" },
     { label: "Thesis", href: "/thesis" },
     { label: "Terminal", href: "/terminal" },
     { label: "Risks", href: "/risks" },

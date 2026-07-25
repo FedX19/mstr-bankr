@@ -14,20 +14,28 @@ export function BuyStrip() {
             <BrandMark size="md" glow />
             <div>
               <p className="text-sm font-semibold text-white sm:text-base">
-                New to crypto? Start here.
+                Trade ${siteConfig.ticker} in-app
               </p>
               <p className="mt-1 text-sm text-[var(--text-muted)]">
-                Step-by-step buy guide for ${siteConfig.ticker} — wallet setup,
-                contract check, then swap on Bankr. We never hold your funds.
+                Bankr swap hosted inside Roaring Stacker. Prefer a walkthrough?
+                Use the beginner guide — we never hold your funds.
               </p>
             </div>
           </div>
-          <Link
-            href="/buy"
-            className="btn-primary inline-flex shrink-0 items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold"
-          >
-            Buy ${siteConfig.ticker}
-          </Link>
+          <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+            <Link
+              href="/swap"
+              className="btn-primary inline-flex items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold"
+            >
+              Open swap
+            </Link>
+            <Link
+              href="/buy"
+              className="btn-ghost inline-flex items-center justify-center rounded-lg px-5 py-3 text-sm font-medium"
+            >
+              Beginner guide
+            </Link>
+          </div>
         </div>
       </div>
     </section>
