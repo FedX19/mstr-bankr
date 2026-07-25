@@ -16,45 +16,11 @@ export function Hero() {
 
   return (
     <section className="relative isolate overflow-hidden border-b border-[var(--border)]">
-      {/* Full-bleed blended mascot atmosphere */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute inset-0 bg-[var(--bg)]" />
-        {/* Mobile: image sits lower / centered, faded for copy */}
-        <div className="absolute inset-x-0 bottom-0 top-[28%] md:hidden">
-          <Image
-            src={siteConfig.brand.mascotHero}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_30%] opacity-90"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)]/55 to-[var(--bg)]/90" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg)] via-transparent to-[var(--bg)]" />
-        </div>
-        {/* Desktop: strong presence on the right, soft left fade into copy */}
-        <div className="absolute inset-y-0 right-0 hidden w-[58%] md:block lg:w-[54%]">
-          <Image
-            src={siteConfig.brand.mascotHero}
-            alt=""
-            fill
-            priority
-            sizes="54vw"
-            className="object-cover object-[center_center]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg)] via-[var(--bg)]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-transparent to-[var(--bg)]/50" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--bg)]/70" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_70%_45%,rgba(247,147,26,0.12),transparent_65%)]" />
-        </div>
-        <div className="bg-radial-glow absolute inset-0 opacity-80" />
-      </div>
+      <div className="bg-radial-glow absolute inset-0 opacity-70" aria-hidden />
 
-      {/* Accessible alt for the decorative background art */}
-      <span className="sr-only">{siteConfig.brand.heroAlt}</span>
-
-      <div className="relative mx-auto flex min-h-[min(78svh,680px)] max-w-6xl flex-col justify-end px-4 pb-12 pt-20 sm:min-h-[min(72vh,700px)] sm:px-6 sm:pb-16 sm:pt-24 md:justify-center lg:py-24">
-        <div className="max-w-xl lg:max-w-2xl">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-6 px-4 py-12 sm:gap-8 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-6 lg:py-16">
+        {/* Copy */}
+        <div className="order-1 z-10 max-w-xl">
           <div className="mb-4 flex flex-wrap items-center gap-2.5">
             <BrandMark size="sm" priority glow />
             <span className="badge badge-accent">${siteConfig.ticker}</span>
@@ -65,22 +31,22 @@ export function Hero() {
             ROARING STACKER
           </p>
 
-          <h1 className="text-[2.25rem] font-semibold leading-[1.05] tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.85)] sm:text-5xl md:text-6xl lg:text-[3.5rem]">
+          <h1 className="text-[2.25rem] font-semibold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[3.35rem]">
             {siteConfig.mainHeadline}
           </h1>
 
-          <p className="mt-4 text-base font-medium tracking-wide text-[var(--accent)] drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)] sm:text-lg">
+          <p className="mt-4 text-base font-medium tracking-wide text-[var(--accent)] sm:text-lg">
             {siteConfig.thesisLine}
           </p>
 
-          <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-zinc-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.85)] sm:text-lg">
+          <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-[var(--text-muted)] sm:text-lg">
             Bitcoin trades 24/7. ${siteConfig.ticker} is a cultural market
             paired with {quote.displayName.toLowerCase()}. Buying $
             {siteConfig.ticker} through the MSTR pair adds tokenized MSTR
             exposure to the pool.
           </p>
 
-          <p className="mt-2 text-[11px] text-zinc-400 sm:text-xs">
+          <p className="mt-2 text-[11px] text-[var(--text-dim)] sm:text-xs">
             {siteConfig.primarySlogan}
             {" · "}
             {siteConfig.creed}
@@ -121,6 +87,21 @@ export function Hero() {
                 </Link>
               </>
             )}
+          </div>
+        </div>
+
+        {/* Mascot — large, clear, lightly feathered into bg (not boxed) */}
+        <div className="order-2 relative w-full justify-self-center lg:justify-self-end">
+          <div className="mascot-hero-plate relative mx-auto w-full max-w-2xl lg:max-w-none">
+            <Image
+              src={siteConfig.brand.mascotHero}
+              alt={siteConfig.brand.heroAlt}
+              width={1672}
+              height={941}
+              priority
+              sizes="(max-width: 1024px) 100vw, 56vw"
+              className="h-auto w-full object-cover object-center"
+            />
           </div>
         </div>
       </div>

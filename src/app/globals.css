@@ -94,74 +94,112 @@ body {
   display: block;
 }
 
-/* Soft vignette + slight orange bloom so subject stays vivid */
+/*
+ * Homepage plates: keep the subject sharp and bright.
+ * Only the outer edges feather into graphite — no heavy scrim over the face/art.
+ */
+.mascot-hero-plate,
+.mascot-flywheel-plate {
+  isolation: isolate;
+  filter: drop-shadow(0 12px 48px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 40px rgba(247, 147, 26, 0.18));
+}
+
+.mascot-hero-plate {
+  -webkit-mask-image: radial-gradient(
+    ellipse 92% 88% at 52% 48%,
+    #000 58%,
+    rgba(0, 0, 0, 0.85) 78%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 92% 88% at 52% 48%,
+    #000 58%,
+    rgba(0, 0, 0, 0.85) 78%,
+    transparent 100%
+  );
+}
+
+.mascot-flywheel-plate {
+  -webkit-mask-image: radial-gradient(
+    ellipse 94% 90% at 50% 50%,
+    #000 62%,
+    rgba(0, 0, 0, 0.9) 82%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 94% 90% at 50% 50%,
+    #000 62%,
+    rgba(0, 0, 0, 0.9) 82%,
+    transparent 100%
+  );
+}
+
+/* Softer vignettes for secondary pages (thesis etc.) */
 .mascot-blend-ambient {
-  -webkit-mask-image:
-    radial-gradient(ellipse 88% 88% at 50% 45%, #000 42%, transparent 78%),
-    linear-gradient(#000, #000);
-  mask-image:
-    radial-gradient(ellipse 88% 88% at 50% 45%, #000 42%, transparent 78%);
-  filter: drop-shadow(0 0 48px rgba(247, 147, 26, 0.14));
+  -webkit-mask-image: radial-gradient(
+    ellipse 92% 90% at 50% 48%,
+    #000 52%,
+    rgba(0, 0, 0, 0.75) 80%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 92% 90% at 50% 48%,
+    #000 52%,
+    rgba(0, 0, 0, 0.75) 80%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 40px rgba(247, 147, 26, 0.16));
 }
 
 .mascot-blend-edge-left {
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    #000 18%,
-    #000 78%,
+    #000 12%,
+    #000 88%,
     transparent 100%
   );
   mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    #000 18%,
-    #000 78%,
+    #000 12%,
+    #000 88%,
     transparent 100%
   );
-  filter: drop-shadow(0 0 56px rgba(247, 147, 26, 0.16));
+  filter: drop-shadow(0 0 48px rgba(247, 147, 26, 0.18));
 }
 
 .mascot-blend-edge-right {
   -webkit-mask-image: linear-gradient(
     270deg,
     transparent 0%,
-    #000 18%,
-    #000 78%,
+    #000 12%,
+    #000 88%,
     transparent 100%
   );
   mask-image: linear-gradient(
     270deg,
     transparent 0%,
-    #000 18%,
-    #000 78%,
+    #000 12%,
+    #000 88%,
     transparent 100%
   );
-  filter: drop-shadow(0 0 56px rgba(247, 147, 26, 0.16));
+  filter: drop-shadow(0 0 48px rgba(247, 147, 26, 0.18));
 }
 
 .mascot-blend-soft {
   -webkit-mask-image: radial-gradient(
-    ellipse 95% 90% at 50% 50%,
-    #000 55%,
-    transparent 88%
+    ellipse 96% 92% at 50% 50%,
+    #000 68%,
+    transparent 100%
   );
   mask-image: radial-gradient(
-    ellipse 95% 90% at 50% 50%,
-    #000 55%,
-    transparent 88%
+    ellipse 96% 92% at 50% 50%,
+    #000 68%,
+    transparent 100%
   );
-  filter: drop-shadow(0 0 40px rgba(247, 147, 26, 0.12));
-}
-
-/* Fallback when mask not great: keep opacity high so art stays readable */
-@supports not (mask-image: linear-gradient(black, black)) {
-  .mascot-blend-ambient,
-  .mascot-blend-edge-left,
-  .mascot-blend-edge-right,
-  .mascot-blend-soft {
-    opacity: 0.95;
-  }
+  filter: drop-shadow(0 0 36px rgba(247, 147, 26, 0.14));
 }
 
 .card {
