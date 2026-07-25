@@ -1,3 +1,4 @@
+import { BuyStrip } from "../components/BuyStrip";
 import { Flywheel } from "../components/Flywheel";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
@@ -20,6 +21,7 @@ export default async function Home() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <BuyStrip />
         <OnePool />
         <Flywheel />
         <MissionScoreboard data={data} />

@@ -8,13 +8,13 @@ import { BrandMark } from "./BrandMark";
 
 export function Footer() {
   const links: { label: string; href: string; external?: boolean }[] = [
+    { label: "Buy", href: "/buy" },
     { label: "Thesis", href: "/thesis" },
     { label: "Terminal", href: "/terminal" },
     { label: "Risks", href: "/risks" },
     { label: "How It Works", href: "/how-it-works" },
     { label: "Terms", href: "/terms" },
     { label: "Privacy", href: "/privacy" },
-    { label: "GitHub", href: siteConfig.officialGitHub, external: true },
     { label: "X", href: siteConfig.officialX, external: true },
   ];
 

@@ -100,20 +100,26 @@ export function Hero() {
                 </>
               ) : (
                 <>
-                  <a
-                    href={getBankrUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href="/buy"
                     className="btn-primary inline-flex w-full items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold sm:w-auto sm:py-2.5"
                   >
-                    View on Bankr
-                  </a>
+                    Buy ${siteConfig.ticker}
+                  </Link>
                   <Link
                     href="/terminal"
                     className="btn-ghost inline-flex w-full items-center justify-center rounded-lg px-5 py-3 text-sm font-medium sm:w-auto sm:py-2.5"
                   >
-                    Verify Contract
+                    Market terminal
                   </Link>
+                  <a
+                    href={getBankrUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full items-center justify-center py-2 text-sm font-medium text-zinc-300 underline-offset-4 hover:text-white hover:underline sm:w-auto"
+                  >
+                    Open Bankr
+                  </a>
                 </>
               )}
             </div>
