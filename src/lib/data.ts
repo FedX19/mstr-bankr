@@ -121,11 +121,17 @@ export function createEmptyDashboard(): DashboardData {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
-  // Live adapters reserved — do not invent values.
-  if (!isLive()) {
-    return createEmptyDashboard();
+  // Live adapters reserved — never invent prices/balances.
+  const data = createEmptyDashboard();
+
+  if (isLive()) {
+    data.meta.isLive = true;
+    data.meta.status = "stale";
+    data.meta.source = "contract live · market feeds pending";
+    data.meta.lastUpdated = null;
   }
-  return createEmptyDashboard();
+
+  return data;
 }
 
 /** Display helper for null metrics. */

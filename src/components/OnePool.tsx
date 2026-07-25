@@ -42,9 +42,9 @@ export function OnePool() {
         </div>
 
         <p className="mx-auto mt-6 max-w-2xl text-center text-sm leading-relaxed text-[var(--text-muted)]">
-          Buying through the proposed primary pool adds tokenized{" "}
-          {quote.symbol} exposure to the pool. Selling removes it. Pool
-          composition changes continuously and is publicly visible.
+          Buying through the primary pool adds tokenized {quote.symbol} exposure
+          to the pool. Selling removes it. Pool composition changes continuously
+          and is publicly visible.
         </p>
 
         <div className="card mx-auto mt-5 max-w-2xl border-[var(--border-strong)] p-4 sm:p-5">

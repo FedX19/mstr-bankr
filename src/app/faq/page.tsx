@@ -79,7 +79,7 @@ export default function FaqPage() {
     },
     {
       q: "Is the token live?",
-      a: "Not yet. The project is in prelaunch. There is no official token contract to trade.",
+      a: `Yes. Official meme contract: ${getMemeContractDisplay()}. Verify only on this site and official channels before trading.`,
     },
     {
       q: "Can I lose money?",

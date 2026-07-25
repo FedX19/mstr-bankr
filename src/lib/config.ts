@@ -96,15 +96,15 @@ export const siteConfig = {
   thesisLine: "MSTR is the stock. Bitcoin is the stack.",
   creed: "Conviction before confirmation.",
 
-  launchStatus: "prelaunch" as LaunchStatus,
-  tradingEnabled: false,
+  launchStatus: "live" as LaunchStatus,
+  tradingEnabled: true,
 
   /** Pair / chain — switch without redesign */
   chainName: "Robinhood Chain",
   chainId: 4663,
   quoteAssetKey: "MSTR" as QuoteAssetKey,
   quoteAssetSymbol: "MSTR",
-  pairStatus: "pending-bankr-approval" as PairStatus,
+  pairStatus: "live" as PairStatus,
   fallbackPair: "WETH" as FallbackPair,
 
   metaTitle: "Roaring Stacker — The Stack Never Stops",
@@ -137,20 +137,25 @@ export const siteConfig = {
 
   chain: robinhoodChain,
 
-  memeTokenAddress: null as string | null,
+  memeTokenAddress:
+    "0x35B97a24b18B8b4e09cB43F7805740792Af43ba3" as string | null,
   poolId: null as string | null,
   poolAddress: null as string | null,
   feeBeneficiary: null as string | null,
   deploymentTx: null as string | null,
 
   bankrUrl: "https://bankr.bot",
-  bankrLaunchUrl: null as string | null,
+  /** Prefer token-specific Bankr page when known */
+  bankrLaunchUrl:
+    "https://bankr.bot/token/0x35B97a24b18B8b4e09cB43F7805740792Af43ba3" as
+      | string
+      | null,
   bankrBaseUrl: "https://bankr.bot",
   explorerUrl: robinhoodChain.explorerUrl,
 
   platformName: "Bankr",
   /** Optional flags / labels used by secondary pages */
-  platformStatus: "subject to confirmation",
+  platformStatus: "live",
   jurisdictionNoticeEnabled: true,
 
   officialWebsite: "https://mstr-bankr.vercel.app",

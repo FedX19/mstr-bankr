@@ -18,8 +18,15 @@ export default function TransparencyPage() {
   const quote = getQuoteAsset();
 
   const rows: { label: string; value: string; mono?: boolean }[] = [
-    { label: "Status", value: "Prelaunch" },
-    { label: "Official token", value: "Not deployed" },
+    {
+      label: "Status",
+      value: siteConfig.launchStatus === "live" ? "Live" : "Prelaunch",
+    },
+    {
+      label: "Official token",
+      value:
+        siteConfig.memeTokenAddress != null ? "Deployed" : "Not deployed",
+    },
     {
       label: "Official contract",
       value: getMemeContractDisplay(),

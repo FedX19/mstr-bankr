@@ -65,19 +65,54 @@ export function TerminalDashboard({ data }: Props) {
             Source: {data.meta.source}
             {data.meta.lastUpdated
               ? ` · Updated ${data.meta.lastUpdated}`
-              : " · Not live"}
+              : live
+                ? " · Feeds pending"
+                : " · Not live"}
           </p>
         </div>
       </div>
 
-      {!live ? (
+      {siteConfig.memeTokenAddress ? (
+        <div className="card border-[var(--accent-border)] bg-[var(--accent-soft)] p-4 sm:p-5">
+          <p className="card-label mb-1 text-[var(--accent)]">
+            Official meme contract
+          </p>
+          <p className="stat-value break-all text-sm text-white sm:text-base">
+            {siteConfig.memeTokenAddress}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-3 text-xs">
+            <a
+              href={`${siteConfig.chain.explorerAddressBase}${siteConfig.memeTokenAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-[var(--accent)] hover:opacity-85"
+            >
+              View on explorer →
+            </a>
+            <a
+              href={siteConfig.bankrLaunchUrl ?? siteConfig.bankrUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-[var(--text-muted)] hover:text-white"
+            >
+              View on Bankr →
+            </a>
+          </div>
+          {live && data.meta.status === "stale" ? (
+            <p className="mt-3 text-xs text-[var(--text-dim)]">
+              Contract is live. Market metrics show “Data pending” until on-chain
+              feeds are wired — we do not invent prices or balances.
+            </p>
+          ) : null}
+        </div>
+      ) : (
         <div className="card border-[var(--accent-border)] bg-[var(--accent-soft)] p-4">
           <p className="text-sm text-[var(--text-muted)]">
             No official market is live. Metrics stay empty until launch. Never
             trust a contract unless published here and on the official X account.
           </p>
         </div>
-      ) : null}
+      )}
 
       <section>
         <h2 className="card-label mb-3">$STACKR market</h2>

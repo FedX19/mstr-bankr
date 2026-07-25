@@ -5,7 +5,8 @@
 > MSTR is the stock. Bitcoin is the stack.
 
 **Ticker:** `$STACKR` · **Community:** The Stackers  
-**Status:** Prelaunch · **Pair:** `$STACKR / tokenized MSTR` (pending Bankr approval)  
+**Status:** Live · **Contract:** `0x35B97a24b18B8b4e09cB43F7805740792Af43ba3`  
+**Pair:** `$STACKR / tokenized MSTR`  
 **Site:** https://mstr-bankr.vercel.app  
 **Repo:** https://github.com/FedX19/mstr-bankr
 
@@ -27,8 +28,9 @@ Detail lives on **Thesis**, **Terminal**, and **Risks**.
 | --- | --- |
 | `projectName` | Roaring Stacker |
 | `ticker` | STACKR |
-| `launchStatus` | prelaunch |
-| `tradingEnabled` | false |
+| `launchStatus` | live |
+| `tradingEnabled` | true |
+| `memeTokenAddress` | `0x35B97a24b18B8b4e09cB43F7805740792Af43ba3` |
 | `chainName` / `chainId` | Robinhood Chain / 4663 |
 | `quoteAssetKey` | MSTR |
 | `pairStatus` | pending-bankr-approval |

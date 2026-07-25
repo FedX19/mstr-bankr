@@ -173,7 +173,7 @@ export const homepageFaq = [
   },
   {
     q: "Is a token live?",
-    a: "No. Status is prelaunch. There is no official contract. Do not trust any contract unless published on this site and the official social account.",
+    a: `Yes. Official contract: ${siteConfig.memeTokenAddress ?? "see Terminal"}. Verify only on this site and the official X account. Do not trust copycats.`,
   },
   {
     q: "Does a higher MSTR price force Bitcoin buys?",
