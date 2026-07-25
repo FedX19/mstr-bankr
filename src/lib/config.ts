@@ -154,9 +154,9 @@ export const siteConfig = {
       | null,
 
   bankrUrl: "https://bankr.bot",
-  /** Prefer token-specific Bankr page when known */
+  /** Official buy / swap deep link (Bankr trade terminal) */
   bankrLaunchUrl:
-    "https://bankr.bot/token/0x35B97a24b18B8b4e09cB43F7805740792Af43ba3" as
+    "https://bankr.bot/terminal/trade?out=0x35B97a24b18B8b4e09cB43F7805740792Af43ba3&chain=robinhood" as
       | string
       | null,
   dexscreenerUrl:
