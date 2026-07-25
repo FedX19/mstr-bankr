@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { isLive, siteConfig } from "../lib/config";
 import { BrandMark } from "./BrandMark";
+import { BuyNowButton } from "./BuyNowButton";
 
 const nav = [
   { href: "/", label: "Home" },
-  { href: "/swap", label: "Swap" },
-  { href: "/buy", label: "Guide" },
   { href: "/thesis", label: "Thesis" },
+  { href: "/tokenomics", label: "Tokenomics" },
   { href: "/terminal", label: "Terminal" },
   { href: "/risks", label: "Risks" },
 ];
@@ -47,12 +47,10 @@ export function Header() {
             {live ? "Live" : "Prelaunch"}
           </span>
           {live ? (
-            <Link
-              href="/swap"
+            <BuyNowButton
+              label="Buy now"
               className="btn-primary hidden rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider sm:inline-flex"
-            >
-              Swap
-            </Link>
+            />
           ) : (
             <span className="text-xs text-[var(--text-dim)]">
               ${siteConfig.ticker}
@@ -82,6 +80,12 @@ export function Header() {
             {item.label}
           </Link>
         ))}
+        {live ? (
+          <BuyNowButton
+            label="Buy now"
+            className="btn-primary shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider"
+          />
+        ) : null}
       </nav>
     </header>
   );

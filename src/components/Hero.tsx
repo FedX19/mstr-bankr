@@ -7,6 +7,7 @@ import {
   siteConfig,
 } from "../lib/config";
 import { BrandMark } from "./BrandMark";
+import { BuyNowButton } from "./BuyNowButton";
 
 export function Hero() {
   const live = isLive();
@@ -99,17 +100,12 @@ export function Hero() {
                 </>
               ) : (
                 <>
+                  <BuyNowButton className="btn-primary inline-flex w-full items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold sm:w-auto sm:py-2.5" />
                   <Link
-                    href="/swap"
-                    className="btn-primary inline-flex w-full items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold sm:w-auto sm:py-2.5"
-                  >
-                    Swap ${siteConfig.ticker}
-                  </Link>
-                  <Link
-                    href="/buy"
+                    href="/tokenomics"
                     className="btn-ghost inline-flex w-full items-center justify-center rounded-lg px-5 py-3 text-sm font-medium sm:w-auto sm:py-2.5"
                   >
-                    Beginner guide
+                    Tokenomics
                   </Link>
                   <Link
                     href="/terminal"

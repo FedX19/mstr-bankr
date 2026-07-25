@@ -1,16 +1,18 @@
 import Link from "next/link";
 import {
+  getBankrUrl,
   getMemeContractDisplay,
   getPairLabel,
+  isLive,
   siteConfig,
 } from "../lib/config";
 import { BrandMark } from "./BrandMark";
+import { BuyNowButton } from "./BuyNowButton";
 
 export function Footer() {
   const links: { label: string; href: string; external?: boolean }[] = [
-    { label: "Swap", href: "/swap" },
-    { label: "Guide", href: "/buy" },
     { label: "Thesis", href: "/thesis" },
+    { label: "Tokenomics", href: "/tokenomics" },
     { label: "Terminal", href: "/terminal" },
     { label: "Risks", href: "/risks" },
     { label: "How It Works", href: "/how-it-works" },
@@ -18,6 +20,14 @@ export function Footer() {
     { label: "Privacy", href: "/privacy" },
     { label: "X", href: siteConfig.officialX, external: true },
   ];
+
+  if (isLive()) {
+    links.unshift({
+      label: "Buy on Bankr",
+      href: getBankrUrl(),
+      external: true,
+    });
+  }
 
   return (
     <footer className="relative overflow-hidden border-t border-[var(--border)]">
@@ -45,6 +55,11 @@ export function Footer() {
             <p className="mt-2 text-xs text-[var(--text-dim)]">
               Pair: {getPairLabel()} · Contract: {getMemeContractDisplay()}
             </p>
+            {isLive() ? (
+              <div className="mt-4">
+                <BuyNowButton className="btn-primary inline-flex rounded-lg px-4 py-2 text-xs font-semibold" />
+              </div>
+            ) : null}
           </div>
 
           <div className="flex flex-wrap gap-x-5 gap-y-2">
@@ -55,7 +70,7 @@ export function Footer() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs font-medium uppercase tracking-wider text-[var(--text-dim)] hover:text-white"
+                  className="text-sm text-[var(--text-muted)] hover:text-white"
                 >
                   {link.label}
                 </a>
@@ -63,7 +78,7 @@ export function Footer() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="text-xs font-medium uppercase tracking-wider text-[var(--text-dim)] hover:text-white"
+                  className="text-sm text-[var(--text-muted)] hover:text-white"
                 >
                   {link.label}
                 </Link>
@@ -78,14 +93,9 @@ export function Footer() {
           <p className="text-[11px] leading-relaxed text-[var(--text-dim)]">
             {siteConfig.nonAffiliation}
           </p>
-          <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-            <p className="text-[11px] text-[var(--text-dim)]">
-              {siteConfig.communityName}
-            </p>
-            <p className="text-[11px] text-[var(--text-dim)]">
-              © {new Date().getFullYear()} {siteConfig.projectName}
-            </p>
-          </div>
+          <p className="text-[11px] text-[var(--text-dim)]">
+            © {new Date().getFullYear()} {siteConfig.projectName}
+          </p>
         </div>
       </div>
     </footer>
