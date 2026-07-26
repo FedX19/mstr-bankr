@@ -1,10 +1,15 @@
 import type { BtcHistoryPoint } from "../lib/adapters/btc-history";
 import type { LedgerEvent } from "../lib/adapters/strategy-ledger";
 
+/** Strategy first BTC acquisition — never plot markers before this. */
+export const STRATEGY_FIRST_BTC = "2020-08-10";
+
 type Props = {
   btcHistory: BtcHistoryPoint[];
   events: LedgerEvent[];
   averageCost: number | null;
+  /** Preferred chart end date (week ending Sunday) */
+  endDate?: string | null;
   width?: number;
   height?: number;
   className?: string;
@@ -16,13 +21,18 @@ function clamp(n: number, a: number, b: number) {
   return Math.max(a, Math.min(b, n));
 }
 
-function niceYTicks(min: number, max: number, count = 5): number[] {
+/** Prefer clean $25k-style ticks when domain is large. */
+function yTicksForDomain(min: number, max: number): number[] {
+  const prefer = [0, 25_000, 50_000, 75_000, 100_000, 125_000, 150_000];
+  const inRange = prefer.filter((v) => v >= min - 1 && v <= max + 1);
+  if (inRange.length >= 3) return inRange;
+
   const span = Math.max(max - min, 1);
-  const raw = span / count;
+  const raw = span / 5;
   const pow = Math.pow(10, Math.floor(Math.log10(raw)));
   const candidates = [1, 2, 2.5, 5, 10].map((m) => m * pow);
   const step =
-    candidates.find((c) => span / c <= count + 1) ?? candidates[candidates.length - 1];
+    candidates.find((c) => span / c <= 6) ?? candidates[candidates.length - 1];
   const start = Math.floor(min / step) * step;
   const ticks: number[] = [];
   for (let v = start; v <= max + step * 0.01; v += step) {
@@ -32,74 +42,77 @@ function niceYTicks(min: number, max: number, count = 5): number[] {
 }
 
 function formatY(v: number): string {
+  if (Math.abs(v) < 0.5) return "$0";
   if (v >= 1000) return `$${(v / 1000).toFixed(0)}k`;
-  if (v >= 100) return `$${v.toFixed(0)}`;
   return `$${v.toFixed(0)}`;
 }
 
 function yearTicks(t0: number, t1: number): { t: number; label: string }[] {
   const startY = new Date(t0).getUTCFullYear();
   const endY = new Date(t1).getUTCFullYear();
-  const years = endY - startY;
   const out: { t: number; label: string }[] = [];
 
-  if (years >= 3) {
-    for (let y = startY; y <= endY; y++) {
-      const t = Date.UTC(y, 0, 1);
-      if (t >= t0 - 86400000 && t <= t1 + 86400000) {
-        out.push({ t, label: String(y) });
-      }
+  for (let y = startY; y <= endY; y++) {
+    const t = Date.UTC(y, 0, 1);
+    if (t >= t0 - 86400000 && t <= t1 + 86400000) {
+      out.push({ t, label: String(y) });
     }
-    // Ensure first/last year labels if range starts mid-year
-    if (out.length === 0 || out[0].t > t0 + 90 * 86400000) {
-      out.unshift({ t: t0, label: String(startY) });
-    }
-    return out;
   }
-
-  // Shorter ranges: month/year ticks
-  const d = new Date(t0);
-  d.setUTCDate(1);
-  d.setUTCHours(0, 0, 0, 0);
-  const stepMonths = years >= 1 ? 3 : 1;
-  while (d.getTime() <= t1) {
-    const t = d.getTime();
-    if (t >= t0) {
-      const label =
-        stepMonths >= 3
-          ? d.toLocaleString("en-US", { month: "short", year: "2-digit", timeZone: "UTC" })
-          : d.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
-      out.push({ t, label });
-    }
-    d.setUTCMonth(d.getUTCMonth() + stepMonths);
+  // Label range start if mid-year (e.g. 2020-08)
+  if (out.length === 0 || (out[0].t - t0) / (t1 - t0) > 0.08) {
+    out.unshift({ t: t0, label: String(startY) });
   }
-  return out.length ? out : [{ t: t0, label: new Date(t0).getUTCFullYear().toString() }];
+  // Dedupe by label+position proximity
+  const deduped: typeof out = [];
+  for (const xt of out) {
+    const prev = deduped[deduped.length - 1];
+    if (prev && Math.abs(prev.t - xt.t) < 60 * 86400000) continue;
+    deduped.push(xt);
+  }
+  return deduped;
 }
 
 /**
  * Pure SVG chart: real BTC USD axis + real date axis,
- * average-cost dashed line, purchase/sale bubbles.
- * Never collapses — empty/degraded states keep the plot frame.
+ * average-cost dashed line, purchase/sale bubbles sized by BTC amount.
+ * Range defaults to Strategy first buy (2020-08-10) → week ending.
  */
 export function StackCheckChart({
   btcHistory,
   events,
   averageCost,
+  endDate = null,
   width = 1100,
-  height = 380,
+  height = 420,
   className = "",
   compact = false,
 }: Props) {
-  // Extra bottom padding for x-axis labels + legend (legend outside plot)
+  // Pad: left for y labels + axis title, bottom for x labels + legend
   const pad = compact
-    ? { t: 12, r: 12, b: 40, l: 52 }
-    : { t: 18, r: 16, b: 48, l: 58 };
+    ? { t: 18, r: 10, b: 52, l: 56 }
+    : { t: 22, r: 14, b: 56, l: 62 };
   const iw = width - pad.l - pad.r;
   const ih = height - pad.t - pad.b;
 
+  const rangeStart = STRATEGY_FIRST_BTC;
+  const rangeEnd =
+    endDate && /^\d{4}-\d{2}-\d{2}$/.test(endDate)
+      ? endDate
+      : new Date().toISOString().slice(0, 10);
+
   const liveHistory = btcHistory.length >= 2;
-  const series = liveHistory ? btcHistory : [];
-  const empty = series.length < 2;
+  // Clip series to preferred Strategy era
+  const series = liveHistory
+    ? btcHistory.filter((p) => p.date >= rangeStart && p.date <= rangeEnd)
+    : [];
+  // If clip left us thin, fall back to full series after first buy
+  const plotSeries =
+    series.length >= 2
+      ? series
+      : liveHistory
+        ? btcHistory.filter((p) => p.date >= rangeStart)
+        : [];
+  const empty = plotSeries.length < 2;
 
   if (empty) {
     return (
@@ -107,7 +120,6 @@ export function StackCheckChart({
         className={`relative flex flex-col overflow-hidden rounded-md border border-[#2a2a30] bg-[#0c0c0e] ${className}`}
         style={{ width: "100%", aspectRatio: `${width} / ${height}` }}
       >
-        {/* Ghost axes so the card never looks empty */}
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="absolute inset-0 h-full w-full opacity-40"
@@ -143,7 +155,7 @@ export function StackCheckChart({
             BTC history temporarily unavailable
           </span>
           <p className="mt-2 max-w-xs text-center text-[11px] text-[#71717a]">
-            Chart frame held for layout. Metrics and markers use the latest ledger
+            Chart frame held for layout. Metrics still reflect the latest ledger
             snapshot.
           </p>
         </div>
@@ -151,40 +163,22 @@ export function StackCheckChart({
     );
   }
 
-  // Expand time range to include event dates outside history window
-  const eventTimes = events
-    .map((e) => Date.parse(e.date))
-    .filter((t) => Number.isFinite(t));
-  const seriesT0 = Date.parse(series[0].date);
-  const seriesT1 = Date.parse(series[series.length - 1].date);
-  const t0 = Math.min(seriesT0, ...eventTimes, seriesT0);
-  const t1 = Math.max(seriesT1, ...eventTimes, seriesT1);
+  const t0 = Date.parse(rangeStart);
+  const t1 = Math.max(
+    Date.parse(rangeEnd),
+    Date.parse(plotSeries[plotSeries.length - 1].date),
+  );
   const span = Math.max(t1 - t0, 1);
 
-  const prices = series.map((p) => p.priceUsd);
-  let yMin = Math.min(...prices);
-  let yMax = Math.max(...prices);
-  if (averageCost != null) {
-    yMin = Math.min(yMin, averageCost);
-    yMax = Math.max(yMax, averageCost);
-  }
-  for (const e of events) {
-    if (e.pricePerBtc != null) {
-      yMin = Math.min(yMin, e.pricePerBtc);
-      yMax = Math.max(yMax, e.pricePerBtc);
-    }
-  }
-  // Round to nice currency domain
-  const rawPad = (yMax - yMin) * 0.08 || yMax * 0.05;
-  yMin = Math.max(0, yMin - rawPad);
-  yMax = yMax + rawPad;
-  // Snap domain slightly for cleaner ticks
-  const approxStep = (yMax - yMin) / 4;
-  const mag = Math.pow(10, Math.floor(Math.log10(Math.max(approxStep, 1))));
-  yMin = Math.floor(yMin / mag) * mag;
-  yMax = Math.ceil(yMax / mag) * mag;
-  if (yMax <= yMin) yMax = yMin + mag;
-  const ySpan = yMax - yMin;
+  const prices = plotSeries.map((p) => p.priceUsd);
+  let yMin = 0;
+  let yMax = Math.max(...prices, averageCost ?? 0, 100_000);
+  // Headroom above peak
+  yMax = Math.max(yMax * 1.06, 100_000);
+  // Snap upper bound to $25k steps when sensible
+  yMax = Math.ceil(yMax / 25_000) * 25_000;
+  if (yMax < 100_000) yMax = 100_000;
+  const ySpan = yMax - yMin || 1;
 
   const xOf = (dateOrTs: string | number) => {
     const t = typeof dateOrTs === "number" ? dateOrTs : Date.parse(dateOrTs);
@@ -193,10 +187,11 @@ export function StackCheckChart({
   const yOf = (price: number) =>
     pad.t + (1 - (price - yMin) / ySpan) * ih;
 
-  // Downsample dense series for SVG path performance
-  const maxPts = compact ? 220 : 360;
-  const step = Math.max(1, Math.floor(series.length / maxPts));
-  const drawn = series.filter((_, i) => i % step === 0 || i === series.length - 1);
+  const maxPts = compact ? 240 : 400;
+  const step = Math.max(1, Math.floor(plotSeries.length / maxPts));
+  const drawn = plotSeries.filter(
+    (_, i) => i % step === 0 || i === plotSeries.length - 1,
+  );
 
   const linePath = drawn
     .map((p, i) => {
@@ -208,34 +203,35 @@ export function StackCheckChart({
 
   const areaPath = `${linePath} L${xOf(drawn[drawn.length - 1].date).toFixed(1)},${(pad.t + ih).toFixed(1)} L${xOf(drawn[0].date).toFixed(1)},${(pad.t + ih).toFixed(1)} Z`;
 
-  const maxAbs = Math.max(...events.map((e) => Math.abs(e.btcAmount)), 1);
-
-  const visibleEvents = events.filter((e) => {
-    const t = Date.parse(e.date);
-    return Number.isFinite(t) && t >= t0 && t <= t1 && e.btcAmount !== 0;
+  // Only Strategy events on/after first acquisition
+  const strategyEvents = events.filter((e) => {
+    if (!e.date || e.btcAmount === 0) return false;
+    return e.date >= STRATEGY_FIRST_BTC && e.date <= rangeEnd;
   });
+  const maxAbs = Math.max(
+    ...strategyEvents.map((e) => Math.abs(e.btcAmount)),
+    1,
+  );
 
-  // Price at event date from series (nearest) for y if no purchase price
   const priceAt = (date: string): number | null => {
     const t = Date.parse(date);
     let best: BtcHistoryPoint | null = null;
     let bestD = Infinity;
-    for (const p of series) {
+    for (const p of plotSeries) {
       const d = Math.abs(Date.parse(p.date) - t);
       if (d < bestD) {
         bestD = d;
         best = p;
       }
-      if (d === 0) break;
     }
     return best?.priceUsd ?? null;
   };
 
-  const yTickVals = niceYTicks(yMin, yMax, compact ? 4 : 5);
+  const yTickVals = yTicksForDomain(yMin, yMax);
   const xTickVals = yearTicks(t0, t1);
   const uid = "scg";
   const fontY = compact ? 10 : 11;
-  const fontX = compact ? 9 : 10;
+  const fontX = compact ? 9.5 : 10.5;
 
   return (
     <div className={`relative min-h-0 ${className}`}>
@@ -244,17 +240,32 @@ export function StackCheckChart({
         className="h-full w-full"
         preserveAspectRatio="xMidYMid meet"
         role="img"
-        aria-label="Bitcoin price with Strategy purchase and sale events"
+        aria-label="Bitcoin USD price with Strategy purchase and sale events from August 2020"
       >
         <defs>
           <linearGradient id={`${uid}-fill`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#f7931a" stopOpacity="0.26" />
+            <stop offset="0%" stopColor="#f7931a" stopOpacity="0.24" />
             <stop offset="100%" stopColor="#f7931a" stopOpacity="0" />
           </linearGradient>
           <clipPath id={`${uid}-plot`}>
             <rect x={pad.l} y={pad.t} width={iw} height={ih} />
           </clipPath>
         </defs>
+
+        {/* Y-axis title */}
+        <text
+          x={12}
+          y={pad.t + ih / 2}
+          fill="#a1a1aa"
+          fontSize={compact ? 9 : 10}
+          fontFamily="ui-sans-serif, system-ui, sans-serif"
+          fontWeight={600}
+          letterSpacing="0.06em"
+          transform={`rotate(-90 12 ${pad.t + ih / 2})`}
+          textAnchor="middle"
+        >
+          BTC PRICE (USD)
+        </text>
 
         {/* Y grid + labels */}
         {yTickVals.map((v) => {
@@ -267,14 +278,14 @@ export function StackCheckChart({
                 x2={width - pad.r}
                 y1={y}
                 y2={y}
-                stroke="rgba(255,255,255,0.07)"
+                stroke="rgba(255,255,255,0.08)"
                 strokeWidth={1}
               />
               <text
                 x={pad.l - 8}
-                y={y + 3}
+                y={y + 3.5}
                 textAnchor="end"
-                fill="#8b8b96"
+                fill="#b4b4be"
                 fontSize={fontY}
                 fontFamily="ui-monospace, monospace"
               >
@@ -284,7 +295,7 @@ export function StackCheckChart({
           );
         })}
 
-        {/* X axis ticks + labels (below plot, never over data) */}
+        {/* X axis ticks + labels */}
         {xTickVals.map((xt) => {
           const x = xOf(xt.t);
           if (x < pad.l - 2 || x > width - pad.r + 2) return null;
@@ -295,14 +306,14 @@ export function StackCheckChart({
                 x2={x}
                 y1={pad.t}
                 y2={pad.t + ih}
-                stroke="rgba(255,255,255,0.04)"
+                stroke="rgba(255,255,255,0.045)"
                 strokeWidth={1}
               />
               <text
                 x={x}
-                y={pad.t + ih + 14}
+                y={pad.t + ih + 15}
                 textAnchor="middle"
-                fill="#71717a"
+                fill="#a1a1aa"
                 fontSize={fontX}
                 fontFamily="ui-monospace, monospace"
               >
@@ -312,22 +323,22 @@ export function StackCheckChart({
           );
         })}
 
-        {/* Baseline axes */}
+        {/* Axes */}
         <line
           x1={pad.l}
           x2={pad.l}
           y1={pad.t}
           y2={pad.t + ih}
-          stroke="rgba(255,255,255,0.14)"
-          strokeWidth={1}
+          stroke="rgba(255,255,255,0.18)"
+          strokeWidth={1.25}
         />
         <line
           x1={pad.l}
           x2={width - pad.r}
           y1={pad.t + ih}
           y2={pad.t + ih}
-          stroke="rgba(255,255,255,0.14)"
-          strokeWidth={1}
+          stroke="rgba(255,255,255,0.18)"
+          strokeWidth={1.25}
         />
 
         <g clipPath={`url(#${uid}-plot)`}>
@@ -336,7 +347,7 @@ export function StackCheckChart({
             d={linePath}
             fill="none"
             stroke="#f7931a"
-            strokeWidth={compact ? 2.1 : 2.5}
+            strokeWidth={compact ? 2.2 : 2.6}
             strokeLinejoin="round"
             strokeLinecap="round"
           />
@@ -347,21 +358,24 @@ export function StackCheckChart({
               x2={width - pad.r}
               y1={yOf(averageCost)}
               y2={yOf(averageCost)}
-              stroke="#c4c4cc"
-              strokeWidth={1.6}
+              stroke="#d4d4d8"
+              strokeWidth={1.75}
               strokeDasharray="7 5"
             />
           ) : null}
 
-          {visibleEvents.map((e, i) => {
+          {strategyEvents.map((e, i) => {
             const x = xOf(e.date);
             const price =
-              e.pricePerBtc ?? priceAt(e.date) ?? averageCost ?? (yMin + yMax) / 2;
+              e.pricePerBtc ??
+              priceAt(e.date) ??
+              averageCost ??
+              (yMin + yMax) / 2;
             const y = yOf(price);
             const r = clamp(
-              3.5 + (Math.abs(e.btcAmount) / maxAbs) * (compact ? 10 : 14),
+              3.5 + (Math.abs(e.btcAmount) / maxAbs) * (compact ? 11 : 15),
               3.5,
-              compact ? 14 : 18,
+              compact ? 15 : 19,
             );
             const isSale = e.btcAmount < 0;
             return (
@@ -370,7 +384,7 @@ export function StackCheckChart({
                 cx={x}
                 cy={y}
                 r={r}
-                fill={isSale ? "rgba(239,68,68,0.45)" : "rgba(247,147,26,0.45)"}
+                fill={isSale ? "rgba(239,68,68,0.48)" : "rgba(247,147,26,0.48)"}
                 stroke={isSale ? "#ef4444" : "#f7931a"}
                 strokeWidth={1.4}
               >
@@ -386,31 +400,36 @@ export function StackCheckChart({
           })}
         </g>
 
-        {/* Legend — bottom row, clear of plot */}
-        <g transform={`translate(${pad.l},${height - 8})`}>
+        {/* Legend — below x labels, clear of plot */}
+        <g transform={`translate(${pad.l},${height - 10})`}>
           <circle cx={0} cy={0} r={3.5} fill="#f7931a" />
-          <text x={8} y={3} fill="#a1a1aa" fontSize={10}>
+          <text x={8} y={3.5} fill="#c4c4cc" fontSize={10}>
             BTC
           </text>
           <line
-            x1={40}
-            x2={56}
+            x1={38}
+            x2={54}
             y1={0}
             y2={0}
-            stroke="#c4c4cc"
+            stroke="#d4d4d8"
             strokeDasharray="4 3"
             strokeWidth={1.5}
           />
-          <text x={60} y={3} fill="#a1a1aa" fontSize={10}>
+          <text x={58} y={3.5} fill="#c4c4cc" fontSize={10}>
             Avg cost
           </text>
-          <circle cx={126} cy={0} r={3.5} fill="rgba(247,147,26,0.85)" />
-          <text x={134} y={3} fill="#a1a1aa" fontSize={10}>
+          <circle cx={122} cy={0} r={3.5} fill="rgba(247,147,26,0.9)" />
+          <text x={130} y={3.5} fill="#c4c4cc" fontSize={10}>
             Buy
           </text>
-          <circle cx={168} cy={0} r={3.5} fill="rgba(239,68,68,0.85)" />
-          <text x={176} y={3} fill="#a1a1aa" fontSize={10}>
+          <circle cx={164} cy={0} r={3.5} fill="rgba(239,68,68,0.9)" />
+          <text x={172} y={3.5} fill="#c4c4cc" fontSize={10}>
             Sale
+          </text>
+          <circle cx={210} cy={0} r={2} fill="rgba(247,147,26,0.55)" />
+          <circle cx={222} cy={0} r={4.5} fill="rgba(247,147,26,0.55)" />
+          <text x={232} y={3.5} fill="#8b8b96" fontSize={9.5}>
+            size = BTC amt
           </text>
         </g>
       </svg>
