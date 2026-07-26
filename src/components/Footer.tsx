@@ -14,6 +14,7 @@ export function Footer() {
     { label: "Thesis", href: "/thesis" },
     { label: "Tokenomics", href: "/tokenomics" },
     { label: "Terminal", href: "/terminal" },
+    { label: "Stack Check", href: "/stack-check" },
     { label: "Risks", href: "/risks" },
     { label: "How It Works", href: "/how-it-works" },
     { label: "Terms", href: "/terms" },

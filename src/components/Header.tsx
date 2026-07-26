@@ -8,6 +8,7 @@ const nav = [
   { href: "/thesis", label: "Thesis" },
   { href: "/tokenomics", label: "Tokenomics" },
   { href: "/terminal", label: "Terminal" },
+  { href: "/stack-check", label: "Stack Check" },
   { href: "/risks", label: "Risks" },
 ];
 
