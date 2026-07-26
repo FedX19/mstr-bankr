@@ -78,7 +78,8 @@ export async function getStackCheckSnapshot(): Promise<StackCheckSnapshot> {
     await Promise.all([
       fetchStrategyLedger(),
       fetchRhjMstrSnapshot(quote.address),
-      fetchBtcHistory(400),
+      // Multi-year series so purchase markers align to real dates
+      fetchBtcHistory(2000),
       fetchDexScreenerMarket(siteConfig.memeTokenAddress ?? ""),
       fetchTokenInfo(siteConfig.memeTokenAddress ?? ""),
       fetchPoolInventory(),
@@ -106,11 +107,13 @@ export async function getStackCheckSnapshot(): Promise<StackCheckSnapshot> {
   });
   sources.push({
     id: "btc-history",
-    label: "CoinGecko BTC USD history",
+    label: "BTC USD price history",
     ok: btcRes.ok,
     fetchedAt: btcRes.fetchedAt,
     error: btcRes.ok ? null : btcRes.error,
-    detail: btcRes.ok ? `${btcRes.data.length} daily points` : undefined,
+    detail: btcRes.ok
+      ? `${btcRes.data.length} daily points · ${btcRes.source}`
+      : undefined,
   });
   sources.push({
     id: "dexscreener",

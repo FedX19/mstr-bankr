@@ -126,6 +126,8 @@ export const siteConfig = {
     vaultAbstract: "/brand/vault-abstract.png",
     /** New STACKR mascot set — under /public/images */
     mascotHero: "/images/stackr-mascot-hero.png",
+    /** Standalone transparent Stackr (arms crossed) */
+    mascotStanding: "/images/stackr-mascot-standing.png",
     flywheel: "/images/stackr-flywheel.png",
     thesis: "/images/stackr-thesis.png",
     commandCenter: "/images/stackr-command-center.png",
@@ -134,6 +136,8 @@ export const siteConfig = {
       "The Roaring Stacker mascot in a crypto command center.",
     heroMobileAlt:
       "The Roaring Stacker mascot in a crypto command center.",
+    mascotStandingAlt:
+      "The Stackr mascot smiling with arms crossed.",
     tokenIconAlt:
       "Roaring Stacker token mark — Treasury Lion guardian with orange ring",
     mstrLogoAlt: "Tokenized MSTR mark",

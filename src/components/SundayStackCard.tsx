@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 import type { StackCheckSnapshot } from "../lib/stack-check";
 import { siteConfig } from "../lib/config";
 import { formatNumber, formatUsd } from "../lib/format";
 import { StackCheckChart } from "./StackCheckChart";
+import { StackrMascotStanding } from "./StackrMascotStanding";
 
 type Props = {
   data: StackCheckSnapshot;
@@ -32,7 +32,7 @@ function HeroMetric({
       <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#8b8b96] sm:text-[10px]">
         {label}
       </p>
-      <p className="mt-1 font-mono text-base font-semibold tabular-nums tracking-tight text-white sm:text-xl md:text-2xl">
+      <p className="mt-0.5 font-mono text-[15px] font-semibold tabular-nums tracking-tight text-white sm:text-xl md:text-2xl">
         {value}
       </p>
       {sub ? (
@@ -46,6 +46,8 @@ function HeroMetric({
 
 /**
  * Premium 16:9 Sunday Stack Check social card + optional export control.
+ * Layout: header → reserve metrics → chart (clean axes) → stats strip → footer
+ * Mascot sits bottom-right outside the chart plot, not over data.
  */
 export function SundayStackCard({ data, hideToolbar = false }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -71,7 +73,6 @@ export function SundayStackCard({ data, hideToolbar = false }: Props) {
     setExportMsg(null);
     try {
       const { toPng } = await import("html-to-image");
-      // Target ~1200×675 @ 2x for crisp X posts
       const dataUrl = await toPng(el, {
         width: 1200,
         height: 675,
@@ -124,56 +125,52 @@ export function SundayStackCard({ data, hideToolbar = false }: Props) {
         <p className="text-xs text-[var(--text-muted)]">{exportMsg}</p>
       ) : null}
 
-      {/* Fixed 16:9 export surface */}
       <div className="overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div
           ref={cardRef}
-          className="stack-check-hero-card relative mx-auto w-full min-w-[320px] max-w-5xl overflow-hidden text-white"
+          className="stack-check-hero-card relative mx-auto w-full min-w-[340px] max-w-5xl overflow-hidden text-white"
           style={{ aspectRatio: "16 / 9" }}
         >
           {/* Atmosphere */}
           <div className="absolute inset-0 bg-[#070708]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_90%_10%,rgba(247,147,26,0.16),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_10%_90%,rgba(247,147,26,0.06),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,transparent_30%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_92%_8%,rgba(247,147,26,0.14),transparent_55%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_35%_at_8%_92%,rgba(247,147,26,0.05),transparent_55%)]" />
 
-          {/* Corner mascot */}
-          <div className="pointer-events-none absolute -bottom-2 -right-2 h-[28%] w-[22%] opacity-[0.92] sm:bottom-0 sm:right-0 sm:h-[32%] sm:w-[24%]">
-            <Image
-              src={siteConfig.brand.tokenIconTransparent}
-              alt=""
-              fill
-              className="object-contain object-bottom-right drop-shadow-[0_0_24px_rgba(247,147,26,0.25)]"
-              sizes="220px"
-            />
+          {/*
+            Mascot: bottom-right of the CARD, in the reserved right gutter —
+            chart/stats use pr-* so plot + labels stay clear of the silhouette.
+          */}
+          <div className="pointer-events-none absolute bottom-0 right-0 z-20 flex h-[52%] w-[17%] min-h-[140px] min-w-[96px] max-w-[180px] items-end justify-end sm:w-[16%]">
+            <div className="absolute inset-x-0 bottom-0 top-[15%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(247,147,26,0.4),transparent_68%)]" />
+            <StackrMascotStanding size="lg" priority className="relative z-10 mb-0 mr-1 h-full w-auto max-h-full" />
           </div>
 
-          <div className="relative flex h-full flex-col px-[3.2%] py-[2.8%]">
+          <div className="relative z-10 flex h-full flex-col px-[2.8%] py-[2.4%] pr-[3%]">
             {/* Header */}
-            <div className="mb-[1.5%] flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[clamp(9px,1.1vw,12px)] font-bold uppercase tracking-[0.2em] text-[#f7931a]">
+            <div className="mb-[1.1%] flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[clamp(9px,1.05vw,12px)] font-bold uppercase tracking-[0.2em] text-[#f7931a]">
                   Sunday Stack Check
                 </p>
-                <p className="mt-0.5 text-[clamp(13px,1.6vw,20px)] font-semibold tracking-tight text-white">
+                <p className="mt-0.5 text-[clamp(13px,1.55vw,20px)] font-semibold tracking-tight text-white">
                   ${siteConfig.ticker} × Strategy BTC Reserve
                 </p>
-                <p className="mt-1 text-[clamp(10px,1.1vw,13px)] font-medium text-[#f7931a]/90">
+                <p className="mt-0.5 text-[clamp(10px,1.05vw,13px)] font-medium text-[#f7931a]/90">
                   {data.tagline}
                 </p>
               </div>
               <div className="shrink-0 text-right">
-                <p className="text-[clamp(8px,0.9vw,10px)] font-semibold uppercase tracking-[0.14em] text-[#71717a]">
+                <p className="text-[clamp(8px,0.85vw,10px)] font-semibold uppercase tracking-[0.14em] text-[#71717a]">
                   Week ending
                 </p>
-                <p className="font-mono text-[clamp(12px,1.4vw,16px)] font-semibold text-white">
+                <p className="font-mono text-[clamp(12px,1.35vw,16px)] font-semibold text-white">
                   {data.weekEnding}
                 </p>
               </div>
             </div>
 
-            {/* Top metrics — visual weight */}
-            <div className="mb-[1.5%] grid grid-cols-2 gap-x-4 gap-y-2 border-y border-white/[0.08] py-[1.8%] sm:grid-cols-4 sm:gap-x-6">
+            {/* Reserve metrics — ABOVE chart only */}
+            <div className="mb-[1%] grid grid-cols-2 gap-x-4 gap-y-1.5 border-y border-white/[0.08] py-[1.3%] sm:grid-cols-4 sm:gap-x-6">
               <HeroMetric label="Strategy BTC reserve" value={reserve} />
               <HeroMetric label="Total BTC" value={fmtBtc(s?.totalBtc)} />
               <HeroMetric
@@ -203,19 +200,19 @@ export function SundayStackCard({ data, hideToolbar = false }: Props) {
               />
             </div>
 
-            {/* Dominant chart */}
-            <div className="min-h-0 flex-[1.35]">
+            {/* Chart — pure plot; right pad clears mascot silhouette */}
+            <div className="min-h-0 flex-1 pr-[15%] sm:pr-[16%]">
               <StackCheckChart
                 btcHistory={data.btcHistory}
                 events={data.chartEvents}
                 averageCost={s?.averageCostUsd ?? null}
                 compact
-                className="h-full"
+                className="h-full w-full"
               />
             </div>
 
-            {/* Pool + MSTR strip */}
-            <div className="mt-[1.2%] grid grid-cols-3 gap-2 border-t border-white/[0.08] pt-[1.4%] sm:grid-cols-6">
+            {/* Stats strip — BELOW chart (pool + tokenized MSTR) */}
+            <div className="mt-[0.8%] grid grid-cols-3 gap-x-2 gap-y-1.5 border-t border-white/[0.08] pt-[1.1%] pr-[16%] sm:grid-cols-6 sm:gap-x-3">
               <StripCell
                 label="MSTR in pool"
                 value={
@@ -268,12 +265,12 @@ export function SundayStackCard({ data, hideToolbar = false }: Props) {
               />
             </div>
 
-            {/* Footer — short only */}
-            <div className="mt-auto flex items-end justify-between gap-3 border-t border-white/[0.08] pt-[1.2%] pr-[18%]">
-              <p className="text-[clamp(8px,0.95vw,11px)] leading-snug text-[#71717a]">
+            {/* Footer */}
+            <div className="mt-[0.6%] flex items-end justify-between gap-3 border-t border-white/[0.08] pt-[0.9%] pr-[18%]">
+              <p className="text-[clamp(8px,0.9vw,11px)] leading-snug text-[#71717a]">
                 {data.disclaimer}
               </p>
-              <p className="hidden shrink-0 text-[clamp(9px,1vw,11px)] font-medium text-[#f7931a]/80 sm:block">
+              <p className="hidden shrink-0 text-[clamp(9px,1vw,11px)] font-medium text-[#f7931a]/85 sm:block">
                 {siteConfig.thesisLine}
               </p>
             </div>
