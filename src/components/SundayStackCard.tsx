@@ -510,7 +510,10 @@ function VisiblePreview({
   );
 }
 
-/** Fullscreen image for iOS long-press → Save Image */
+/**
+ * iOS long-press save UI.
+ * Solid black (no page chart bleed). Safe-area padding so Done clears the notch.
+ */
 function ImageLightbox({
   url,
   filename,
@@ -530,305 +533,54 @@ function ImageLightbox({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex flex-col bg-black/95"
+      className="fixed inset-0 z-[200] flex flex-col bg-black"
       role="dialog"
       aria-modal="true"
       aria-label="Save card image"
+      style={{
+        // Full opaque black — never show the page chart behind
+        background: "#000000",
+      }}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
-        <div>
-          <p className="text-sm font-semibold text-white">Save this image</p>
-          <p className="text-[11px] text-white/60">
+      {/* Header below Dynamic Island / status bar */}
+      <div
+        className="flex shrink-0 items-center justify-between gap-3 border-b border-white/15 bg-black px-4"
+        style={{
+          paddingTop: "max(16px, env(safe-area-inset-top, 0px))",
+          paddingBottom: "12px",
+          paddingLeft: "max(16px, env(safe-area-inset-left, 0px))",
+          paddingRight: "max(16px, env(safe-area-inset-right, 0px))",
+        }}
+      >
+        <div className="min-w-0">
+          <p className="text-base font-semibold text-white">Save this image</p>
+          <p className="mt-0.5 text-xs text-white/70">
             Long-press the card → Save Image
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white"
+          className="shrink-0 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black"
         >
           Done
         </button>
       </div>
-      <div className="flex flex-1 items-center justify-center overflow-auto p-4">
+
+      <div
+        className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-black px-3"
+        style={{
+          paddingBottom: "max(16px, env(safe-area-inset-bottom, 0px))",
+        }}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={url}
           alt={filename}
-          className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
+          className="max-h-full max-w-full rounded-lg object-contain"
         />
       </div>
     </div>
-  );
-}
-
-/**
- * Share modal — goes straight to X compose (never OS share sheet).
- * Downloads the card PNG first so you can attach it in X.
- */
-function ShareModal({
-  open,
-  onClose,
-  isMobile,
-  tweetText,
-  filename,
-  prepareImage,
-}: {
-  open: boolean;
-  onClose: () => void;
-  isMobile: boolean;
-  tweetText: string;
-  filename: string;
-  prepareImage: () => Promise<{ dataUrl: string; blob: Blob }>;
-}) {
-  const [phase, setPhase] = useState<"idle" | "loading" | "ready" | "error">(
-    "idle",
-  );
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [blob, setBlob] = useState<Blob | null>(null);
-  const [note, setNote] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [lightbox, setLightbox] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!open) {
-      setPhase("idle");
-      setPreviewUrl(null);
-      setBlob(null);
-      setNote(null);
-      return;
-    }
-    let cancelled = false;
-    setPhase("loading");
-    setNote(null);
-    (async () => {
-      try {
-        const { blob: b } = await prepareImage();
-        if (cancelled) return;
-        setBlob(b);
-        const obj = URL.createObjectURL(b);
-        setPreviewUrl((prev) => {
-          if (prev) URL.revokeObjectURL(prev);
-          return obj;
-        });
-        setPhase("ready");
-      } catch (e) {
-        console.error(e);
-        if (!cancelled) {
-          setPhase("error");
-          setNote(
-            e instanceof Error
-              ? e.message
-              : "Could not generate the card image.",
-          );
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [open, prepareImage]);
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
-  /** ALWAYS open x.com intent — never navigator.share (Windows/iOS share UI) */
-  const postToX = async () => {
-    if (!blob) return;
-    setBusy(true);
-    setNote(null);
-    try {
-      // 1) Get the image onto the device first
-      const isIOS =
-        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
-      if (isIOS) {
-        // iOS: show lightbox so user can long-press save, then go to X
-        const url = URL.createObjectURL(blob);
-        setLightbox(url);
-        setNote(
-          "Long-press the image → Save Image, then tap Continue to X below.",
-        );
-        setBusy(false);
-        return;
-      }
-
-      // Desktop / Android browser: download PNG
-      triggerDownload(blob, filename);
-
-      // 2) Open X compose directly (no OS share sheet)
-      openXCompose(tweetText);
-      setNote(
-        "X opened with your weekly text. Attach the Stack Check PNG you just downloaded (image icon in compose).",
-      );
-    } catch (e) {
-      console.error(e);
-      // Still try to open X with text
-      openXCompose(tweetText);
-      setNote("Opened X with text. Save the image separately and attach it.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const continueToX = () => {
-    openXCompose(tweetText);
-    setNote(
-      isMobile
-        ? "X opened — if prompted, open in the X app. Attach the image you saved."
-        : "X opened. Attach the PNG in compose.",
-    );
-  };
-
-  const saveImage = async () => {
-    if (!blob) return;
-    setBusy(true);
-    setNote(null);
-    try {
-      const result = await saveImageCrossPlatform(blob, filename);
-      if (result === "lightbox") {
-        const url = URL.createObjectURL(blob);
-        setLightbox(url);
-        setNote("Long-press the image → Save Image.");
-      } else {
-        setNote(`Downloaded ${filename}`);
-      }
-    } catch {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        setLightbox(url);
-        setNote("Long-press the image → Save Image.");
-      }
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <>
-      <div
-        className="fixed inset-0 z-[100] flex items-end justify-center bg-black/75 p-4 sm:items-center"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="share-title"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-      >
-        <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[var(--border-strong)] bg-[var(--bg-elevated)] shadow-2xl">
-          <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-5 py-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
-                Sunday Stack Check
-              </p>
-              <h2
-                id="share-title"
-                className="mt-1 text-lg font-semibold text-white"
-              >
-                Post to X
-              </h2>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg px-2 py-1 text-sm text-[var(--text-muted)] hover:bg-white/5 hover:text-white"
-              aria-label="Close"
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className="space-y-4 px-5 py-4">
-            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-black">
-              {phase === "loading" ? (
-                <div className="flex h-48 items-center justify-center text-xs text-[var(--text-dim)]">
-                  Rendering card…
-                </div>
-              ) : phase === "error" ? (
-                <div className="flex h-40 items-center justify-center px-4 text-center text-xs text-red-400">
-                  {note ?? "Failed to render card."}
-                </div>
-              ) : previewUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={previewUrl}
-                  alt="Stack Check card"
-                  className="mx-auto max-h-64 w-auto object-contain"
-                />
-              ) : null}
-            </div>
-
-            <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-              <span className="text-white">Post to X</span> opens{" "}
-              <span className="text-white">x.com</span> with your weekly text —
-              not the Windows/iOS share menu. X cannot auto-attach a local image
-              from a website; save the PNG and attach it in compose (image
-              icon).
-            </p>
-
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={postToX}
-                disabled={phase !== "ready" || busy || !blob}
-                className="btn-primary rounded-lg px-4 py-3 text-sm font-semibold disabled:opacity-50"
-              >
-                {busy ? "Opening…" : "Post to X"}
-              </button>
-              <button
-                type="button"
-                onClick={saveImage}
-                disabled={phase !== "ready" || busy || !blob}
-                className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-              >
-                Save Image
-              </button>
-              {lightbox || note?.includes("Long-press") ? (
-                <button
-                  type="button"
-                  onClick={continueToX}
-                  className="rounded-lg border border-[var(--border-strong)] bg-[var(--bg-card)] px-4 py-3 text-sm font-semibold text-white"
-                >
-                  Continue to X
-                </button>
-              ) : null}
-            </div>
-
-            {note ? (
-              <p className="text-xs leading-relaxed text-[var(--text-muted)]">
-                {note}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </div>
-
-      {lightbox ? (
-        <ImageLightbox
-          url={lightbox}
-          filename={filename}
-          onClose={() => {
-            URL.revokeObjectURL(lightbox);
-            setLightbox(null);
-          }}
-        />
-      ) : null}
-    </>
   );
 }
 
@@ -836,9 +588,8 @@ export function SundayStackCard({ data }: Props) {
   const desktopExportRef = useRef<HTMLDivElement>(null);
   const portraitExportRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const [busy, setBusy] = useState<null | "download" | "tweet">(null);
+  const [busy, setBusy] = useState<null | "download" | "tweet" | "post">(null);
   const [msg, setMsg] = useState<string | null>(null);
-  const [shareOpen, setShareOpen] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
   const metrics = useCardMetrics(data);
@@ -861,12 +612,39 @@ export function SundayStackCard({ data }: Props) {
     return captureElementPng(el, { w: size.w, h: size.h });
   }, [exportRef, size.h, size.w]);
 
+  /**
+   * One tap → straight to X compose with weekly text.
+   * Same pattern every other web app uses (intent URL).
+   * Image cannot auto-attach via web; Save Image is separate.
+   */
+  const postToX = useCallback(() => {
+    setBusy("post");
+    setMsg(null);
+    try {
+      // On desktop, also kick off image download so it's ready to attach
+      if (!isMobile) {
+        void prepareImage()
+          .then(({ blob }) => triggerDownload(blob, filename))
+          .catch(() => {
+            /* open X anyway */
+          });
+      }
+      openXCompose(tweetText);
+      setMsg(
+        isMobile
+          ? "X opened with your text. Save Image first if you want to attach the card."
+          : "X opened with your text. Your card PNG is downloading — attach it in compose.",
+      );
+    } finally {
+      setBusy(null);
+    }
+  }, [filename, isMobile, prepareImage, tweetText]);
+
   const downloadImage = useCallback(async () => {
     setBusy("download");
     setMsg(null);
     try {
       const { blob } = await prepareImage();
-      // Never navigator.share — that is the Windows/iOS share sheet
       const result = await saveImageCrossPlatform(blob, filename);
       if (result === "lightbox") {
         setLightbox(URL.createObjectURL(blob));
@@ -905,7 +683,6 @@ export function SundayStackCard({ data }: Props) {
     <div className="space-y-4">
       <VisiblePreview isMobile={isMobile} data={data} metrics={metrics} />
 
-      {/* Fixed-size export stages (off-viewport; capture moves them on-screen) */}
       <ExportStage
         stageRef={desktopExportRef}
         w={DESKTOP.w}
@@ -937,10 +714,11 @@ export function SundayStackCard({ data }: Props) {
         >
           <button
             type="button"
-            onClick={() => setShareOpen(true)}
-            className="btn-primary rounded-lg px-4 py-3 text-sm font-semibold sm:px-5 sm:py-2.5"
+            onClick={postToX}
+            disabled={!!busy}
+            className="btn-primary rounded-lg px-4 py-3 text-sm font-semibold disabled:opacity-50 sm:px-5 sm:py-2.5"
           >
-            Post to X
+            {busy === "post" ? "Opening X…" : "Post to X"}
           </button>
           <button
             type="button"
@@ -964,8 +742,10 @@ export function SundayStackCard({ data }: Props) {
           <p className="text-xs text-[var(--text-muted)]">{msg}</p>
         ) : (
           <p className="text-[11px] text-[var(--text-dim)]">
-            Post to X opens x.com with your weekly text (not Windows share).
-            Save/download the PNG and attach it in X compose.
+            <span className="text-white">Post to X</span> opens X with your
+            weekly text filled in.{" "}
+            <span className="text-white">Save Image</span> for the card PNG to
+            attach in compose.
           </p>
         )}
       </div>
@@ -978,15 +758,6 @@ export function SundayStackCard({ data }: Props) {
           {tweetText}
         </pre>
       </details>
-
-      <ShareModal
-        open={shareOpen}
-        onClose={() => setShareOpen(false)}
-        isMobile={isMobile}
-        tweetText={tweetText}
-        filename={filename}
-        prepareImage={prepareImage}
-      />
 
       {lightbox ? (
         <ImageLightbox

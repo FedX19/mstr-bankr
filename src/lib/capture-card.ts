@@ -72,7 +72,19 @@ export async function captureElementPng(
     visibility: el.style.visibility,
   };
 
-  // Force paint on-screen at exact export dimensions
+  // Solid black full-screen mask so users never see the giant export stage flash
+  const mask = document.createElement("div");
+  mask.setAttribute("data-export-mask", "true");
+  mask.style.cssText = [
+    "position:fixed",
+    "inset:0",
+    "background:#050506",
+    "z-index:2147483646",
+    "pointer-events:none",
+  ].join(";");
+  document.body.appendChild(mask);
+
+  // Paint on-screen under the mask (html-to-image still serializes the node)
   el.style.position = "fixed";
   el.style.left = "0";
   el.style.top = "0";
@@ -80,7 +92,7 @@ export async function captureElementPng(
   el.style.bottom = "auto";
   el.style.width = `${size.w}px`;
   el.style.height = `${size.h}px`;
-  el.style.zIndex = "2147483000";
+  el.style.zIndex = "2147483645"; // under mask
   el.style.opacity = "1";
   el.style.transform = "none";
   el.style.pointerEvents = "none";
@@ -137,6 +149,7 @@ export async function captureElementPng(
 
     return { dataUrl, blob };
   } finally {
+    mask.remove();
     // Restore offscreen parking styles
     el.style.position = prev.position;
     el.style.left = prev.left;
