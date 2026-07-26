@@ -8,291 +8,364 @@ type Props = {
   data: StackCheckSnapshot;
 };
 
+/**
+ * Premium weekly scoreboard page body.
+ * Hierarchy: minimal intro → hero export card → 3 insight panels → compact sources.
+ */
 export function SundayStackCheck({ data }: Props) {
   const s = data.strategy;
   const rhj = data.rhj;
+  const failCount = data.sources.filter((x) => !x.ok).length;
 
   return (
-    <div className="space-y-10">
-      <div className="max-w-2xl">
-        <p className="card-label mb-2">Weekly</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+    <div className="space-y-8 sm:space-y-12">
+      {/* 1. Minimal page header */}
+      <header className="max-w-2xl">
+        <p className="card-label mb-2">Weekly ritual</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
           Sunday Stack Check
         </h1>
-        <p className="mt-3 text-base leading-relaxed text-[var(--text-muted)]">
-          Strategy BTC reserve + onchain ${siteConfig.ticker}/MSTR market — one
-          card for the feed. {data.pairLine}
+        <p className="mt-2 text-sm text-[var(--text-muted)] sm:text-base">
+          {siteConfig.thesisLine}{" "}
+          <span className="text-[var(--accent)]">{data.tagline}</span>
         </p>
-        <p className="mt-2 text-sm font-medium text-[var(--accent)]">
-          {data.tagline}
-        </p>
-      </div>
+      </header>
 
-      {data.errors.length > 0 ? (
-        <div className="card border-[rgba(239,68,68,0.35)] bg-[rgba(239,68,68,0.06)] p-4">
-          <p className="text-sm font-medium text-[var(--negative)]">
-            Some data sources failed
-          </p>
-          <ul className="mt-2 list-inside list-disc text-xs text-[var(--text-muted)]">
-            {data.errors.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </div>
+      {/* Soft source health — not a debug dump */}
+      {failCount > 0 ? (
+        <p className="rounded-lg border border-[rgba(247,147,26,0.25)] bg-[rgba(247,147,26,0.06)] px-4 py-2.5 text-xs text-[var(--text-muted)]">
+          <span className="font-medium text-[var(--accent)]">
+            {failCount} source{failCount > 1 ? "s" : ""} delayed
+          </span>
+          {" — "}
+          card still renders with available data and chart fallbacks.
+        </p>
       ) : null}
 
-      <SundayStackCard data={data} />
+      {/* 2–3. Hero export card + export actions */}
+      <SundayStackCard data={data} hideToolbar />
 
-      {/* Detail panels */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="card p-5">
-          <p className="card-label mb-3">Strategy BTC reserve</p>
-          {!s ? (
-            <p className="text-sm text-[var(--text-dim)]">
-              Ledger unavailable. Source:{" "}
-              <a
-                href="https://www.strategy.com/ledger"
-                className="link-accent"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                strategy.com/ledger
-              </a>
-            </p>
-          ) : (
-            <dl className="space-y-2 text-sm">
-              <Row
-                k="Total BTC"
-                v={
-                  s.totalBtc != null
-                    ? formatNumber(s.totalBtc, { digits: 0 })
-                    : "—"
-                }
-              />
-              <Row
-                k="Avg cost"
-                v={
-                  s.averageCostUsd != null
-                    ? formatUsd(s.averageCostUsd, { digits: 0 })
-                    : "—"
-                }
-              />
-              <Row
-                k="Reserve value"
-                v={
-                  s.reserveValueUsd != null
-                    ? formatUsd(s.reserveValueUsd, { compact: true })
-                    : "—"
-                }
-              />
-              <Row
-                k="BTC yield YTD"
-                v={
-                  s.btcYieldYtdPct != null
-                    ? `${s.btcYieldYtdPct.toFixed(1)}%`
-                    : "—"
-                }
-              />
-              <Row k="Events" v={String(s.eventCount)} />
-              <Row
-                k="Latest"
-                v={
-                  s.latestEvent
-                    ? `${s.latestEvent.date} · ${s.latestEvent.btcAmount > 0 ? "+" : ""}${formatNumber(s.latestEvent.btcAmount, { digits: 0 })} BTC`
-                    : "—"
-                }
-              />
-            </dl>
-          )}
+      {/* 4. Supporting insights — 3 premium panels */}
+      <section>
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <p className="card-label mb-1">Scoreboard</p>
+            <h2 className="text-lg font-semibold text-white sm:text-xl">
+              Reserve · Token · Pool
+            </h2>
+          </div>
+          <p className="hidden text-xs text-[var(--text-dim)] sm:block">
+            {data.pairLine}
+          </p>
         </div>
 
-        <div className="card p-5">
-          <p className="card-label mb-3">Tokenized MSTR (Robinhood)</p>
-          {!rhj ? (
-            <p className="text-sm text-[var(--text-dim)]">
-              RHJ registry/price unavailable.
-            </p>
-          ) : (
-            <dl className="space-y-2 text-sm">
-              <Row
-                k="Canonical contract"
-                v={rhj.canonicalContract ?? "—"}
-                mono
-              />
-              <Row
-                k="Registry verified"
-                v={rhj.registryVerified ? "Yes" : "Mismatch / check config"}
-              />
-              <Row
-                k="Multiplier"
-                v={rhj.asset?.currentMultiplier ?? "—"}
-              />
-              <Row
-                k="Bid / Ask"
-                v={
-                  rhj.quote?.bid != null && rhj.quote?.ask != null
-                    ? `${formatUsd(rhj.quote.bid)} / ${formatUsd(rhj.quote.ask)}`
-                    : "—"
-                }
-              />
-              <Row
-                k="Daily volume"
-                v={
-                  rhj.quote?.dailyTradingVolume != null
-                    ? formatUsd(rhj.quote.dailyTradingVolume, {
-                        compact: true,
+        <div className="grid gap-4 md:grid-cols-3">
+          {/* Strategy Reserve */}
+          <InsightPanel
+            eyebrow="Strategy"
+            title="BTC reserve"
+            accent
+            empty={!s}
+            emptyMsg="Ledger unavailable"
+          >
+            <BigStat
+              label="Total BTC"
+              value={
+                s?.totalBtc != null
+                  ? formatNumber(s.totalBtc, { digits: 0 })
+                  : "—"
+              }
+            />
+            <StatGrid
+              items={[
+                {
+                  label: "Reserve value",
+                  value:
+                    s?.reserveValueUsd != null
+                      ? formatUsd(s.reserveValueUsd, { compact: true })
+                      : "—",
+                },
+                {
+                  label: "Avg cost",
+                  value:
+                    s?.averageCostUsd != null
+                      ? formatUsd(s.averageCostUsd, { digits: 0 })
+                      : "—",
+                },
+                {
+                  label: "BTC yield YTD",
+                  value:
+                    s?.btcYieldYtdPct != null
+                      ? `${s.btcYieldYtdPct.toFixed(1)}%`
+                      : "—",
+                  positive:
+                    s?.btcYieldYtdPct != null
+                      ? s.btcYieldYtdPct >= 0
+                      : undefined,
+                },
+                {
+                  label: "Events",
+                  value: s != null ? String(s.eventCount) : "—",
+                },
+              ]}
+            />
+          </InsightPanel>
+
+          {/* Tokenized MSTR */}
+          <InsightPanel
+            eyebrow="Robinhood"
+            title="Tokenized MSTR"
+            empty={!rhj}
+            emptyMsg="RHJ feed unavailable"
+          >
+            <BigStat
+              label="Mid quote"
+              value={
+                rhj?.quote?.mid != null
+                  ? formatUsd(rhj.quote.mid, { digits: 2 })
+                  : "—"
+              }
+              sub={
+                rhj?.quote?.bid != null && rhj?.quote?.ask != null
+                  ? `${formatUsd(rhj.quote.bid)} / ${formatUsd(rhj.quote.ask)}`
+                  : undefined
+              }
+            />
+            <StatGrid
+              items={[
+                {
+                  label: "Daily volume",
+                  value:
+                    rhj?.quote?.dailyTradingVolume != null
+                      ? formatUsd(rhj.quote.dailyTradingVolume, {
+                          compact: true,
+                        })
+                      : "—",
+                },
+                {
+                  label: "Registry",
+                  value: rhj?.registryVerified ? "Verified" : "Check",
+                  positive: rhj?.registryVerified,
+                },
+                {
+                  label: "Status",
+                  value: rhj?.quote?.status ?? rhj?.asset?.status ?? "—",
+                },
+                {
+                  label: "Quote time",
+                  value: rhj?.quote?.generatedAt
+                    ? new Date(rhj.quote.generatedAt).toLocaleString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })
-                    : "—"
-                }
-              />
-              <Row k="Status" v={rhj.quote?.status ?? rhj.asset?.status ?? "—"} />
-              <Row
-                k="Quote time"
-                v={
-                  rhj.quote?.generatedAt
-                    ? new Date(rhj.quote.generatedAt).toUTCString()
-                    : "—"
-                }
-              />
-            </dl>
-          )}
-        </div>
-      </div>
+                    : "—",
+                },
+              ]}
+            />
+            {rhj?.canonicalContract ? (
+              <p className="mt-3 break-all font-mono text-[10px] leading-relaxed text-[var(--text-dim)]">
+                {rhj.canonicalContract}
+              </p>
+            ) : null}
+          </InsightPanel>
 
-      <div className="card p-5">
-        <p className="card-label mb-3">${siteConfig.ticker} / MSTR pool</p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Mini
-            label="MSTR in pool"
-            value={
-              data.pool.mstrInPool != null
-                ? formatNumber(data.pool.mstrInPool, { digits: 4 })
-                : "—"
-            }
-          />
-          <Mini
-            label="Pool value"
-            value={
-              data.pool.poolValueUsd != null
-                ? formatUsd(data.pool.poolValueUsd, { compact: true })
-                : "—"
-            }
-          />
-          <Mini
-            label="24h volume"
-            value={
-              data.pool.volume24hUsd != null
-                ? formatUsd(data.pool.volume24hUsd, { compact: true })
-                : "—"
-            }
-          />
-          <Mini
-            label="Holders"
-            value={
-              data.pool.holders != null
-                ? formatNumber(data.pool.holders, { compact: true })
-                : "—"
-            }
-          />
+          {/* STACKR / MSTR pool */}
+          <InsightPanel
+            eyebrow={`$${siteConfig.ticker}`}
+            title="MSTR pool"
+            empty={false}
+          >
+            <BigStat
+              label="Pool value"
+              value={
+                data.pool.poolValueUsd != null
+                  ? formatUsd(data.pool.poolValueUsd, { compact: true })
+                  : "—"
+              }
+            />
+            <StatGrid
+              items={[
+                {
+                  label: "MSTR in pool",
+                  value:
+                    data.pool.mstrInPool != null
+                      ? formatNumber(data.pool.mstrInPool, { digits: 2 })
+                      : "—",
+                },
+                {
+                  label: `${siteConfig.ticker} in pool`,
+                  value:
+                    data.pool.stackrInPool != null
+                      ? formatNumber(data.pool.stackrInPool, {
+                          compact: true,
+                          digits: 1,
+                        })
+                      : "—",
+                },
+                {
+                  label: "24h volume",
+                  value:
+                    data.pool.volume24hUsd != null
+                      ? formatUsd(data.pool.volume24hUsd, { compact: true })
+                      : "—",
+                },
+                {
+                  label: "Holders",
+                  value:
+                    data.pool.holders != null
+                      ? formatNumber(data.pool.holders, { compact: true })
+                      : "—",
+                },
+              ]}
+            />
+            <p className="mt-3 text-[11px] leading-relaxed text-[var(--text-dim)]">
+              {data.pairLine}
+            </p>
+          </InsightPanel>
         </div>
-        <p className="mt-4 text-xs text-[var(--text-dim)]">{data.pairLine}</p>
-      </div>
+      </section>
 
-      {/* Sources */}
-      <div className="card p-5">
-        <p className="card-label mb-3">Data sources & timestamps</p>
-        <div className="divide-y divide-[var(--border)]">
+      {/* 5–6. Compact sources — not a debug dump */}
+      <section className="card overflow-hidden border-[var(--border-strong)]">
+        <div className="border-b border-[var(--border)] px-5 py-4">
+          <p className="card-label">Sources</p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">
+            Week ending {data.weekEnding} (UTC Sunday) · Snapshot{" "}
+            <span className="font-mono text-xs text-white">
+              {new Date(data.generatedAt).toISOString()}
+            </span>
+          </p>
+        </div>
+        <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
           {data.sources.map((src) => (
             <div
               key={src.id}
-              className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
+              className="border-b border-[var(--border)] px-5 py-3 last:border-b-0 sm:border-r sm:odd:border-r lg:[&:nth-child(3n)]:border-r-0"
             >
-              <div>
-                <p className="text-sm font-medium text-white">
-                  {src.label}{" "}
-                  <span
-                    className={
-                      src.ok ? "text-[var(--positive)]" : "text-[var(--negative)]"
-                    }
-                  >
-                    {src.ok ? "· ok" : "· error"}
-                  </span>
-                </p>
-                {src.detail ? (
-                  <p className="mt-0.5 text-xs text-[var(--text-dim)]">
-                    {src.detail}
-                  </p>
-                ) : null}
-                {src.error ? (
-                  <p className="mt-0.5 text-xs text-[var(--negative)]">
-                    {src.error}
-                  </p>
-                ) : null}
+              <div className="flex items-center gap-2">
+                <span
+                  className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                    src.ok ? "bg-[var(--positive)]" : "bg-[var(--negative)]"
+                  }`}
+                />
+                <p className="text-xs font-medium text-white">{src.label}</p>
               </div>
-              <p className="shrink-0 font-mono text-[11px] text-[var(--text-dim)]">
+              <p className="mt-1 font-mono text-[10px] text-[var(--text-dim)]">
                 {src.fetchedAt
-                  ? new Date(src.fetchedAt).toISOString()
+                  ? new Date(src.fetchedAt).toISOString().replace("T", " ").slice(0, 19)
                   : "—"}
+                {" UTC"}
               </p>
             </div>
           ))}
         </div>
-        <p className="mt-4 text-xs leading-relaxed text-[var(--text-dim)]">
-          Card week label uses the most recent Sunday (UTC). Snapshot time:{" "}
-          {new Date(data.generatedAt).toISOString()}. Primary references:{" "}
-          <a
-            href="https://www.strategy.com/ledger"
-            className="link-accent"
-            target="_blank"
-            rel="noopener noreferrer"
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] px-5 py-3">
+          <p className="text-[11px] text-[var(--text-dim)]">
+            {data.disclaimer}
+          </p>
+          <Link
+            href="/risks"
+            className="shrink-0 text-xs font-medium text-[var(--accent)] hover:opacity-85"
           >
-            Strategy ledger
-          </a>
-          , Robinhood{" "}
-          <code className="text-[var(--text-muted)]">/rhj/assets</code> +{" "}
-          <code className="text-[var(--text-muted)]">/rhj/prices/MSTR</code>,
-          CoinGecko BTC history, DexScreener + Blockscout for the pool.
-        </p>
-        <p className="mt-2 text-xs text-[var(--text-dim)]">{data.disclaimer}</p>
-        <Link
-          href="/risks"
-          className="mt-3 inline-block text-sm text-[var(--accent)] hover:opacity-85"
-        >
-          Full risks →
-        </Link>
-      </div>
+            Full risks →
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
 
-function Row({
-  k,
-  v,
-  mono,
+function InsightPanel({
+  eyebrow,
+  title,
+  children,
+  accent,
+  empty,
+  emptyMsg,
 }: {
-  k: string;
-  v: string;
-  mono?: boolean;
+  eyebrow: string;
+  title: string;
+  children: React.ReactNode;
+  accent?: boolean;
+  empty?: boolean;
+  emptyMsg?: string;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-4">
-      <dt className="text-[var(--text-dim)]">{k}</dt>
-      <dd
-        className={`text-white sm:text-right ${
-          mono ? "stat-value break-all text-xs" : ""
-        }`}
-      >
-        {v}
-      </dd>
+    <div
+      className={`card flex flex-col p-5 sm:p-6 ${
+        accent
+          ? "border-[var(--accent-border)] bg-gradient-to-b from-[var(--accent-soft)] to-transparent"
+          : ""
+      }`}
+    >
+      <p className="card-label mb-1">{eyebrow}</p>
+      <h3 className="text-base font-semibold text-white">{title}</h3>
+      {empty ? (
+        <p className="mt-6 text-sm text-[var(--text-dim)]">
+          {emptyMsg ?? "Unavailable"}
+        </p>
+      ) : (
+        <div className="mt-5 flex flex-1 flex-col">{children}</div>
+      )}
     </div>
   );
 }
 
-function Mini({ label, value }: { label: string; value: string }) {
+function BigStat({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+}) {
   return (
-    <div className="rounded-lg border border-[var(--border)] p-3">
-      <p className="card-label mb-1">{label}</p>
-      <p className="stat-value text-sm text-white">{value}</p>
+    <div className="mb-5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-dim)]">
+        {label}
+      </p>
+      <p className="mt-1 font-mono text-3xl font-semibold tabular-nums tracking-tight text-white sm:text-4xl">
+        {value}
+      </p>
+      {sub ? (
+        <p className="mt-1 font-mono text-xs text-[var(--text-muted)]">{sub}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function StatGrid({
+  items,
+}: {
+  items: {
+    label: string;
+    value: string;
+    positive?: boolean;
+  }[];
+}) {
+  return (
+    <div className="mt-auto grid grid-cols-2 gap-3 border-t border-[var(--border)] pt-4">
+      {items.map((item) => (
+        <div key={item.label}>
+          <p className="text-[10px] uppercase tracking-wider text-[var(--text-dim)]">
+            {item.label}
+          </p>
+          <p
+            className={`mt-0.5 font-mono text-sm font-medium tabular-nums ${
+              item.positive === true
+                ? "text-[var(--positive)]"
+                : item.positive === false
+                  ? "text-[var(--negative)]"
+                  : "text-white"
+            }`}
+          >
+            {item.value}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }

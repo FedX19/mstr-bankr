@@ -208,6 +208,22 @@ body {
   border-radius: 12px;
 }
 
+/* Sunday Stack Check hero export card */
+.stack-check-hero-card {
+  border: 1px solid rgba(247, 147, 26, 0.35);
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 1px rgba(247, 147, 26, 0.08),
+    0 24px 80px rgba(0, 0, 0, 0.55),
+    0 0 80px rgba(247, 147, 26, 0.12);
+}
+
+@media (max-width: 640px) {
+  .stack-check-hero-card {
+    min-width: min(100%, 360px);
+  }
+}
+
 .brand-mark {
   box-shadow: 0 0 0 1px rgba(247, 147, 26, 0.25);
 }
