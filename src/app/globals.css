@@ -208,7 +208,7 @@ body {
   border-radius: 12px;
 }
 
-/* Sunday Stack Check — export stage (outer 16:9 frame) */
+/* Sunday Stack Check — export stage (outer frame) */
 .stack-check-export-stage {
   border-radius: 4px;
 }
@@ -221,12 +221,6 @@ body {
     0 0 0 1px rgba(247, 147, 26, 0.1),
     0 12px 40px rgba(0, 0, 0, 0.55),
     0 0 48px rgba(247, 147, 26, 0.14);
-}
-
-@media (max-width: 640px) {
-  .stack-check-export-stage {
-    min-width: min(100%, 360px);
-  }
 }
 
 .brand-mark {

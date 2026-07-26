@@ -88,9 +88,10 @@ export function StackCheckChart({
   compact = false,
 }: Props) {
   // Pad: left for y labels + axis title, bottom for x labels + legend
+  // Compact mode keeps plot area large for social cards
   const pad = compact
-    ? { t: 18, r: 10, b: 52, l: 56 }
-    : { t: 22, r: 14, b: 56, l: 62 };
+    ? { t: 10, r: 8, b: 44, l: 50 }
+    : { t: 18, r: 12, b: 52, l: 58 };
   const iw = width - pad.l - pad.r;
   const ih = height - pad.t - pad.b;
 

@@ -2,9 +2,9 @@ import Image from "next/image";
 import { siteConfig } from "../lib/config";
 
 const SIZES = {
-  sm: { box: "h-20 w-16", px: 64 },
-  md: { box: "h-32 w-28", px: 112 },
-  lg: { box: "h-full w-full min-h-[140px] min-w-[96px]", px: 220 },
+  sm: { box: "h-full w-full min-h-0 min-w-0", px: 96 },
+  md: { box: "h-full w-full min-h-0 min-w-0", px: 140 },
+  lg: { box: "h-full w-full min-h-0 min-w-0", px: 200 },
 } as const;
 
 type Props = {

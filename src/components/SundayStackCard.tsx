@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { StackCheckSnapshot } from "../lib/stack-check";
 import { siteConfig } from "../lib/config";
 import { formatNumber, formatUsd } from "../lib/format";
@@ -9,40 +9,86 @@ import { StackrMascotStanding } from "./StackrMascotStanding";
 
 type Props = {
   data: StackCheckSnapshot;
-  /** Hide the external export toolbar (used when parent provides actions) */
+  /** Hide legacy single toolbar (parent always shows actions via hideToolbar) */
   hideToolbar?: boolean;
 };
 
-/** Export canvas size (true 16:9 social) */
-const EXPORT_W = 1200;
-const EXPORT_H = 675;
-/** Equal outer margin around the card on the export canvas (px @ 1200 width) */
-const EXPORT_MARGIN = 36;
+type ExportFormat = "landscape" | "portrait";
+
+const FORMATS = {
+  landscape: {
+    id: "landscape" as const,
+    label: "Landscape",
+    sub: "16:9 · Desktop / X",
+    w: 1200,
+    h: 675,
+    /** Outer stage margin — tight enough for chart room, still frames glow */
+    margin: 24,
+    fileSuffix: "16x9",
+  },
+  portrait: {
+    id: "portrait" as const,
+    label: "Portrait",
+    sub: "4:5 · Phone / Stories",
+    w: 1080,
+    h: 1350,
+    margin: 36,
+    fileSuffix: "4x5",
+  },
+} as const;
 
 function fmtBtc(n: number | null | undefined) {
   if (n == null) return "—";
   return `${formatNumber(n, { digits: n >= 100 ? 0 : 2 })} BTC`;
 }
 
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, b64] = dataUrl.split(",");
+  const mime = /data:([^;]+);/.exec(header)?.[1] ?? "image/png";
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+function downloadDataUrl(dataUrl: string, filename: string) {
+  const a = document.createElement("a");
+  a.download = filename;
+  a.href = dataUrl;
+  a.click();
+}
+
 function HeroMetric({
   label,
   value,
   sub,
+  compact,
 }: {
   label: string;
   value: string;
   sub?: string;
+  compact?: boolean;
 }) {
   return (
     <div className="min-w-0">
-      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#8b8b96] sm:text-[10px]">
+      <p
+        className={`font-semibold uppercase tracking-[0.12em] text-[#8b8b96] ${
+          compact ? "text-[8px]" : "text-[9px] sm:text-[10px]"
+        }`}
+      >
         {label}
       </p>
-      <p className="mt-0.5 font-mono text-[15px] font-semibold tabular-nums tracking-tight text-white sm:text-xl md:text-[1.35rem]">
+      <p
+        className={`mt-0.5 font-mono font-semibold tabular-nums tracking-tight text-white ${
+          compact
+            ? "text-sm sm:text-base"
+            : "text-[15px] sm:text-lg md:text-xl"
+        }`}
+      >
         {value}
       </p>
       {sub ? (
-        <p className="mt-0.5 truncate text-[10px] text-[#a1a1aa] sm:text-[11px]">
+        <p className="mt-0.5 truncate text-[9px] text-[#a1a1aa] sm:text-[10px]">
           {sub}
         </p>
       ) : null}
@@ -50,67 +96,472 @@ function HeroMetric({
   );
 }
 
-/**
- * Premium 16:9 Sunday Stack Check social card + export control.
- *
- * Export structure:
- *   [ export canvas 1200×675 — dark stage ]
- *     [ equal margin ]
- *       [ rounded glowing card — fully visible ]
- */
-export function SundayStackCard({ data, hideToolbar = false }: Props) {
-  /** Outer export stage (full 16:9 frame with margins) */
-  const stageRef = useRef<HTMLDivElement>(null);
-  const [exporting, setExporting] = useState(false);
-  const [exportMsg, setExportMsg] = useState<string | null>(null);
+function StripCell({
+  label,
+  value,
+  compact,
+}: {
+  label: string;
+  value: string;
+  compact?: boolean;
+}) {
+  return (
+    <div className="min-w-0">
+      <p
+        className={`font-semibold uppercase tracking-[0.1em] text-[#71717a] ${
+          compact ? "text-[7.5px]" : "text-[8px] sm:text-[9px]"
+        }`}
+      >
+        {label}
+      </p>
+      <p
+        className={`mt-0.5 truncate font-mono font-medium text-white ${
+          compact ? "text-[11px]" : "text-[11px] sm:text-sm"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
 
+function buildTweetText(data: StackCheckSnapshot): string {
+  const s = data.strategy;
+  const reserve =
+    s?.reserveValueUsd != null
+      ? formatUsd(s.reserveValueUsd, { compact: true })
+      : "—";
+  const btc =
+    s?.totalBtc != null
+      ? formatNumber(s.totalBtc, { digits: 0 })
+      : "—";
+  const avg =
+    s?.averageCostUsd != null
+      ? formatUsd(s.averageCostUsd, { digits: 0 })
+      : "—";
+
+  return [
+    `Sunday Stack Check — week ending ${data.weekEnding}`,
+    ``,
+    `Strategy BTC reserve: ${reserve}`,
+    `Total BTC: ${btc}`,
+    `Avg cost: ${avg}`,
+    ``,
+    data.tagline,
+    siteConfig.thesisLine,
+    ``,
+    `$${siteConfig.ticker} × Strategy`,
+    `https://roaring-stackr.com/stack-check`,
+  ].join("\n");
+}
+
+type CardMetrics = {
+  reserve: string;
+  totalBtc: string;
+  avgCost: string;
+  latestLabel: string;
+  latestValue: string;
+  latestSub?: string;
+  mstrInPool: string;
+  poolValue: string;
+  vol24h: string;
+  holders: string;
+  bidAsk: string;
+  mstrDayVol: string;
+};
+
+function useCardMetrics(data: StackCheckSnapshot): CardMetrics {
   const s = data.strategy;
   const rhj = data.rhj;
   const latest = s?.latestEvent;
   const isSale = (latest?.btcAmount ?? 0) < 0;
 
-  const reserve =
-    s?.reserveValueUsd != null
-      ? formatUsd(s.reserveValueUsd, { compact: true })
-      : s?.reserveValueUsdM != null
-        ? `$${formatNumber(s.reserveValueUsdM, { digits: 1 })}M`
-        : "—";
+  return useMemo(
+    () => ({
+      reserve:
+        s?.reserveValueUsd != null
+          ? formatUsd(s.reserveValueUsd, { compact: true })
+          : s?.reserveValueUsdM != null
+            ? `$${formatNumber(s.reserveValueUsdM, { digits: 1 })}M`
+            : "—",
+      totalBtc: fmtBtc(s?.totalBtc),
+      avgCost:
+        s?.averageCostUsd != null
+          ? formatUsd(s.averageCostUsd, { digits: 0 })
+          : "—",
+      latestLabel: isSale ? "Latest sale" : "Latest acquisition",
+      latestValue: latest
+        ? `${latest.btcAmount > 0 ? "+" : ""}${formatNumber(latest.btcAmount, { digits: 0 })} BTC`
+        : "—",
+      latestSub: latest
+        ? `${latest.date}${
+            latest.pricePerBtc != null
+              ? ` · $${Math.round(latest.pricePerBtc).toLocaleString()}`
+              : ""
+          }`
+        : undefined,
+      mstrInPool:
+        data.pool.mstrInPool != null
+          ? formatNumber(data.pool.mstrInPool, { digits: 2 })
+          : "—",
+      poolValue:
+        data.pool.poolValueUsd != null
+          ? formatUsd(data.pool.poolValueUsd, { compact: true })
+          : "—",
+      vol24h:
+        data.pool.volume24hUsd != null
+          ? formatUsd(data.pool.volume24hUsd, { compact: true })
+          : "—",
+      holders:
+        data.pool.holders != null
+          ? formatNumber(data.pool.holders, { compact: true })
+          : "—",
+      bidAsk:
+        rhj?.quote?.bid != null && rhj?.quote?.ask != null
+          ? `${rhj.quote.bid.toFixed(1)}/${rhj.quote.ask.toFixed(1)}`
+          : "—",
+      mstrDayVol:
+        rhj?.quote?.dailyTradingVolume != null
+          ? formatUsd(rhj.quote.dailyTradingVolume, { compact: true })
+          : "—",
+    }),
+    [data, s, rhj, latest, isSale],
+  );
+}
 
-  const exportPng = useCallback(async () => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    setExporting(true);
-    setExportMsg(null);
+/**
+ * Landscape (16:9) — chart-dominant social card.
+ * ~75% width for chart; small corner mascot; tight chrome.
+ */
+function LandscapeInner({
+  data,
+  m,
+}: {
+  data: StackCheckSnapshot;
+  m: CardMetrics;
+}) {
+  const s = data.strategy;
+  return (
+    <div className="stack-check-hero-card relative h-full w-full overflow-hidden text-white">
+      <div className="absolute inset-0 bg-[#070708]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_95%_5%,rgba(247,147,26,0.12),transparent_55%)]" />
+
+      {/* Corner mascot accent — small footprint, no reserved column */}
+      <div className="pointer-events-none absolute bottom-0 right-0 z-20 h-[34%] w-[11%] min-w-[64px] max-w-[110px]">
+        <div className="absolute inset-x-0 bottom-0 top-1/4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(247,147,26,0.34),transparent_70%)]" />
+        <StackrMascotStanding
+          size="sm"
+          priority
+          className="!h-full !w-full !min-h-0 !min-w-0"
+        />
+      </div>
+
+      <div className="relative z-10 flex h-full flex-col px-[2.4%] py-[1.8%]">
+        {/* Header — compact */}
+        <div className="mb-[0.7%] flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[clamp(8px,0.95vw,11px)] font-bold uppercase tracking-[0.18em] text-[#f7931a]">
+              Sunday Stack Check
+            </p>
+            <p className="mt-0.5 text-[clamp(12px,1.35vw,17px)] font-semibold tracking-tight text-white">
+              ${siteConfig.ticker} × Strategy BTC Reserve
+            </p>
+            <p className="mt-0.5 text-[clamp(9px,0.95vw,12px)] font-medium text-[#f7931a]/90">
+              {data.tagline}
+            </p>
+          </div>
+          <div className="w-[7.5rem] shrink-0 text-right sm:w-[8.5rem]">
+            <p className="text-[clamp(7px,0.75vw,9px)] font-semibold uppercase tracking-[0.12em] text-[#71717a]">
+              Week ending
+            </p>
+            <p className="font-mono text-[clamp(11px,1.2vw,15px)] font-semibold tabular-nums text-white">
+              {data.weekEnding}
+            </p>
+          </div>
+        </div>
+
+        {/* Reserve metrics — tight */}
+        <div className="mb-[0.7%] grid grid-cols-4 gap-x-3 border-y border-white/[0.08] py-[0.9%]">
+          <HeroMetric compact label="Strategy BTC reserve" value={m.reserve} />
+          <HeroMetric compact label="Total BTC" value={m.totalBtc} />
+          <HeroMetric compact label="Average cost" value={m.avgCost} />
+          <HeroMetric
+            compact
+            label={m.latestLabel}
+            value={m.latestValue}
+            sub={m.latestSub}
+          />
+        </div>
+
+        {/* Chart — dominant (~92% width; tiny gutter for mascot only) */}
+        <div className="min-h-0 flex-[1.75] pr-[4%]">
+          <StackCheckChart
+            btcHistory={data.btcHistory}
+            events={data.chartEvents}
+            averageCost={s?.averageCostUsd ?? null}
+            endDate={data.weekEnding}
+            compact
+            className="h-full w-full"
+          />
+        </div>
+
+        {/* Stats strip */}
+        <div className="mt-[0.65%] grid grid-cols-6 gap-x-2 border-t border-white/[0.08] pt-[0.75%] pr-[9%]">
+          <StripCell compact label="MSTR in pool" value={m.mstrInPool} />
+          <StripCell compact label="Pool value" value={m.poolValue} />
+          <StripCell compact label="24h volume" value={m.vol24h} />
+          <StripCell compact label="Holders" value={m.holders} />
+          <StripCell compact label="MSTR bid/ask" value={m.bidAsk} />
+          <StripCell compact label="MSTR day vol" value={m.mstrDayVol} />
+        </div>
+
+        {/* Footer */}
+        <div className="mt-[0.5%] flex items-end justify-between gap-2 border-t border-white/[0.08] pt-[0.6%] pr-[11%]">
+          <p className="text-[clamp(7px,0.8vw,10px)] leading-snug text-[#71717a]">
+            {data.disclaimer}
+          </p>
+          <p className="shrink-0 text-[clamp(8px,0.9vw,10px)] font-medium text-[#f7931a]/85">
+            {siteConfig.thesisLine}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Portrait (4:5) — dedicated phone layout with extra vertical chart room.
+ */
+function PortraitInner({
+  data,
+  m,
+}: {
+  data: StackCheckSnapshot;
+  m: CardMetrics;
+}) {
+  const s = data.strategy;
+  return (
+    <div className="stack-check-hero-card relative h-full w-full overflow-hidden text-white">
+      <div className="absolute inset-0 bg-[#070708]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_0%,rgba(247,147,26,0.12),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_30%_at_100%_100%,rgba(247,147,26,0.1),transparent_55%)]" />
+
+      {/* Small lower-right accent */}
+      <div className="pointer-events-none absolute bottom-1 right-1 z-20 h-[18%] w-[22%] max-w-[160px]">
+        <div className="absolute inset-0 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(247,147,26,0.3),transparent_70%)]" />
+        <StackrMascotStanding
+          size="md"
+          priority
+          className="!h-full !w-full !min-h-0"
+        />
+      </div>
+
+      <div className="relative z-10 flex h-full flex-col px-[5%] py-[4%]">
+        {/* Header */}
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#f7931a]">
+              Sunday Stack Check
+            </p>
+            <p className="mt-1 text-[22px] font-semibold leading-tight tracking-tight text-white">
+              ${siteConfig.ticker} × Strategy BTC Reserve
+            </p>
+            <p className="mt-1.5 text-[13px] font-medium text-[#f7931a]/90">
+              {data.tagline}
+            </p>
+          </div>
+          <div className="shrink-0 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-right">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#71717a]">
+              Week ending
+            </p>
+            <p className="mt-0.5 font-mono text-base font-semibold text-white">
+              {data.weekEnding}
+            </p>
+          </div>
+        </div>
+
+        {/* Reserve metrics — 2×2 */}
+        <div className="mb-3 grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3.5 py-3">
+          <HeroMetric label="Strategy BTC reserve" value={m.reserve} />
+          <HeroMetric label="Total BTC" value={m.totalBtc} />
+          <HeroMetric label="Average cost" value={m.avgCost} />
+          <HeroMetric
+            label={m.latestLabel}
+            value={m.latestValue}
+            sub={m.latestSub}
+          />
+        </div>
+
+        {/* Chart — primary vertical mass */}
+        <div className="min-h-0 flex-[1.8]">
+          <StackCheckChart
+            btcHistory={data.btcHistory}
+            events={data.chartEvents}
+            averageCost={s?.averageCostUsd ?? null}
+            endDate={data.weekEnding}
+            height={520}
+            className="h-full w-full"
+          />
+        </div>
+
+        {/* Pool stats — 2×3 grid */}
+        <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3.5 py-3 pr-[24%]">
+          <StripCell label="MSTR in pool" value={m.mstrInPool} />
+          <StripCell label="Pool value" value={m.poolValue} />
+          <StripCell label="24h volume" value={m.vol24h} />
+          <StripCell label="Holders" value={m.holders} />
+          <StripCell label="MSTR bid/ask" value={m.bidAsk} />
+          <StripCell label="MSTR day vol" value={m.mstrDayVol} />
+        </div>
+
+        {/* Footer */}
+        <div className="mt-3 border-t border-white/[0.08] pt-2.5 pr-[22%]">
+          <p className="text-[11px] font-medium text-[#f7931a]/90">
+            {siteConfig.thesisLine}
+          </p>
+          <p className="mt-1 text-[10px] leading-snug text-[#71717a]">
+            {data.disclaimer}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Sunday Stack Check export system:
+ * - Landscape 1200×675 (chart-dominant)
+ * - Portrait 1080×1350 (phone 4:5)
+ * - Save Image · Share · Copy Tweet
+ */
+export function SundayStackCard({ data, hideToolbar = false }: Props) {
+  const landscapeRef = useRef<HTMLDivElement>(null);
+  const portraitRef = useRef<HTMLDivElement>(null);
+  const [format, setFormat] = useState<ExportFormat>("landscape");
+  const [busy, setBusy] = useState<null | "save" | "share" | "tweet">(null);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const metrics = useCardMetrics(data);
+  const tweetText = useMemo(() => buildTweetText(data), [data]);
+  const fmt = FORMATS[format];
+
+  const renderPng = useCallback(async (f: ExportFormat) => {
+    const conf = FORMATS[f];
+    const el = f === "landscape" ? landscapeRef.current : portraitRef.current;
+    if (!el) throw new Error("Export stage not ready");
+    const { toPng } = await import("html-to-image");
+    return toPng(el, {
+      width: conf.w,
+      height: conf.h,
+      pixelRatio: 2,
+      cacheBust: true,
+      backgroundColor: "#050506",
+      style: {
+        width: `${conf.w}px`,
+        height: `${conf.h}px`,
+        transform: "none",
+        margin: "0",
+        left: "0",
+        top: "0",
+      },
+    });
+  }, []);
+
+  const filename = useCallback(
+    (f: ExportFormat) =>
+      `sunday-stack-check-${data.weekEnding}-${FORMATS[f].fileSuffix}.png`,
+    [data.weekEnding],
+  );
+
+  const saveImage = useCallback(async () => {
+    setBusy("save");
+    setMsg(null);
     try {
-      const { toPng } = await import("html-to-image");
-      // Capture the full stage so outer margins + card glow are preserved
-      // and the card is centered on a true 16:9 canvas.
-      const dataUrl = await toPng(stage, {
-        width: EXPORT_W,
-        height: EXPORT_H,
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: "#050506",
-        style: {
-          width: `${EXPORT_W}px`,
-          height: `${EXPORT_H}px`,
-          transform: "none",
-          margin: "0",
-        },
-      });
-      const a = document.createElement("a");
-      a.download = `sunday-stack-check-${data.weekEnding}.png`;
-      a.href = dataUrl;
-      a.click();
-      setExportMsg("Downloaded 1200×675 — centered card, ready for X.");
-    } catch {
-      setExportMsg(
-        "Auto-export failed in this browser. Screenshot the card below, or try Chrome/desktop.",
+      const dataUrl = await renderPng(format);
+      downloadDataUrl(dataUrl, filename(format));
+      setMsg(
+        `Saved ${FORMATS[format].w}×${FORMATS[format].h} PNG — ready for X.`,
       );
+    } catch {
+      setMsg("Save failed. Try Chrome/desktop, or screenshot the card.");
     } finally {
-      setExporting(false);
+      setBusy(null);
     }
-  }, [data.weekEnding]);
+  }, [format, filename, renderPng]);
+
+  const shareImage = useCallback(async () => {
+    setBusy("share");
+    setMsg(null);
+    try {
+      const dataUrl = await renderPng(format);
+      const blob = dataUrlToBlob(dataUrl);
+      const file = new File([blob], filename(format), { type: "image/png" });
+      const canFiles =
+        typeof navigator !== "undefined" &&
+        typeof navigator.canShare === "function" &&
+        navigator.canShare({ files: [file] });
+
+      if (canFiles) {
+        await navigator.share({
+          files: [file],
+          title: "Sunday Stack Check",
+          text: tweetText,
+        });
+        setMsg("Shared — pick X (or Photos) from the sheet.");
+        return;
+      }
+
+      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        // Text-only share when file share is blocked
+        await navigator.share({
+          title: "Sunday Stack Check",
+          text: tweetText,
+          url: "https://roaring-stackr.com/stack-check",
+        });
+        // Still offer the image as a download
+        downloadDataUrl(dataUrl, filename(format));
+        setMsg("Shared text + downloaded image (file share unavailable).");
+        return;
+      }
+
+      // Full fallback
+      downloadDataUrl(dataUrl, filename(format));
+      setMsg("Share not supported — image downloaded instead.");
+    } catch (e) {
+      // User cancelled share sheet — not an error
+      if (e instanceof Error && e.name === "AbortError") {
+        setMsg(null);
+      } else {
+        try {
+          const dataUrl = await renderPng(format);
+          downloadDataUrl(dataUrl, filename(format));
+          setMsg("Share failed — image downloaded as fallback.");
+        } catch {
+          setMsg("Share failed. Try Save Image instead.");
+        }
+      }
+    } finally {
+      setBusy(null);
+    }
+  }, [format, filename, renderPng, tweetText]);
+
+  const copyTweet = useCallback(async () => {
+    setBusy("tweet");
+    setMsg(null);
+    try {
+      await navigator.clipboard.writeText(tweetText);
+      setMsg("Tweet text copied — paste into X with your saved image.");
+    } catch {
+      setMsg("Clipboard blocked. Select and copy the tweet draft below.");
+    } finally {
+      setBusy(null);
+    }
+  }, [tweetText]);
+
+  // Legacy single export when not using action bar
+  const legacyExport = useCallback(async () => {
+    await saveImage();
+  }, [saveImage]);
 
   return (
     <div className="space-y-4">
@@ -118,229 +569,145 @@ export function SundayStackCard({ data, hideToolbar = false }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-[var(--text-dim)]">
             Week ending <span className="text-white">{data.weekEnding}</span>
-            {" · "}
-            {new Date(data.generatedAt).toLocaleString(undefined, {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
           </p>
           <button
             type="button"
-            onClick={exportPng}
-            disabled={exporting}
+            onClick={legacyExport}
+            disabled={!!busy}
             className="btn-primary rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
           >
-            {exporting ? "Exporting…" : "Export for X · 16:9"}
+            {busy === "save" ? "Saving…" : "Save Image"}
           </button>
         </div>
       ) : null}
-      {exportMsg ? (
-        <p className="text-xs text-[var(--text-muted)]">{exportMsg}</p>
-      ) : null}
 
-      {/* Horizontal scroll only if viewport narrower than min card */}
+      {/* Format toggle */}
+      <div className="flex flex-wrap items-center gap-2">
+        {(Object.keys(FORMATS) as ExportFormat[]).map((key) => {
+          const f = FORMATS[key];
+          const active = format === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setFormat(key)}
+              className={`rounded-lg border px-3.5 py-2 text-left transition ${
+                active
+                  ? "border-[var(--accent-border)] bg-[var(--accent-soft)] text-white"
+                  : "border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white"
+              }`}
+            >
+              <span className="block text-sm font-semibold">{f.label}</span>
+              <span className="block text-[10px] opacity-80">{f.sub}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Preview stage — shows active format */}
       <div className="overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {/*
-          Export stage = true 16:9 canvas.
-          Equal padding on all sides keeps the card centered with breathing room
-          so border + orange glow are never clipped.
-        */}
+        {/* Landscape stage (always in DOM for export) */}
         <div
-          ref={stageRef}
-          className="stack-check-export-stage relative mx-auto w-full min-w-[360px] max-w-5xl"
+          ref={landscapeRef}
+          className={`stack-check-export-stage relative mx-auto w-full min-w-[320px] max-w-5xl ${
+            format === "landscape" ? "block" : "pointer-events-none fixed left-[-9999px] top-0 opacity-0"
+          }`}
           style={{
-            aspectRatio: "16 / 9",
+            aspectRatio: `${FORMATS.landscape.w} / ${FORMATS.landscape.h}`,
             background: "#050506",
+            width: format === "landscape" ? undefined : FORMATS.landscape.w,
+            height: format === "landscape" ? undefined : FORMATS.landscape.h,
           }}
+          aria-hidden={format !== "landscape"}
         >
           <div
             className="absolute inset-0 flex items-center justify-center"
             style={{
-              padding: `${(EXPORT_MARGIN / EXPORT_W) * 100}%`,
+              padding: `${(FORMATS.landscape.margin / FORMATS.landscape.w) * 100}%`,
             }}
           >
-            {/* Inner card — rounded + glow fully inside the stage */}
-            <div className="stack-check-hero-card relative h-full w-full overflow-hidden text-white">
-              {/* Atmosphere */}
-              <div className="absolute inset-0 bg-[#070708]" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_92%_8%,rgba(247,147,26,0.14),transparent_55%)]" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_35%_at_8%_92%,rgba(247,147,26,0.05),transparent_55%)]" />
+            <LandscapeInner data={data} m={metrics} />
+          </div>
+        </div>
 
-              {/* Mascot — bottom-right accent, outside plot */}
-              <div className="pointer-events-none absolute bottom-0 right-0 z-20 flex h-[48%] w-[15.5%] min-h-[120px] min-w-[88px] max-w-[170px] items-end justify-end">
-                <div className="absolute inset-x-0 bottom-0 top-[18%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(247,147,26,0.38),transparent_68%)]" />
-                <StackrMascotStanding
-                  size="lg"
-                  priority
-                  className="relative z-10 mb-0.5 mr-1 h-full w-auto max-h-full"
-                />
-              </div>
-
-              <div className="relative z-10 flex h-full flex-col px-[3%] py-[2.6%]">
-                {/* 1. Header */}
-                <div className="mb-[1.2%] flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-[clamp(9px,1.05vw,12px)] font-bold uppercase tracking-[0.2em] text-[#f7931a]">
-                      Sunday Stack Check
-                    </p>
-                    <p className="mt-0.5 text-[clamp(13px,1.5vw,19px)] font-semibold tracking-tight text-white">
-                      ${siteConfig.ticker} × Strategy BTC Reserve
-                    </p>
-                    <p className="mt-0.5 text-[clamp(10px,1.05vw,13px)] font-medium text-[#f7931a]/90">
-                      {data.tagline}
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-[clamp(8px,0.85vw,10px)] font-semibold uppercase tracking-[0.14em] text-[#71717a]">
-                      Week ending
-                    </p>
-                    <p className="font-mono text-[clamp(12px,1.35vw,16px)] font-semibold text-white">
-                      {data.weekEnding}
-                    </p>
-                  </div>
-                </div>
-
-                {/* 2. Reserve metrics */}
-                <div className="mb-[1.2%] grid grid-cols-2 gap-x-4 gap-y-1.5 border-y border-white/[0.08] py-[1.4%] sm:grid-cols-4 sm:gap-x-6">
-                  <HeroMetric label="Strategy BTC reserve" value={reserve} />
-                  <HeroMetric label="Total BTC" value={fmtBtc(s?.totalBtc)} />
-                  <HeroMetric
-                    label="Average cost"
-                    value={
-                      s?.averageCostUsd != null
-                        ? formatUsd(s.averageCostUsd, { digits: 0 })
-                        : "—"
-                    }
-                  />
-                  <HeroMetric
-                    label={isSale ? "Latest sale" : "Latest acquisition"}
-                    value={
-                      latest
-                        ? `${latest.btcAmount > 0 ? "+" : ""}${formatNumber(latest.btcAmount, { digits: 0 })} BTC`
-                        : "—"
-                    }
-                    sub={
-                      latest
-                        ? `${latest.date}${
-                            latest.pricePerBtc != null
-                              ? ` · $${Math.round(latest.pricePerBtc).toLocaleString()}`
-                              : ""
-                          }`
-                        : undefined
-                    }
-                  />
-                </div>
-
-                {/* 3. Main chart — dominant; right pad for mascot */}
-                <div className="min-h-0 flex-[1.4] pr-[14.5%] sm:pr-[15%]">
-                  <StackCheckChart
-                    btcHistory={data.btcHistory}
-                    events={data.chartEvents}
-                    averageCost={s?.averageCostUsd ?? null}
-                    endDate={data.weekEnding}
-                    compact
-                    className="h-full w-full"
-                  />
-                </div>
-
-                {/* 4. Stats strip BELOW chart */}
-                <div className="mt-[1.1%] grid grid-cols-3 gap-x-2 gap-y-1.5 border-t border-white/[0.08] pt-[1.2%] pr-[15.5%] sm:grid-cols-6 sm:gap-x-3">
-                  <StripCell
-                    label="MSTR in pool"
-                    value={
-                      data.pool.mstrInPool != null
-                        ? formatNumber(data.pool.mstrInPool, { digits: 2 })
-                        : "—"
-                    }
-                  />
-                  <StripCell
-                    label="Pool value"
-                    value={
-                      data.pool.poolValueUsd != null
-                        ? formatUsd(data.pool.poolValueUsd, { compact: true })
-                        : "—"
-                    }
-                  />
-                  <StripCell
-                    label="24h volume"
-                    value={
-                      data.pool.volume24hUsd != null
-                        ? formatUsd(data.pool.volume24hUsd, { compact: true })
-                        : "—"
-                    }
-                  />
-                  <StripCell
-                    label="Holders"
-                    value={
-                      data.pool.holders != null
-                        ? formatNumber(data.pool.holders, { compact: true })
-                        : "—"
-                    }
-                  />
-                  <StripCell
-                    label="MSTR bid/ask"
-                    value={
-                      rhj?.quote?.bid != null && rhj?.quote?.ask != null
-                        ? `${rhj.quote.bid.toFixed(1)}/${rhj.quote.ask.toFixed(1)}`
-                        : "—"
-                    }
-                  />
-                  <StripCell
-                    label="MSTR day vol"
-                    value={
-                      rhj?.quote?.dailyTradingVolume != null
-                        ? formatUsd(rhj.quote.dailyTradingVolume, {
-                            compact: true,
-                          })
-                        : "—"
-                    }
-                  />
-                </div>
-
-                {/* 5. Footer */}
-                <div className="mt-[0.9%] flex items-end justify-between gap-3 border-t border-white/[0.08] pt-[1%] pr-[16%]">
-                  <p className="text-[clamp(8px,0.9vw,11px)] leading-snug text-[#71717a]">
-                    {data.disclaimer}
-                  </p>
-                  <p className="hidden shrink-0 text-[clamp(9px,1vw,11px)] font-medium text-[#f7931a]/85 sm:block">
-                    {siteConfig.thesisLine}
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Portrait stage (always in DOM for export) */}
+        <div
+          ref={portraitRef}
+          className={`stack-check-export-stage relative mx-auto w-full min-w-[280px] max-w-md ${
+            format === "portrait" ? "block" : "pointer-events-none fixed left-[-9999px] top-0 opacity-0"
+          }`}
+          style={{
+            aspectRatio: `${FORMATS.portrait.w} / ${FORMATS.portrait.h}`,
+            background: "#050506",
+            width: format === "portrait" ? undefined : FORMATS.portrait.w,
+            height: format === "portrait" ? undefined : FORMATS.portrait.h,
+          }}
+          aria-hidden={format !== "portrait"}
+        >
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{
+              padding: `${(FORMATS.portrait.margin / FORMATS.portrait.w) * 100}%`,
+            }}
+          >
+            <PortraitInner data={data} m={metrics} />
           </div>
         </div>
       </div>
 
-      {hideToolbar ? (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-[var(--text-dim)]">
-            Export-ready · {EXPORT_W}×{EXPORT_H} · equal outer margin · week
-            ending {data.weekEnding}
-          </p>
+      {/* Action bar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <p className="text-xs text-[var(--text-dim)]">
+          {fmt.w}×{fmt.h} · {fmt.label.toLowerCase()} · week ending{" "}
+          {data.weekEnding}
+        </p>
+        <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
           <button
             type="button"
-            onClick={exportPng}
-            disabled={exporting}
-            className="btn-primary rounded-lg px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
+            onClick={saveImage}
+            disabled={!!busy}
+            className="btn-primary rounded-lg px-3 py-2.5 text-sm font-semibold disabled:opacity-50 sm:px-4"
           >
-            {exporting ? "Exporting…" : "Export for X · 16:9 PNG"}
+            {busy === "save" ? "Saving…" : "Save Image"}
+          </button>
+          <button
+            type="button"
+            onClick={shareImage}
+            disabled={!!busy}
+            className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 sm:px-4"
+          >
+            {busy === "share" ? "Sharing…" : "Share"}
+          </button>
+          <button
+            type="button"
+            onClick={copyTweet}
+            disabled={!!busy}
+            className="rounded-lg border border-[var(--border-strong)] bg-[var(--bg-card)] px-3 py-2.5 text-sm font-semibold text-white transition hover:border-[var(--accent-border)] disabled:opacity-50 sm:px-4"
+          >
+            {busy === "tweet" ? "Copying…" : "Copy Tweet"}
           </button>
         </div>
-      ) : null}
-    </div>
-  );
-}
+      </div>
 
-function StripCell({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-0">
-      <p className="text-[8px] font-semibold uppercase tracking-[0.12em] text-[#71717a] sm:text-[9px]">
-        {label}
-      </p>
-      <p className="mt-0.5 truncate font-mono text-[11px] font-medium text-white sm:text-sm">
-        {value}
-      </p>
+      {msg ? (
+        <p className="text-xs text-[var(--text-muted)]">{msg}</p>
+      ) : (
+        <p className="text-[11px] text-[var(--text-dim)]">
+          On phone: use <span className="text-white">Portrait</span> →{" "}
+          <span className="text-white">Share</span> to open the system sheet
+          (X / Photos / Messages). File share falls back to Save Image if needed.
+        </p>
+      )}
+
+      {/* Tweet draft (for manual copy if clipboard blocked) */}
+      <details className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3">
+        <summary className="cursor-pointer text-xs font-medium text-[var(--text-muted)]">
+          Tweet draft preview
+        </summary>
+        <pre className="mt-2 whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-[var(--text-dim)]">
+          {tweetText}
+        </pre>
+      </details>
     </div>
   );
 }
