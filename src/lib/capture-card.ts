@@ -1,11 +1,10 @@
 /**
  * Reliable DOM → PNG capture for Sunday Stack Check.
  *
- * Blank-image pitfalls this avoids:
- * - Nodes parked at left:-9999px (browsers skip paint)
- * - opacity:0 / visibility:hidden (html-to-image often yields empty canvas)
- * - Capturing before images decode
- * - Oversized style overrides that collapse layout
+ * Critical mobile bug we fixed:
+ * - Never leave the export stage at high z-index above the lightbox.
+ * - Capture under a solid full-viewport black mask so the giant card
+ *   is never visible behind UI.
  */
 
 export type CaptureSize = { w: number; h: number };
@@ -27,7 +26,6 @@ async function waitForImages(root: HTMLElement) {
           const done = () => resolve();
           img.addEventListener("load", done, { once: true });
           img.addEventListener("error", done, { once: true });
-          // decode() is more reliable when available
           if ("decode" in img) {
             img.decode().then(done).catch(done);
           }
@@ -36,20 +34,35 @@ async function waitForImages(root: HTMLElement) {
   );
 }
 
-/** Heuristic: all-black / near-empty blob is a failed capture */
 async function blobLooksBlank(blob: Blob): Promise<boolean> {
   if (blob.size < 8_000) return true;
-  // Quick size check is enough for most failures (true blanks are tiny)
-  if (blob.size < 40_000) {
-    // Could still be a sparse card; allow through if reasonably sized PNG
-    return blob.size < 12_000;
-  }
+  if (blob.size < 40_000) return blob.size < 12_000;
   return false;
 }
 
+function restoreStyles(
+  el: HTMLElement,
+  prev: Record<string, string>,
+) {
+  el.style.position = prev.position;
+  el.style.left = prev.left;
+  el.style.top = prev.top;
+  el.style.right = prev.right;
+  el.style.bottom = prev.bottom;
+  el.style.width = prev.width;
+  el.style.height = prev.height;
+  el.style.zIndex = prev.zIndex;
+  el.style.opacity = prev.opacity;
+  el.style.transform = prev.transform;
+  el.style.pointerEvents = prev.pointerEvents;
+  el.style.visibility = prev.visibility;
+  el.style.clipPath = prev.clipPath;
+  el.removeAttribute("data-capturing");
+}
+
 /**
- * Capture `el` at exact pixel size. Temporarily parks the node in-viewport
- * at full opacity so the browser paints it (required for html-to-image).
+ * Capture `el` at exact pixel size.
+ * Stage is painted off-screen under a black mask — never above the lightbox.
  */
 export async function captureElementPng(
   el: HTMLElement,
@@ -70,37 +83,47 @@ export async function captureElementPng(
     transform: el.style.transform,
     pointerEvents: el.style.pointerEvents,
     visibility: el.style.visibility,
+    clipPath: el.style.clipPath,
   };
 
-  // Solid black full-screen mask so users never see the giant export stage flash
+  // Full-viewport opaque mask — above page, above stage, BELOW lightbox (z 99999)
   const mask = document.createElement("div");
   mask.setAttribute("data-export-mask", "true");
-  mask.style.cssText = [
-    "position:fixed",
-    "inset:0",
-    "background:#050506",
-    "z-index:2147483646",
-    "pointer-events:none",
-  ].join(";");
+  Object.assign(mask.style, {
+    position: "fixed",
+    left: "0",
+    top: "0",
+    right: "0",
+    bottom: "0",
+    width: "100vw",
+    height: "100dvh",
+    minHeight: "100vh",
+    background: "#000000",
+    zIndex: "9000",
+    pointerEvents: "none",
+  });
   document.body.appendChild(mask);
 
-  // Paint on-screen under the mask (html-to-image still serializes the node)
-  el.style.position = "fixed";
-  el.style.left = "0";
-  el.style.top = "0";
-  el.style.right = "auto";
-  el.style.bottom = "auto";
-  el.style.width = `${size.w}px`;
-  el.style.height = `${size.h}px`;
-  el.style.zIndex = "2147483645"; // under mask
-  el.style.opacity = "1";
-  el.style.transform = "none";
-  el.style.pointerEvents = "none";
-  el.style.visibility = "visible";
+  // Stage under the mask (z 8999). Never use billions — that sat above lightbox z-200.
+  el.setAttribute("data-capturing", "true");
+  Object.assign(el.style, {
+    position: "fixed",
+    left: "0",
+    top: "0",
+    right: "auto",
+    bottom: "auto",
+    width: `${size.w}px`,
+    height: `${size.h}px`,
+    zIndex: "8999",
+    opacity: "1",
+    transform: "none",
+    pointerEvents: "none",
+    visibility: "visible",
+    clipPath: "none",
+  });
 
   try {
     await waitForImages(el);
-    // Let layout + paint settle (critical on iOS Safari)
     await sleep(80);
     el.getBoundingClientRect();
     await sleep(40);
@@ -111,32 +134,31 @@ export async function captureElementPng(
       pixelRatio: 2,
       cacheBust: true,
       backgroundColor: "#050506",
-      // Do NOT force position:relative here — that collapses our fixed stage
       style: {
         transform: "none",
         margin: "0",
         opacity: "1",
         visibility: "visible",
       },
-      // Skip external stylesheets that can hang iOS
       skipFonts: true,
     } as const;
 
     let blob = await toBlob(el, opts);
     if (!blob || (await blobLooksBlank(blob))) {
-      // Retry once after another paint tick
       await sleep(120);
       blob = await toBlob(el, opts);
     }
 
     if (!blob || (await blobLooksBlank(blob))) {
-      // Last resort: toPng then convert
       const dataUrl = await toPng(el, opts);
       const res = await fetch(dataUrl);
       blob = await res.blob();
       if (await blobLooksBlank(blob)) {
         throw new Error("Capture produced a blank image");
       }
+      // Restore BEFORE returning so React lightbox never fights a floating stage
+      restoreStyles(el, prev);
+      mask.remove();
       return { dataUrl, blob };
     }
 
@@ -147,22 +169,13 @@ export async function captureElementPng(
       reader.readAsDataURL(blob!);
     });
 
-    return { dataUrl, blob };
-  } finally {
+    restoreStyles(el, prev);
     mask.remove();
-    // Restore offscreen parking styles
-    el.style.position = prev.position;
-    el.style.left = prev.left;
-    el.style.top = prev.top;
-    el.style.right = prev.right;
-    el.style.bottom = prev.bottom;
-    el.style.width = prev.width;
-    el.style.height = prev.height;
-    el.style.zIndex = prev.zIndex;
-    el.style.opacity = prev.opacity;
-    el.style.transform = prev.transform;
-    el.style.pointerEvents = prev.pointerEvents;
-    el.style.visibility = prev.visibility;
+    return { dataUrl, blob };
+  } catch (e) {
+    restoreStyles(el, prev);
+    mask.remove();
+    throw e;
   }
 }
 
@@ -175,7 +188,6 @@ export function dataUrlToBlob(dataUrl: string): Blob {
   return new Blob([arr], { type: mime });
 }
 
-/** Desktop download (works in Chrome/Firefox; limited on iOS Safari) */
 export function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -185,28 +197,19 @@ export function triggerDownload(blob: Blob, filename: string) {
   a.style.display = "none";
   document.body.appendChild(a);
   a.click();
-  // Delay revoke so Safari can start the download
   setTimeout(() => {
     a.remove();
     URL.revokeObjectURL(url);
   }, 2_000);
 }
 
-/**
- * Save image WITHOUT the OS share sheet (no Windows / iOS share UI).
- * - iOS: return "lightbox" so the app shows long-press save UI
- * - Desktop: anchor download
- */
 export async function saveImageCrossPlatform(
   blob: Blob,
   filename: string,
 ): Promise<"lightbox" | "download"> {
-  // Never call navigator.share here — that opens Microsoft/iOS share sheets.
-
   const isIOS =
     typeof navigator !== "undefined" &&
     (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-      // iPadOS 13+ reports as Mac; detect touch Macs
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
   if (isIOS) {
@@ -217,10 +220,8 @@ export async function saveImageCrossPlatform(
   return "download";
 }
 
-/** Open X compose directly — never OS share sheet */
 export function openXCompose(tweetText: string) {
   const url = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-  // Prefer same-tab navigation on mobile so X can offer “Open in app”
   const isMobileUa =
     typeof navigator !== "undefined" &&
     /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);

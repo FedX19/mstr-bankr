@@ -35,7 +35,8 @@ function fmtBtc(n: number | null | undefined) {
 }
 
 function useIsMobile() {
-  const [mobile, setMobile] = useState(false);
+  /** null until mounted — avoid mounting desktop export on phones during hydration */
+  const [mobile, setMobile] = useState<boolean | null>(null);
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_MQ);
     const apply = () => setMobile(mq.matches);
@@ -411,9 +412,8 @@ function PortraitCardFace({
 }
 
 /**
- * Fixed-size export stage.
- * Parked off-viewport but NOT with opacity:0 / display:none.
- * Capture moves it on-screen briefly so the browser paints.
+ * Fixed-size export stage for capture only.
+ * Parked far off-screen at low z-index. Never mounts both formats on mobile.
  */
 function ExportStage({
   stageRef,
@@ -433,21 +433,23 @@ function ExportStage({
       ref={stageRef}
       aria-hidden
       data-export-stage="true"
-      className="stack-check-export-stage"
+      // Intentionally NO stack-check-export-stage class (avoids shared glow styles)
       style={{
         position: "fixed",
-        // Far left but still “real” layout box; capture repositions to 0,0
-        left: "-200vw",
+        left: "-10000px",
         top: "0",
         width: w,
         height: h,
         margin: 0,
         padding: 0,
         background: "#050506",
-        zIndex: -1,
+        // Keep BELOW page content and lightbox always
+        zIndex: 1,
         opacity: 1,
         overflow: "hidden",
         pointerEvents: "none",
+        // Prevent any bleed into visual viewport on iOS
+        contain: "strict",
       }}
     >
       <div
@@ -512,7 +514,8 @@ function VisiblePreview({
 
 /**
  * iOS long-press save UI.
- * Solid black (no page chart bleed). Safe-area padding so Done clears the notch.
+ * z-index MUST beat capture stage (8999) and mask (9000).
+ * Solid black + 100dvh so the page chart never shows through.
  */
 function ImageLightbox({
   url,
@@ -524,30 +527,43 @@ function ImageLightbox({
   onClose: () => void;
 }) {
   useEffect(() => {
-    const prev = document.body.style.overflow;
+    const prevOverflow = document.body.style.overflow;
+    const prevBg = document.body.style.background;
     document.body.style.overflow = "hidden";
+    document.body.style.background = "#000";
+    // Hide any leftover export stages while lightbox is open
+    document.documentElement.classList.add("stack-check-lightbox-open");
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevOverflow;
+      document.body.style.background = prevBg;
+      document.documentElement.classList.remove("stack-check-lightbox-open");
     };
   }, []);
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex flex-col bg-black"
+      className="stack-check-lightbox fixed inset-0 flex flex-col"
       role="dialog"
       aria-modal="true"
       aria-label="Save card image"
       style={{
-        // Full opaque black — never show the page chart behind
+        zIndex: 99999,
         background: "#000000",
+        width: "100%",
+        height: "100%",
+        minHeight: "100dvh",
+        minWidth: "100vw",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
       }}
     >
-      {/* Header below Dynamic Island / status bar */}
       <div
         className="flex shrink-0 items-center justify-between gap-3 border-b border-white/15 bg-black px-4"
         style={{
-          paddingTop: "max(16px, env(safe-area-inset-top, 0px))",
-          paddingBottom: "12px",
+          paddingTop: "max(20px, calc(env(safe-area-inset-top, 0px) + 8px))",
+          paddingBottom: "14px",
           paddingLeft: "max(16px, env(safe-area-inset-left, 0px))",
           paddingRight: "max(16px, env(safe-area-inset-right, 0px))",
         }}
@@ -570,7 +586,7 @@ function ImageLightbox({
       <div
         className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-black px-3"
         style={{
-          paddingBottom: "max(16px, env(safe-area-inset-bottom, 0px))",
+          paddingBottom: "max(20px, env(safe-area-inset-bottom, 0px))",
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -594,17 +610,19 @@ export function SundayStackCard({ data }: Props) {
 
   const metrics = useCardMetrics(data);
   const tweetText = useMemo(() => buildTweetText(data), [data]);
+  const ready = isMobile !== null;
+  const mobile = isMobile === true;
 
   const filename = useMemo(
     () =>
-      isMobile
+      mobile
         ? `sunday-stack-check-${data.weekEnding}.png`
         : `sunday-stack-check-${data.weekEnding}-16x9.png`,
-    [data.weekEnding, isMobile],
+    [data.weekEnding, mobile],
   );
 
-  const size = isMobile ? PORTRAIT : DESKTOP;
-  const exportRef = isMobile ? portraitExportRef : desktopExportRef;
+  const size = mobile ? PORTRAIT : DESKTOP;
+  const exportRef = mobile ? portraitExportRef : desktopExportRef;
 
   const prepareImage = useCallback(async () => {
     const el = exportRef.current;
@@ -622,7 +640,7 @@ export function SundayStackCard({ data }: Props) {
     setMsg(null);
     try {
       // On desktop, also kick off image download so it's ready to attach
-      if (!isMobile) {
+      if (!mobile) {
         void prepareImage()
           .then(({ blob }) => triggerDownload(blob, filename))
           .catch(() => {
@@ -631,14 +649,14 @@ export function SundayStackCard({ data }: Props) {
       }
       openXCompose(tweetText);
       setMsg(
-        isMobile
+        mobile
           ? "X opened with your text. Save Image first if you want to attach the card."
           : "X opened with your text. Your card PNG is downloading — attach it in compose.",
       );
     } finally {
       setBusy(null);
     }
-  }, [filename, isMobile, prepareImage, tweetText]);
+  }, [filename, mobile, prepareImage, tweetText]);
 
   const downloadImage = useCallback(async () => {
     setBusy("download");
@@ -681,35 +699,48 @@ export function SundayStackCard({ data }: Props) {
 
   return (
     <div className="space-y-4">
-      <VisiblePreview isMobile={isMobile} data={data} metrics={metrics} />
+      {ready ? (
+        <VisiblePreview isMobile={mobile} data={data} metrics={metrics} />
+      ) : (
+        <div
+          className="mx-auto w-full max-w-sm rounded-xl bg-[#050506]"
+          style={{ aspectRatio: "4 / 5" }}
+          aria-hidden
+        />
+      )}
 
-      <ExportStage
-        stageRef={desktopExportRef}
-        w={DESKTOP.w}
-        h={DESKTOP.h}
-        margin={DESKTOP.margin}
-      >
-        <DesktopCardFace data={data} m={metrics} />
-      </ExportStage>
-      <ExportStage
-        stageRef={portraitExportRef}
-        w={PORTRAIT.w}
-        h={PORTRAIT.h}
-        margin={PORTRAIT.margin}
-      >
-        <PortraitCardFace data={data} m={metrics} />
-      </ExportStage>
+      {/* Only mount the format we need — never both (desktop chart was bleeding on mobile) */}
+      {ready && mobile ? (
+        <ExportStage
+          stageRef={portraitExportRef}
+          w={PORTRAIT.w}
+          h={PORTRAIT.h}
+          margin={PORTRAIT.margin}
+        >
+          <PortraitCardFace data={data} m={metrics} />
+        </ExportStage>
+      ) : null}
+      {ready && !mobile ? (
+        <ExportStage
+          stageRef={desktopExportRef}
+          w={DESKTOP.w}
+          h={DESKTOP.h}
+          margin={DESKTOP.margin}
+        >
+          <DesktopCardFace data={data} m={metrics} />
+        </ExportStage>
+      ) : null}
 
       <div className="flex flex-col gap-2">
         <p className="text-xs text-[var(--text-dim)]">
           Week ending <span className="text-white">{data.weekEnding}</span>
           {" · "}
-          {isMobile ? "1080×1350 portrait" : "1200×675 desktop"}
+          {mobile ? "1080×1350 portrait" : "1200×675 desktop"}
         </p>
 
         <div
           className={
-            isMobile ? "grid grid-cols-1 gap-2" : "flex flex-wrap gap-2"
+            mobile ? "grid grid-cols-1 gap-2" : "flex flex-wrap gap-2"
           }
         >
           <button

@@ -208,7 +208,7 @@ body {
   border-radius: 12px;
 }
 
-/* Sunday Stack Check — export stage (outer frame) */
+/* Sunday Stack Check — visible preview frame only */
 .stack-check-export-stage {
   border-radius: 4px;
 }
@@ -221,6 +221,15 @@ body {
     0 0 0 1px rgba(247, 147, 26, 0.1),
     0 12px 40px rgba(0, 0, 0, 0.55),
     0 0 48px rgba(247, 147, 26, 0.14);
+}
+
+/* While save lightbox is open: hide offscreen export stages completely */
+html.stack-check-lightbox-open [data-export-stage="true"],
+html.stack-check-lightbox-open [data-export-mask="true"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .brand-mark {
