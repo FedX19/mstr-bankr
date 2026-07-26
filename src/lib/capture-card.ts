@@ -180,44 +180,21 @@ export function triggerDownload(blob: Blob, filename: string) {
 }
 
 /**
- * Save image in a way that works on iOS:
- * 1) Web Share sheet with the file (user can Save Image / Files / X)
- * 2) Fullscreen lightbox for long-press save
- * 3) Anchor download as last resort
+ * Save image WITHOUT the OS share sheet (no Windows / iOS share UI).
+ * - iOS: return "lightbox" so the app shows long-press save UI
+ * - Desktop: anchor download
  */
 export async function saveImageCrossPlatform(
   blob: Blob,
   filename: string,
-  opts?: { preferShare?: boolean; text?: string },
-): Promise<"shared" | "lightbox" | "download"> {
-  const file = new File([blob], filename, { type: "image/png" });
+): Promise<"lightbox" | "download"> {
+  // Never call navigator.share here — that opens Microsoft/iOS share sheets.
 
-  // iOS / Android: share sheet is the reliable save path
-  if (
-    opts?.preferShare !== false &&
-    typeof navigator !== "undefined" &&
-    typeof navigator.canShare === "function" &&
-    navigator.canShare({ files: [file] })
-  ) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: "Sunday Stack Check",
-        text: opts?.text,
-      });
-      return "shared";
-    } catch (e) {
-      if (e instanceof Error && e.name === "AbortError") {
-        throw e; // user cancelled — bubble up
-      }
-      // fall through
-    }
-  }
-
-  // iOS Safari often ignores <a download> — open lightbox instead
   const isIOS =
     typeof navigator !== "undefined" &&
-    /iPad|iPhone|iPod/.test(navigator.userAgent);
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      // iPadOS 13+ reports as Mac; detect touch Macs
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
   if (isIOS) {
     return "lightbox";
@@ -225,4 +202,19 @@ export async function saveImageCrossPlatform(
 
   triggerDownload(blob, filename);
   return "download";
+}
+
+/** Open X compose directly — never OS share sheet */
+export function openXCompose(tweetText: string) {
+  const url = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+  // Prefer same-tab navigation on mobile so X can offer “Open in app”
+  const isMobileUa =
+    typeof navigator !== "undefined" &&
+    /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+  if (isMobileUa) {
+    window.location.assign(url);
+  } else {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
 }

@@ -14,6 +14,7 @@ import { siteConfig } from "../lib/config";
 import { formatNumber, formatUsd } from "../lib/format";
 import {
   captureElementPng,
+  openXCompose,
   saveImageCrossPlatform,
   triggerDownload,
 } from "../lib/capture-card";
@@ -561,17 +562,9 @@ function ImageLightbox({
   );
 }
 
-function xIntentUrl(text: string) {
-  return `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
-}
-
 /**
- * Share modal — Post to X with image when the platform allows it.
- *
- * Reality check (senior note):
- * - Mobile: Web Share API with a File is the ONLY browser way to hand image+text
- *   to the X app already attached. Intent URLs cannot attach local files.
- * - Desktop: X intent cannot attach files. We download PNG + open compose.
+ * Share modal — goes straight to X compose (never OS share sheet).
+ * Downloads the card PNG first so you can attach it in X.
  */
 function ShareModal({
   open,
@@ -653,44 +646,53 @@ function ShareModal({
 
   if (!open) return null;
 
+  /** ALWAYS open x.com intent — never navigator.share (Windows/iOS share UI) */
   const postToX = async () => {
     if (!blob) return;
     setBusy(true);
     setNote(null);
     try {
-      const file = new File([blob], filename, { type: "image/png" });
+      // 1) Get the image onto the device first
+      const isIOS =
+        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-      // Mobile / supporting browsers: share file+text → pick X → image attached
-      const canFiles =
-        typeof navigator !== "undefined" &&
-        typeof navigator.canShare === "function" &&
-        navigator.canShare({ files: [file] });
-
-      if (canFiles) {
-        await navigator.share({
-          files: [file],
-          title: "Sunday Stack Check",
-          text: tweetText,
-        });
-        setNote("Pick X from the sheet — your card image is attached.");
+      if (isIOS) {
+        // iOS: show lightbox so user can long-press save, then go to X
+        const url = URL.createObjectURL(blob);
+        setLightbox(url);
+        setNote(
+          "Long-press the image → Save Image, then tap Continue to X below.",
+        );
+        setBusy(false);
         return;
       }
 
-      // Desktop: no file attach via intent — download then open X
+      // Desktop / Android browser: download PNG
       triggerDownload(blob, filename);
-      window.open(xIntentUrl(tweetText), "_blank", "noopener,noreferrer");
+
+      // 2) Open X compose directly (no OS share sheet)
+      openXCompose(tweetText);
       setNote(
-        "Image downloaded and X opened. Click the image icon in compose and attach the PNG.",
+        "X opened with your weekly text. Attach the Stack Check PNG you just downloaded (image icon in compose).",
       );
     } catch (e) {
-      if (e instanceof Error && e.name === "AbortError") {
-        setNote(null);
-      } else {
-        setNote("Share cancelled or failed. Try Save Image, then Open X.");
-      }
+      console.error(e);
+      // Still try to open X with text
+      openXCompose(tweetText);
+      setNote("Opened X with text. Save the image separately and attach it.");
     } finally {
       setBusy(false);
     }
+  };
+
+  const continueToX = () => {
+    openXCompose(tweetText);
+    setNote(
+      isMobile
+        ? "X opened — if prompted, open in the X app. Attach the image you saved."
+        : "X opened. Attach the PNG in compose.",
+    );
   };
 
   const saveImage = async () => {
@@ -698,24 +700,16 @@ function ShareModal({
     setBusy(true);
     setNote(null);
     try {
-      const result = await saveImageCrossPlatform(blob, filename, {
-        preferShare: true,
-        text: tweetText,
-      });
-      if (result === "shared") {
-        setNote("Use Save Image / Files / X in the sheet.");
-      } else if (result === "lightbox") {
+      const result = await saveImageCrossPlatform(blob, filename);
+      if (result === "lightbox") {
         const url = URL.createObjectURL(blob);
         setLightbox(url);
         setNote("Long-press the image → Save Image.");
       } else {
         setNote(`Downloaded ${filename}`);
       }
-    } catch (e) {
-      if (e instanceof Error && e.name === "AbortError") {
-        setNote(null);
-      } else if (blob) {
-        // Force lightbox on failure (best iOS path)
+    } catch {
+      if (blob) {
         const url = URL.createObjectURL(blob);
         setLightbox(url);
         setNote("Long-press the image → Save Image.");
@@ -723,11 +717,6 @@ function ShareModal({
     } finally {
       setBusy(false);
     }
-  };
-
-  const openXOnly = () => {
-    window.open(xIntentUrl(tweetText), "_blank", "noopener,noreferrer");
-    setNote("X opened with text only. Attach the saved PNG in compose.");
   };
 
   return (
@@ -784,19 +773,13 @@ function ShareModal({
               ) : null}
             </div>
 
-            {isMobile ? (
-              <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-                On iPhone, <span className="text-white">Post to X</span> opens
-                the system share sheet with your card image + text. Choose{" "}
-                <span className="text-white">X</span> — the image is attached.
-              </p>
-            ) : (
-              <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-                Desktop browsers can&apos;t auto-attach a local image to X.
-                We&apos;ll <span className="text-white">download the PNG</span>{" "}
-                and open X with your text — attach the file in compose.
-              </p>
-            )}
+            <p className="text-sm leading-relaxed text-[var(--text-muted)]">
+              <span className="text-white">Post to X</span> opens{" "}
+              <span className="text-white">x.com</span> with your weekly text —
+              not the Windows/iOS share menu. X cannot auto-attach a local image
+              from a website; save the PNG and attach it in compose (image
+              icon).
+            </p>
 
             <div className="flex flex-col gap-2">
               <button
@@ -805,7 +788,7 @@ function ShareModal({
                 disabled={phase !== "ready" || busy || !blob}
                 className="btn-primary rounded-lg px-4 py-3 text-sm font-semibold disabled:opacity-50"
               >
-                {busy ? "Working…" : "Post to X"}
+                {busy ? "Opening…" : "Post to X"}
               </button>
               <button
                 type="button"
@@ -815,14 +798,13 @@ function ShareModal({
               >
                 Save Image
               </button>
-              {!isMobile ? (
+              {lightbox || note?.includes("Long-press") ? (
                 <button
                   type="button"
-                  onClick={openXOnly}
-                  disabled={phase !== "ready"}
-                  className="rounded-lg border border-[var(--border-strong)] bg-[var(--bg-card)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                  onClick={continueToX}
+                  className="rounded-lg border border-[var(--border-strong)] bg-[var(--bg-card)] px-4 py-3 text-sm font-semibold text-white"
                 >
-                  Open X (text only)
+                  Continue to X
                 </button>
               ) : null}
             </div>
@@ -884,35 +866,27 @@ export function SundayStackCard({ data }: Props) {
     setMsg(null);
     try {
       const { blob } = await prepareImage();
-      const result = await saveImageCrossPlatform(blob, filename, {
-        preferShare: true,
-        text: tweetText,
-      });
-      if (result === "shared") {
-        setMsg("Choose Save Image, Files, or X from the sheet.");
-      } else if (result === "lightbox") {
+      // Never navigator.share — that is the Windows/iOS share sheet
+      const result = await saveImageCrossPlatform(blob, filename);
+      if (result === "lightbox") {
         setLightbox(URL.createObjectURL(blob));
         setMsg("Long-press the image → Save Image.");
       } else {
         setMsg(`Downloaded ${filename}`);
       }
     } catch (e) {
-      if (e instanceof Error && e.name === "AbortError") {
-        setMsg(null);
-      } else {
-        console.error(e);
-        try {
-          const { blob } = await prepareImage();
-          setLightbox(URL.createObjectURL(blob));
-          setMsg("Long-press the image → Save Image.");
-        } catch {
-          setMsg("Could not generate image. Refresh and try again.");
-        }
+      console.error(e);
+      try {
+        const { blob } = await prepareImage();
+        setLightbox(URL.createObjectURL(blob));
+        setMsg("Long-press the image → Save Image.");
+      } catch {
+        setMsg("Could not generate image. Refresh and try again.");
       }
     } finally {
       setBusy(null);
     }
-  }, [filename, prepareImage, tweetText]);
+  }, [filename, prepareImage]);
 
   const copyTweet = useCallback(async () => {
     setBusy("tweet");
@@ -990,9 +964,8 @@ export function SundayStackCard({ data }: Props) {
           <p className="text-xs text-[var(--text-muted)]">{msg}</p>
         ) : (
           <p className="text-[11px] text-[var(--text-dim)]">
-            {isMobile
-              ? "Post to X shares the full card image + text — pick X in the sheet so the image is attached."
-              : "Post to X downloads the card and opens compose. Attach the PNG in the image picker."}
+            Post to X opens x.com with your weekly text (not Windows share).
+            Save/download the PNG and attach it in X compose.
           </p>
         )}
       </div>
