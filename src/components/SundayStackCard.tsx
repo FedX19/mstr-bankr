@@ -356,17 +356,17 @@ function PortraitInner({
         />
       </div>
 
-      <div className="relative z-10 flex h-full flex-col px-[5%] py-[4%]">
-        {/* Header */}
-        <div className="mb-3 flex items-start justify-between gap-3">
+      <div className="relative z-10 flex h-full flex-col px-[5%] py-[3.5%]">
+        {/* Header — shrink-0 */}
+        <div className="mb-2.5 flex shrink-0 items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#f7931a]">
               Sunday Stack Check
             </p>
-            <p className="mt-1 text-[22px] font-semibold leading-tight tracking-tight text-white">
+            <p className="mt-1 text-[20px] font-semibold leading-tight tracking-tight text-white sm:text-[22px]">
               ${siteConfig.ticker} × Strategy BTC Reserve
             </p>
-            <p className="mt-1.5 text-[13px] font-medium text-[#f7931a]/90">
+            <p className="mt-1 text-[12px] font-medium text-[#f7931a]/90 sm:text-[13px]">
               {data.tagline}
             </p>
           </div>
@@ -374,48 +374,49 @@ function PortraitInner({
             <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#71717a]">
               Week ending
             </p>
-            <p className="mt-0.5 font-mono text-base font-semibold text-white">
+            <p className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-white sm:text-base">
               {data.weekEnding}
             </p>
           </div>
         </div>
 
-        {/* Reserve metrics — 2×2 */}
-        <div className="mb-3 grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3.5 py-3">
-          <HeroMetric label="Strategy BTC reserve" value={m.reserve} />
-          <HeroMetric label="Total BTC" value={m.totalBtc} />
-          <HeroMetric label="Average cost" value={m.avgCost} />
+        {/* Reserve metrics — 2×2, compact */}
+        <div className="mb-2.5 grid shrink-0 grid-cols-2 gap-x-4 gap-y-2.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
+          <HeroMetric compact label="Strategy BTC reserve" value={m.reserve} />
+          <HeroMetric compact label="Total BTC" value={m.totalBtc} />
+          <HeroMetric compact label="Average cost" value={m.avgCost} />
           <HeroMetric
+            compact
             label={m.latestLabel}
             value={m.latestValue}
             sub={m.latestSub}
           />
         </div>
 
-        {/* Chart — primary vertical mass */}
-        <div className="min-h-0 flex-[1.8]">
+        {/* Chart — never collapse; primary vertical mass */}
+        <div className="relative min-h-[42%] w-full flex-[2] basis-[42%]">
           <StackCheckChart
             btcHistory={data.btcHistory}
             events={data.chartEvents}
             averageCost={s?.averageCostUsd ?? null}
             endDate={data.weekEnding}
             height={520}
-            className="h-full w-full"
+            className="absolute inset-0 h-full w-full"
           />
         </div>
 
         {/* Pool stats — 2×3 grid */}
-        <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3.5 py-3 pr-[24%]">
-          <StripCell label="MSTR in pool" value={m.mstrInPool} />
-          <StripCell label="Pool value" value={m.poolValue} />
-          <StripCell label="24h volume" value={m.vol24h} />
-          <StripCell label="Holders" value={m.holders} />
-          <StripCell label="MSTR bid/ask" value={m.bidAsk} />
-          <StripCell label="MSTR day vol" value={m.mstrDayVol} />
+        <div className="mt-2.5 grid shrink-0 grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5 pr-[26%]">
+          <StripCell compact label="MSTR in pool" value={m.mstrInPool} />
+          <StripCell compact label="Pool value" value={m.poolValue} />
+          <StripCell compact label="24h volume" value={m.vol24h} />
+          <StripCell compact label="Holders" value={m.holders} />
+          <StripCell compact label="MSTR bid/ask" value={m.bidAsk} />
+          <StripCell compact label="MSTR day vol" value={m.mstrDayVol} />
         </div>
 
         {/* Footer */}
-        <div className="mt-3 border-t border-white/[0.08] pt-2.5 pr-[22%]">
+        <div className="mt-2.5 shrink-0 border-t border-white/[0.08] pt-2 pr-[24%]">
           <p className="text-[11px] font-medium text-[#f7931a]/90">
             {siteConfig.thesisLine}
           </p>
