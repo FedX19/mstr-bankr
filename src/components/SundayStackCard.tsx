@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { StackCheckSnapshot } from "../lib/stack-check";
 import { siteConfig } from "../lib/config";
 import { formatNumber, formatUsd } from "../lib/format";
@@ -9,33 +9,14 @@ import { StackrMascotStanding } from "./StackrMascotStanding";
 
 type Props = {
   data: StackCheckSnapshot;
-  /** Hide legacy single toolbar (parent always shows actions via hideToolbar) */
+  /** Kept for call-site compatibility; actions always render. */
   hideToolbar?: boolean;
 };
 
-type ExportFormat = "landscape" | "portrait";
-
-const FORMATS = {
-  landscape: {
-    id: "landscape" as const,
-    label: "Landscape",
-    sub: "16:9 · Desktop / X",
-    w: 1200,
-    h: 675,
-    /** Outer stage margin — tight enough for chart room, still frames glow */
-    margin: 24,
-    fileSuffix: "16x9",
-  },
-  portrait: {
-    id: "portrait" as const,
-    label: "Portrait",
-    sub: "4:5 · Phone / Stories",
-    w: 1080,
-    h: 1350,
-    margin: 36,
-    fileSuffix: "4x5",
-  },
-} as const;
+const DESKTOP = { w: 1200, h: 675, margin: 24 } as const;
+const PORTRAIT = { w: 1080, h: 1350, margin: 36 } as const;
+/** match max-width for “mobile” share UX */
+const MOBILE_MQ = "(max-width: 767px)";
 
 function fmtBtc(n: number | null | undefined) {
   if (n == null) return "—";
@@ -55,7 +36,22 @@ function downloadDataUrl(dataUrl: string, filename: string) {
   const a = document.createElement("a");
   a.download = filename;
   a.href = dataUrl;
+  a.rel = "noopener";
+  document.body.appendChild(a);
   a.click();
+  a.remove();
+}
+
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MQ);
+    const apply = () => setMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+  return mobile;
 }
 
 function HeroMetric({
@@ -80,9 +76,7 @@ function HeroMetric({
       </p>
       <p
         className={`mt-0.5 font-mono font-semibold tabular-nums tracking-tight text-white ${
-          compact
-            ? "text-sm sm:text-base"
-            : "text-[15px] sm:text-lg md:text-xl"
+          compact ? "text-sm sm:text-base" : "text-[15px] sm:text-lg md:text-xl"
         }`}
       >
         {value}
@@ -132,9 +126,7 @@ function buildTweetText(data: StackCheckSnapshot): string {
       ? formatUsd(s.reserveValueUsd, { compact: true })
       : "—";
   const btc =
-    s?.totalBtc != null
-      ? formatNumber(s.totalBtc, { digits: 0 })
-      : "—";
+    s?.totalBtc != null ? formatNumber(s.totalBtc, { digits: 0 }) : "—";
   const avg =
     s?.averageCostUsd != null
       ? formatUsd(s.averageCostUsd, { digits: 0 })
@@ -229,11 +221,8 @@ function useCardMetrics(data: StackCheckSnapshot): CardMetrics {
   );
 }
 
-/**
- * Landscape (16:9) — chart-dominant social card.
- * ~75% width for chart; small corner mascot; tight chrome.
- */
-function LandscapeInner({
+/** Desktop 16:9 card face — chart-dominant */
+function DesktopCardFace({
   data,
   m,
 }: {
@@ -246,7 +235,6 @@ function LandscapeInner({
       <div className="absolute inset-0 bg-[#070708]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_95%_5%,rgba(247,147,26,0.12),transparent_55%)]" />
 
-      {/* Corner mascot accent — small footprint, no reserved column */}
       <div className="pointer-events-none absolute bottom-0 right-0 z-20 h-[34%] w-[11%] min-w-[64px] max-w-[110px]">
         <div className="absolute inset-x-0 bottom-0 top-1/4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(247,147,26,0.34),transparent_70%)]" />
         <StackrMascotStanding
@@ -257,7 +245,6 @@ function LandscapeInner({
       </div>
 
       <div className="relative z-10 flex h-full flex-col px-[2.4%] py-[1.8%]">
-        {/* Header — compact */}
         <div className="mb-[0.7%] flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-[clamp(8px,0.95vw,11px)] font-bold uppercase tracking-[0.18em] text-[#f7931a]">
@@ -280,7 +267,6 @@ function LandscapeInner({
           </div>
         </div>
 
-        {/* Reserve metrics — tight */}
         <div className="mb-[0.7%] grid grid-cols-4 gap-x-3 border-y border-white/[0.08] py-[0.9%]">
           <HeroMetric compact label="Strategy BTC reserve" value={m.reserve} />
           <HeroMetric compact label="Total BTC" value={m.totalBtc} />
@@ -293,7 +279,6 @@ function LandscapeInner({
           />
         </div>
 
-        {/* Chart — dominant (~92% width; tiny gutter for mascot only) */}
         <div className="min-h-0 flex-[1.75] pr-[4%]">
           <StackCheckChart
             btcHistory={data.btcHistory}
@@ -305,7 +290,6 @@ function LandscapeInner({
           />
         </div>
 
-        {/* Stats strip */}
         <div className="mt-[0.65%] grid grid-cols-6 gap-x-2 border-t border-white/[0.08] pt-[0.75%] pr-[9%]">
           <StripCell compact label="MSTR in pool" value={m.mstrInPool} />
           <StripCell compact label="Pool value" value={m.poolValue} />
@@ -315,7 +299,6 @@ function LandscapeInner({
           <StripCell compact label="MSTR day vol" value={m.mstrDayVol} />
         </div>
 
-        {/* Footer */}
         <div className="mt-[0.5%] flex items-end justify-between gap-2 border-t border-white/[0.08] pt-[0.6%] pr-[11%]">
           <p className="text-[clamp(7px,0.8vw,10px)] leading-snug text-[#71717a]">
             {data.disclaimer}
@@ -329,10 +312,8 @@ function LandscapeInner({
   );
 }
 
-/**
- * Portrait (4:5) — dedicated phone layout with extra vertical chart room.
- */
-function PortraitInner({
+/** Portrait 4:5 card face — phone share */
+function PortraitCardFace({
   data,
   m,
 }: {
@@ -346,7 +327,6 @@ function PortraitInner({
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_0%,rgba(247,147,26,0.12),transparent_55%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_50%_30%_at_100%_100%,rgba(247,147,26,0.1),transparent_55%)]" />
 
-      {/* Small lower-right accent */}
       <div className="pointer-events-none absolute bottom-1 right-1 z-20 h-[18%] w-[22%] max-w-[160px]">
         <div className="absolute inset-0 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(247,147,26,0.3),transparent_70%)]" />
         <StackrMascotStanding
@@ -357,16 +337,15 @@ function PortraitInner({
       </div>
 
       <div className="relative z-10 flex h-full flex-col px-[5%] py-[3.5%]">
-        {/* Header — shrink-0 */}
         <div className="mb-2.5 flex shrink-0 items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#f7931a]">
               Sunday Stack Check
             </p>
-            <p className="mt-1 text-[20px] font-semibold leading-tight tracking-tight text-white sm:text-[22px]">
+            <p className="mt-1 text-[20px] font-semibold leading-tight tracking-tight text-white">
               ${siteConfig.ticker} × Strategy BTC Reserve
             </p>
-            <p className="mt-1 text-[12px] font-medium text-[#f7931a]/90 sm:text-[13px]">
+            <p className="mt-1 text-[12px] font-medium text-[#f7931a]/90">
               {data.tagline}
             </p>
           </div>
@@ -374,13 +353,12 @@ function PortraitInner({
             <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#71717a]">
               Week ending
             </p>
-            <p className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-white sm:text-base">
+            <p className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-white">
               {data.weekEnding}
             </p>
           </div>
         </div>
 
-        {/* Reserve metrics — 2×2, compact */}
         <div className="mb-2.5 grid shrink-0 grid-cols-2 gap-x-4 gap-y-2.5 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
           <HeroMetric compact label="Strategy BTC reserve" value={m.reserve} />
           <HeroMetric compact label="Total BTC" value={m.totalBtc} />
@@ -393,7 +371,6 @@ function PortraitInner({
           />
         </div>
 
-        {/* Chart — never collapse; primary vertical mass */}
         <div className="relative min-h-[42%] w-full flex-[2] basis-[42%]">
           <StackCheckChart
             btcHistory={data.btcHistory}
@@ -405,7 +382,6 @@ function PortraitInner({
           />
         </div>
 
-        {/* Pool stats — 2×3 grid */}
         <div className="mt-2.5 grid shrink-0 grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5 pr-[26%]">
           <StripCell compact label="MSTR in pool" value={m.mstrInPool} />
           <StripCell compact label="Pool value" value={m.poolValue} />
@@ -415,7 +391,6 @@ function PortraitInner({
           <StripCell compact label="MSTR day vol" value={m.mstrDayVol} />
         </div>
 
-        {/* Footer */}
         <div className="mt-2.5 shrink-0 border-t border-white/[0.08] pt-2 pr-[24%]">
           <p className="text-[11px] font-medium text-[#f7931a]/90">
             {siteConfig.thesisLine}
@@ -430,26 +405,155 @@ function PortraitInner({
 }
 
 /**
- * Sunday Stack Check export system:
- * - Landscape 1200×675 (chart-dominant)
- * - Portrait 1080×1350 (phone 4:5)
- * - Save Image · Share · Copy Tweet
+ * Fixed-size export stage (always offscreen — never takes layout space).
+ * html-to-image captures this node only.
  */
-export function SundayStackCard({ data, hideToolbar = false }: Props) {
-  const landscapeRef = useRef<HTMLDivElement>(null);
-  const portraitRef = useRef<HTMLDivElement>(null);
-  const [format, setFormat] = useState<ExportFormat>("landscape");
-  const [busy, setBusy] = useState<null | "save" | "share" | "tweet">(null);
+function OffscreenExportStage({
+  stageRef,
+  w,
+  h,
+  margin,
+  children,
+}: {
+  stageRef: React.RefObject<HTMLDivElement | null>;
+  w: number;
+  h: number;
+  margin: number;
+  children: React.ReactNode;
+}) {
+  // rendered at exact pixel size offscreen — never display:none
+  return (
+    <div
+      ref={stageRef}
+      aria-hidden
+      className="stack-check-export-stage pointer-events-none"
+      style={{
+        position: "fixed",
+        left: -10000,
+        top: 0,
+        width: w,
+        height: h,
+        margin: 0,
+        padding: 0,
+        background: "#050506",
+        zIndex: -1,
+        opacity: 1,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: margin,
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Responsive on-page preview only (not used for capture).
+ */
+function VisiblePreview({
+  isMobile,
+  data,
+  metrics,
+}: {
+  isMobile: boolean;
+  data: StackCheckSnapshot;
+  metrics: CardMetrics;
+}) {
+  if (isMobile) {
+    return (
+      <div
+        className="stack-check-export-stage mx-auto w-full max-w-sm"
+        style={{
+          aspectRatio: `${PORTRAIT.w} / ${PORTRAIT.h}`,
+          background: "#050506",
+        }}
+      >
+        <div
+          className="relative h-full w-full"
+          style={{ padding: `${(PORTRAIT.margin / PORTRAIT.w) * 100}%` }}
+        >
+          <div className="absolute inset-[3.33%]">
+            <PortraitCardFace data={data} m={metrics} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="stack-check-export-stage mx-auto w-full max-w-5xl"
+      style={{
+        aspectRatio: `${DESKTOP.w} / ${DESKTOP.h}`,
+        background: "#050506",
+      }}
+    >
+      <div
+        className="relative h-full w-full"
+        style={{ padding: `${(DESKTOP.margin / DESKTOP.w) * 100}%` }}
+      >
+        <div className="absolute inset-[2%]">
+          <DesktopCardFace data={data} m={metrics} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Auto format by viewport. Offscreen fixed-size export nodes.
+ * Mobile: Share / Open Image / Copy Tweet
+ * Desktop: Post on X / Download / Copy Tweet
+ */
+export function SundayStackCard({ data }: Props) {
+  const desktopExportRef = useRef<HTMLDivElement>(null);
+  const portraitExportRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  const [busy, setBusy] = useState<null | "share" | "open" | "download" | "tweet">(
+    null,
+  );
   const [msg, setMsg] = useState<string | null>(null);
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   const metrics = useCardMetrics(data);
   const tweetText = useMemo(() => buildTweetText(data), [data]);
-  const fmt = FORMATS[format];
 
-  const renderPng = useCallback(async (f: ExportFormat) => {
-    const conf = FORMATS[f];
-    const el = f === "landscape" ? landscapeRef.current : portraitRef.current;
-    if (!el) throw new Error("Export stage not ready");
+  // Revoke blob URLs on change/unmount
+  useEffect(() => {
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [objectUrl]);
+
+  const filename = useMemo(
+    () =>
+      isMobile
+        ? `sunday-stack-check-${data.weekEnding}.png`
+        : `sunday-stack-check-${data.weekEnding}-16x9.png`,
+    [data.weekEnding, isMobile],
+  );
+
+  /** Capture ONLY the selected offscreen export stage */
+  const renderSelectedPng = useCallback(async () => {
+    const conf = isMobile ? PORTRAIT : DESKTOP;
+    const el = isMobile
+      ? portraitExportRef.current
+      : desktopExportRef.current;
+    if (!el) throw new Error("Export node not ready");
+
     const { toPng } = await import("html-to-image");
     return toPng(el, {
       width: conf.w,
@@ -458,45 +562,34 @@ export function SundayStackCard({ data, hideToolbar = false }: Props) {
       cacheBust: true,
       backgroundColor: "#050506",
       style: {
-        width: `${conf.w}px`,
-        height: `${conf.h}px`,
-        transform: "none",
-        margin: "0",
+        // Force exact export geometry; node is already fixed offscreen
         left: "0",
         top: "0",
+        transform: "none",
+        margin: "0",
+        width: `${conf.w}px`,
+        height: `${conf.h}px`,
+        position: "relative",
       },
     });
-  }, []);
+  }, [isMobile]);
 
-  const filename = useCallback(
-    (f: ExportFormat) =>
-      `sunday-stack-check-${data.weekEnding}-${FORMATS[f].fileSuffix}.png`,
-    [data.weekEnding],
+  const makeFile = useCallback(
+    async () => {
+      const dataUrl = await renderSelectedPng();
+      const blob = dataUrlToBlob(dataUrl);
+      const file = new File([blob], filename, { type: "image/png" });
+      return { dataUrl, blob, file };
+    },
+    [filename, renderSelectedPng],
   );
 
-  const saveImage = useCallback(async () => {
-    setBusy("save");
-    setMsg(null);
-    try {
-      const dataUrl = await renderPng(format);
-      downloadDataUrl(dataUrl, filename(format));
-      setMsg(
-        `Saved ${FORMATS[format].w}×${FORMATS[format].h} PNG — ready for X.`,
-      );
-    } catch {
-      setMsg("Save failed. Try Chrome/desktop, or screenshot the card.");
-    } finally {
-      setBusy(null);
-    }
-  }, [format, filename, renderPng]);
-
-  const shareImage = useCallback(async () => {
+  /** Mobile: Web Share with PNG file */
+  const sharePortrait = useCallback(async () => {
     setBusy("share");
     setMsg(null);
     try {
-      const dataUrl = await renderPng(format);
-      const blob = dataUrlToBlob(dataUrl);
-      const file = new File([blob], filename(format), { type: "image/png" });
+      const { dataUrl, file } = await makeFile();
       const canFiles =
         typeof navigator !== "undefined" &&
         typeof navigator.canShare === "function" &&
@@ -508,199 +601,192 @@ export function SundayStackCard({ data, hideToolbar = false }: Props) {
           title: "Sunday Stack Check",
           text: tweetText,
         });
-        setMsg("Shared — pick X (or Photos) from the sheet.");
+        setMsg("Shared — choose X, Photos, or Messages.");
         return;
       }
 
-      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
-        // Text-only share when file share is blocked
-        await navigator.share({
-          title: "Sunday Stack Check",
-          text: tweetText,
-          url: "https://roaring-stackr.com/stack-check",
-        });
-        // Still offer the image as a download
-        downloadDataUrl(dataUrl, filename(format));
-        setMsg("Shared text + downloaded image (file share unavailable).");
-        return;
-      }
-
-      // Full fallback
-      downloadDataUrl(dataUrl, filename(format));
-      setMsg("Share not supported — image downloaded instead.");
+      // Fallback: open image for long-press save
+      const url = URL.createObjectURL(dataUrlToBlob(dataUrl));
+      setObjectUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      });
+      window.open(url, "_blank", "noopener,noreferrer");
+      setMsg("Share not available — image opened. Long-press to save.");
     } catch (e) {
-      // User cancelled share sheet — not an error
       if (e instanceof Error && e.name === "AbortError") {
         setMsg(null);
       } else {
-        try {
-          const dataUrl = await renderPng(format);
-          downloadDataUrl(dataUrl, filename(format));
-          setMsg("Share failed — image downloaded as fallback.");
-        } catch {
-          setMsg("Share failed. Try Save Image instead.");
-        }
+        setMsg("Share failed. Try Open Image.");
       }
     } finally {
       setBusy(null);
     }
-  }, [format, filename, renderPng, tweetText]);
+  }, [makeFile, tweetText]);
+
+  /** iOS-friendly: open PNG in new tab for long-press save */
+  const openImage = useCallback(async () => {
+    setBusy("open");
+    setMsg(null);
+    try {
+      const { dataUrl, blob } = await makeFile();
+      const url = URL.createObjectURL(blob);
+      setObjectUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      });
+      const win = window.open(url, "_blank", "noopener,noreferrer");
+      if (!win) {
+        // Popup blocked — download as last resort
+        downloadDataUrl(dataUrl, filename);
+        setMsg("Popup blocked — download started instead.");
+      } else {
+        setMsg("Image opened — long-press to save to Photos.");
+      }
+    } catch {
+      setMsg("Could not open image. Try again.");
+    } finally {
+      setBusy(null);
+    }
+  }, [filename, makeFile]);
+
+  /** Desktop: download PNG */
+  const downloadImage = useCallback(async () => {
+    setBusy("download");
+    setMsg(null);
+    try {
+      const { dataUrl } = await makeFile();
+      downloadDataUrl(dataUrl, filename);
+      setMsg(`Downloaded ${filename}`);
+    } catch {
+      setMsg("Download failed. Try Chrome/desktop.");
+    } finally {
+      setBusy(null);
+    }
+  }, [filename, makeFile]);
+
+  /** Desktop: open X compose (no local file attach via intent) */
+  const postOnX = useCallback(() => {
+    const url = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    setMsg("X compose opened — download the image and attach it to your post.");
+  }, [tweetText]);
 
   const copyTweet = useCallback(async () => {
     setBusy("tweet");
     setMsg(null);
     try {
       await navigator.clipboard.writeText(tweetText);
-      setMsg("Tweet text copied — paste into X with your saved image.");
+      setMsg("Tweet text copied.");
     } catch {
-      setMsg("Clipboard blocked. Select and copy the tweet draft below.");
+      setMsg("Clipboard blocked — expand tweet draft below.");
     } finally {
       setBusy(null);
     }
   }, [tweetText]);
 
-  // Legacy single export when not using action bar
-  const legacyExport = useCallback(async () => {
-    await saveImage();
-  }, [saveImage]);
-
   return (
     <div className="space-y-4">
-      {!hideToolbar ? (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-[var(--text-dim)]">
-            Week ending <span className="text-white">{data.weekEnding}</span>
-          </p>
-          <button
-            type="button"
-            onClick={legacyExport}
-            disabled={!!busy}
-            className="btn-primary rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
-          >
-            {busy === "save" ? "Saving…" : "Save Image"}
-          </button>
-        </div>
-      ) : null}
+      {/* Visible preview only — one format, no dead space */}
+      <VisiblePreview isMobile={isMobile} data={data} metrics={metrics} />
 
-      {/* Format toggle */}
-      <div className="flex flex-wrap items-center gap-2">
-        {(Object.keys(FORMATS) as ExportFormat[]).map((key) => {
-          const f = FORMATS[key];
-          const active = format === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setFormat(key)}
-              className={`rounded-lg border px-3.5 py-2 text-left transition ${
-                active
-                  ? "border-[var(--accent-border)] bg-[var(--accent-soft)] text-white"
-                  : "border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white"
-              }`}
-            >
-              <span className="block text-sm font-semibold">{f.label}</span>
-              <span className="block text-[10px] opacity-80">{f.sub}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Offscreen fixed-size export nodes — never affect layout */}
+      <OffscreenExportStage
+        stageRef={desktopExportRef}
+        w={DESKTOP.w}
+        h={DESKTOP.h}
+        margin={DESKTOP.margin}
+      >
+        <DesktopCardFace data={data} m={metrics} />
+      </OffscreenExportStage>
+      <OffscreenExportStage
+        stageRef={portraitExportRef}
+        w={PORTRAIT.w}
+        h={PORTRAIT.h}
+        margin={PORTRAIT.margin}
+      >
+        <PortraitCardFace data={data} m={metrics} />
+      </OffscreenExportStage>
 
-      {/* Preview stage — shows active format */}
-      <div className="overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {/* Landscape stage (always in DOM for export) */}
-        <div
-          ref={landscapeRef}
-          className={`stack-check-export-stage relative mx-auto w-full min-w-[320px] max-w-5xl ${
-            format === "landscape" ? "block" : "pointer-events-none fixed left-[-9999px] top-0 opacity-0"
-          }`}
-          style={{
-            aspectRatio: `${FORMATS.landscape.w} / ${FORMATS.landscape.h}`,
-            background: "#050506",
-            width: format === "landscape" ? undefined : FORMATS.landscape.w,
-            height: format === "landscape" ? undefined : FORMATS.landscape.h,
-          }}
-          aria-hidden={format !== "landscape"}
-        >
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{
-              padding: `${(FORMATS.landscape.margin / FORMATS.landscape.w) * 100}%`,
-            }}
-          >
-            <LandscapeInner data={data} m={metrics} />
-          </div>
-        </div>
-
-        {/* Portrait stage (always in DOM for export) */}
-        <div
-          ref={portraitRef}
-          className={`stack-check-export-stage relative mx-auto w-full min-w-[280px] max-w-md ${
-            format === "portrait" ? "block" : "pointer-events-none fixed left-[-9999px] top-0 opacity-0"
-          }`}
-          style={{
-            aspectRatio: `${FORMATS.portrait.w} / ${FORMATS.portrait.h}`,
-            background: "#050506",
-            width: format === "portrait" ? undefined : FORMATS.portrait.w,
-            height: format === "portrait" ? undefined : FORMATS.portrait.h,
-          }}
-          aria-hidden={format !== "portrait"}
-        >
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{
-              padding: `${(FORMATS.portrait.margin / FORMATS.portrait.w) * 100}%`,
-            }}
-          >
-            <PortraitInner data={data} m={metrics} />
-          </div>
-        </div>
-      </div>
-
-      {/* Action bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      {/* Device-specific actions */}
+      <div className="flex flex-col gap-2">
         <p className="text-xs text-[var(--text-dim)]">
-          {fmt.w}×{fmt.h} · {fmt.label.toLowerCase()} · week ending{" "}
-          {data.weekEnding}
+          Week ending <span className="text-white">{data.weekEnding}</span>
+          {" · "}
+          {isMobile ? "1080×1350 portrait" : "1200×675 desktop"}
         </p>
-        <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
-          <button
-            type="button"
-            onClick={saveImage}
-            disabled={!!busy}
-            className="btn-primary rounded-lg px-3 py-2.5 text-sm font-semibold disabled:opacity-50 sm:px-4"
-          >
-            {busy === "save" ? "Saving…" : "Save Image"}
-          </button>
-          <button
-            type="button"
-            onClick={shareImage}
-            disabled={!!busy}
-            className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 sm:px-4"
-          >
-            {busy === "share" ? "Sharing…" : "Share"}
-          </button>
-          <button
-            type="button"
-            onClick={copyTweet}
-            disabled={!!busy}
-            className="rounded-lg border border-[var(--border-strong)] bg-[var(--bg-card)] px-3 py-2.5 text-sm font-semibold text-white transition hover:border-[var(--accent-border)] disabled:opacity-50 sm:px-4"
-          >
-            {busy === "tweet" ? "Copying…" : "Copy Tweet"}
-          </button>
-        </div>
+
+        {isMobile ? (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <button
+              type="button"
+              onClick={sharePortrait}
+              disabled={!!busy}
+              className="btn-primary rounded-lg px-4 py-3 text-sm font-semibold disabled:opacity-50"
+            >
+              {busy === "share" ? "Sharing…" : "Share Portrait Card"}
+            </button>
+            <button
+              type="button"
+              onClick={openImage}
+              disabled={!!busy}
+              className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {busy === "open" ? "Opening…" : "Open Image"}
+            </button>
+            <button
+              type="button"
+              onClick={copyTweet}
+              disabled={!!busy}
+              className="rounded-lg border border-[var(--border-strong)] bg-[var(--bg-card)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {busy === "tweet" ? "Copying…" : "Copy Tweet"}
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={postOnX}
+              disabled={!!busy}
+              className="btn-primary rounded-lg px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
+            >
+              Post on X
+            </button>
+            <button
+              type="button"
+              onClick={downloadImage}
+              disabled={!!busy}
+              className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {busy === "download" ? "Downloading…" : "Download Image"}
+            </button>
+            <button
+              type="button"
+              onClick={copyTweet}
+              disabled={!!busy}
+              className="rounded-lg border border-[var(--border-strong)] bg-[var(--bg-card)] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {busy === "tweet" ? "Copying…" : "Copy Tweet"}
+            </button>
+          </div>
+        )}
+
+        {msg ? (
+          <p className="text-xs text-[var(--text-muted)]">{msg}</p>
+        ) : isMobile ? (
+          <p className="text-[11px] text-[var(--text-dim)]">
+            Share opens your phone share sheet with the full portrait PNG. Open
+            Image lets you long-press → Save Image on iOS.
+          </p>
+        ) : (
+          <p className="text-[11px] text-[var(--text-dim)]">
+            Post on X opens compose with the weekly text. Download the image
+            and attach it manually (X web intent cannot attach local files).
+          </p>
+        )}
       </div>
 
-      {msg ? (
-        <p className="text-xs text-[var(--text-muted)]">{msg}</p>
-      ) : (
-        <p className="text-[11px] text-[var(--text-dim)]">
-          On phone: use <span className="text-white">Portrait</span> →{" "}
-          <span className="text-white">Share</span> to open the system sheet
-          (X / Photos / Messages). File share falls back to Save Image if needed.
-        </p>
-      )}
-
-      {/* Tweet draft (for manual copy if clipboard blocked) */}
       <details className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3">
         <summary className="cursor-pointer text-xs font-medium text-[var(--text-muted)]">
           Tweet draft preview
