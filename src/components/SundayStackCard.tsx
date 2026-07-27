@@ -1,32 +1,19 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-  type RefObject,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { StackCheckSnapshot } from "../lib/stack-check";
 import { siteConfig } from "../lib/config";
 import { formatNumber, formatUsd } from "../lib/format";
-import {
-  captureElementPng,
-  openXCompose,
-  saveImageCrossPlatform,
-  triggerDownload,
-} from "../lib/capture-card";
 import { StackCheckChart } from "./StackCheckChart";
 
 type Props = {
   data: StackCheckSnapshot;
+  /** Kept for call-site compatibility */
   hideToolbar?: boolean;
 };
 
-const DESKTOP = { w: 1200, h: 675, margin: 24 } as const;
-const PORTRAIT = { w: 1080, h: 1350, margin: 36 } as const;
+const DESKTOP = { w: 1200, h: 675 } as const;
+const PORTRAIT = { w: 1080, h: 1350 } as const;
 const MOBILE_MQ = "(max-width: 767px)";
 
 function fmtBtc(n: number | null | undefined) {
@@ -35,7 +22,6 @@ function fmtBtc(n: number | null | undefined) {
 }
 
 function useIsMobile() {
-  /** null until mounted — avoid mounting desktop export on phones during hydration */
   const [mobile, setMobile] = useState<boolean | null>(null);
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_MQ);
@@ -112,34 +98,6 @@ function StripCell({
   );
 }
 
-function buildTweetText(data: StackCheckSnapshot): string {
-  const s = data.strategy;
-  const reserve =
-    s?.reserveValueUsd != null
-      ? formatUsd(s.reserveValueUsd, { compact: true })
-      : "—";
-  const btc =
-    s?.totalBtc != null ? formatNumber(s.totalBtc, { digits: 0 }) : "—";
-  const avg =
-    s?.averageCostUsd != null
-      ? formatUsd(s.averageCostUsd, { digits: 0 })
-      : "—";
-
-  return [
-    `Sunday Stack Check — week ending ${data.weekEnding}`,
-    ``,
-    `Strategy BTC reserve: ${reserve}`,
-    `Total BTC: ${btc}`,
-    `Avg cost: ${avg}`,
-    ``,
-    data.tagline,
-    siteConfig.thesisLine,
-    ``,
-    `$${siteConfig.ticker} × Strategy`,
-    `https://roaring-stackr.com/stack-check`,
-  ].join("\n");
-}
-
 type CardMetrics = {
   reserve: string;
   totalBtc: string;
@@ -214,8 +172,7 @@ function useCardMetrics(data: StackCheckSnapshot): CardMetrics {
   );
 }
 
-/** Plain <img> — Next/Image breaks html-to-image (lazy/srcset/CORS). */
-function MascotAccent({ className = "" }: { className?: string }) {
+function MascotAccent() {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -224,10 +181,9 @@ function MascotAccent({ className = "" }: { className?: string }) {
       width={220}
       height={246}
       draggable={false}
-      className={`h-full w-full object-contain object-bottom drop-shadow-[0_8px_24px_rgba(247,147,26,0.4)] ${className}`}
-      // Eager load so export capture always has pixels
+      className="h-full w-full object-contain object-bottom drop-shadow-[0_8px_24px_rgba(247,147,26,0.4)]"
       loading="eager"
-      decoding="sync"
+      decoding="async"
     />
   );
 }
@@ -412,72 +368,26 @@ function PortraitCardFace({
 }
 
 /**
- * Fixed-size export stage for capture only.
- * Parked far off-screen at low z-index. Never mounts both formats on mobile.
+ * Consumer scoreboard card only — no share/download/debug chrome.
+ * Responsive: portrait on mobile, landscape on desktop.
  */
-function ExportStage({
-  stageRef,
-  w,
-  h,
-  margin,
-  children,
-}: {
-  stageRef: RefObject<HTMLDivElement | null>;
-  w: number;
-  h: number;
-  margin: number;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      ref={stageRef}
-      aria-hidden
-      data-export-stage="true"
-      // Intentionally NO stack-check-export-stage class (avoids shared glow styles)
-      style={{
-        position: "fixed",
-        left: "-10000px",
-        top: "0",
-        width: w,
-        height: h,
-        margin: 0,
-        padding: 0,
-        background: "#050506",
-        // Keep BELOW page content and lightbox always
-        zIndex: 1,
-        opacity: 1,
-        overflow: "hidden",
-        pointerEvents: "none",
-        // Prevent any bleed into visual viewport on iOS
-        contain: "strict",
-      }}
-    >
-      <div
-        style={{
-          boxSizing: "border-box",
-          width: "100%",
-          height: "100%",
-          padding: margin,
-        }}
-      >
-        <div style={{ width: "100%", height: "100%", position: "relative" }}>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
+export function SundayStackCard({ data }: Props) {
+  const isMobile = useIsMobile();
+  const metrics = useCardMetrics(data);
+  const ready = isMobile !== null;
+  const mobile = isMobile === true;
 
-function VisiblePreview({
-  isMobile,
-  data,
-  metrics,
-}: {
-  isMobile: boolean;
-  data: StackCheckSnapshot;
-  metrics: CardMetrics;
-}) {
-  if (isMobile) {
+  if (!ready) {
+    return (
+      <div
+        className="mx-auto w-full max-w-sm rounded-xl bg-[#050506]"
+        style={{ aspectRatio: "4 / 5" }}
+        aria-hidden
+      />
+    );
+  }
+
+  if (mobile) {
     return (
       <div
         className="stack-check-export-stage mx-auto w-full max-w-sm"
@@ -486,7 +396,7 @@ function VisiblePreview({
           background: "#050506",
         }}
       >
-        <div className="relative h-full w-full box-border p-[3.33%]">
+        <div className="box-border h-full w-full p-[3.33%]">
           <div className="h-full w-full">
             <PortraitCardFace data={data} m={metrics} />
           </div>
@@ -503,303 +413,11 @@ function VisiblePreview({
         background: "#050506",
       }}
     >
-      <div className="relative h-full w-full box-border p-[2%]">
+      <div className="box-border h-full w-full p-[2%]">
         <div className="h-full w-full">
           <DesktopCardFace data={data} m={metrics} />
         </div>
       </div>
-    </div>
-  );
-}
-
-/**
- * iOS long-press save UI.
- * z-index MUST beat capture stage (8999) and mask (9000).
- * Solid black + 100dvh so the page chart never shows through.
- */
-function ImageLightbox({
-  url,
-  filename,
-  onClose,
-}: {
-  url: string;
-  filename: string;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const prevOverflow = document.body.style.overflow;
-    const prevBg = document.body.style.background;
-    document.body.style.overflow = "hidden";
-    document.body.style.background = "#000";
-    // Hide any leftover export stages while lightbox is open
-    document.documentElement.classList.add("stack-check-lightbox-open");
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.background = prevBg;
-      document.documentElement.classList.remove("stack-check-lightbox-open");
-    };
-  }, []);
-
-  return (
-    <div
-      className="stack-check-lightbox fixed inset-0 flex flex-col"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Save card image"
-      style={{
-        zIndex: 99999,
-        background: "#000000",
-        width: "100%",
-        height: "100%",
-        minHeight: "100dvh",
-        minWidth: "100vw",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      }}
-    >
-      <div
-        className="flex shrink-0 items-center justify-between gap-3 border-b border-white/15 bg-black px-4"
-        style={{
-          paddingTop: "max(20px, calc(env(safe-area-inset-top, 0px) + 8px))",
-          paddingBottom: "14px",
-          paddingLeft: "max(16px, env(safe-area-inset-left, 0px))",
-          paddingRight: "max(16px, env(safe-area-inset-right, 0px))",
-        }}
-      >
-        <div className="min-w-0">
-          <p className="text-base font-semibold text-white">Save this image</p>
-          <p className="mt-0.5 text-xs text-white/70">
-            Long-press the card → Save Image
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="shrink-0 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black"
-        >
-          Done
-        </button>
-      </div>
-
-      <div
-        className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-black px-3"
-        style={{
-          paddingBottom: "max(20px, env(safe-area-inset-bottom, 0px))",
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={url}
-          alt={filename}
-          className="max-h-full max-w-full rounded-lg object-contain"
-        />
-      </div>
-    </div>
-  );
-}
-
-export function SundayStackCard({ data }: Props) {
-  const desktopExportRef = useRef<HTMLDivElement>(null);
-  const portraitExportRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
-  const [busy, setBusy] = useState<null | "download" | "tweet" | "post">(null);
-  const [msg, setMsg] = useState<string | null>(null);
-  const [lightbox, setLightbox] = useState<string | null>(null);
-
-  const metrics = useCardMetrics(data);
-  const tweetText = useMemo(() => buildTweetText(data), [data]);
-  const ready = isMobile !== null;
-  const mobile = isMobile === true;
-
-  const filename = useMemo(
-    () =>
-      mobile
-        ? `sunday-stack-check-${data.weekEnding}.png`
-        : `sunday-stack-check-${data.weekEnding}-16x9.png`,
-    [data.weekEnding, mobile],
-  );
-
-  const size = mobile ? PORTRAIT : DESKTOP;
-  const exportRef = mobile ? portraitExportRef : desktopExportRef;
-
-  const prepareImage = useCallback(async () => {
-    const el = exportRef.current;
-    if (!el) throw new Error("Export stage not ready");
-    return captureElementPng(el, { w: size.w, h: size.h });
-  }, [exportRef, size.h, size.w]);
-
-  /**
-   * One tap → straight to X compose with weekly text.
-   * Same pattern every other web app uses (intent URL).
-   * Image cannot auto-attach via web; Save Image is separate.
-   */
-  const postToX = useCallback(() => {
-    setBusy("post");
-    setMsg(null);
-    try {
-      // On desktop, also kick off image download so it's ready to attach
-      if (!mobile) {
-        void prepareImage()
-          .then(({ blob }) => triggerDownload(blob, filename))
-          .catch(() => {
-            /* open X anyway */
-          });
-      }
-      openXCompose(tweetText);
-      setMsg(
-        mobile
-          ? "X opened with your text. Save Image first if you want to attach the card."
-          : "X opened with your text. Your card PNG is downloading — attach it in compose.",
-      );
-    } finally {
-      setBusy(null);
-    }
-  }, [filename, mobile, prepareImage, tweetText]);
-
-  const downloadImage = useCallback(async () => {
-    setBusy("download");
-    setMsg(null);
-    try {
-      const { blob } = await prepareImage();
-      const result = await saveImageCrossPlatform(blob, filename);
-      if (result === "lightbox") {
-        setLightbox(URL.createObjectURL(blob));
-        setMsg("Long-press the image → Save Image.");
-      } else {
-        setMsg(`Downloaded ${filename}`);
-      }
-    } catch (e) {
-      console.error(e);
-      try {
-        const { blob } = await prepareImage();
-        setLightbox(URL.createObjectURL(blob));
-        setMsg("Long-press the image → Save Image.");
-      } catch {
-        setMsg("Could not generate image. Refresh and try again.");
-      }
-    } finally {
-      setBusy(null);
-    }
-  }, [filename, prepareImage]);
-
-  const copyTweet = useCallback(async () => {
-    setBusy("tweet");
-    setMsg(null);
-    try {
-      await navigator.clipboard.writeText(tweetText);
-      setMsg("Tweet text copied.");
-    } catch {
-      setMsg("Clipboard blocked — expand draft below.");
-    } finally {
-      setBusy(null);
-    }
-  }, [tweetText]);
-
-  return (
-    <div className="space-y-4">
-      {ready ? (
-        <VisiblePreview isMobile={mobile} data={data} metrics={metrics} />
-      ) : (
-        <div
-          className="mx-auto w-full max-w-sm rounded-xl bg-[#050506]"
-          style={{ aspectRatio: "4 / 5" }}
-          aria-hidden
-        />
-      )}
-
-      {/* Only mount the format we need — never both (desktop chart was bleeding on mobile) */}
-      {ready && mobile ? (
-        <ExportStage
-          stageRef={portraitExportRef}
-          w={PORTRAIT.w}
-          h={PORTRAIT.h}
-          margin={PORTRAIT.margin}
-        >
-          <PortraitCardFace data={data} m={metrics} />
-        </ExportStage>
-      ) : null}
-      {ready && !mobile ? (
-        <ExportStage
-          stageRef={desktopExportRef}
-          w={DESKTOP.w}
-          h={DESKTOP.h}
-          margin={DESKTOP.margin}
-        >
-          <DesktopCardFace data={data} m={metrics} />
-        </ExportStage>
-      ) : null}
-
-      <div className="flex flex-col gap-2">
-        <p className="text-xs text-[var(--text-dim)]">
-          Week ending <span className="text-white">{data.weekEnding}</span>
-          {" · "}
-          {mobile ? "1080×1350 portrait" : "1200×675 desktop"}
-        </p>
-
-        <div
-          className={
-            mobile ? "grid grid-cols-1 gap-2" : "flex flex-wrap gap-2"
-          }
-        >
-          <button
-            type="button"
-            onClick={postToX}
-            disabled={!!busy}
-            className="btn-primary rounded-lg px-4 py-3 text-sm font-semibold disabled:opacity-50 sm:px-5 sm:py-2.5"
-          >
-            {busy === "post" ? "Opening X…" : "Post to X"}
-          </button>
-          <button
-            type="button"
-            onClick={downloadImage}
-            disabled={!!busy}
-            className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 sm:px-5 sm:py-2.5"
-          >
-            {busy === "download" ? "Saving…" : "Save Image"}
-          </button>
-          <button
-            type="button"
-            onClick={copyTweet}
-            disabled={!!busy}
-            className="rounded-lg border border-[var(--border-strong)] bg-[var(--bg-card)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 sm:px-5 sm:py-2.5"
-          >
-            {busy === "tweet" ? "Copying…" : "Copy Tweet"}
-          </button>
-        </div>
-
-        {msg ? (
-          <p className="text-xs text-[var(--text-muted)]">{msg}</p>
-        ) : (
-          <p className="text-[11px] text-[var(--text-dim)]">
-            <span className="text-white">Post to X</span> opens X with your
-            weekly text filled in.{" "}
-            <span className="text-white">Save Image</span> for the card PNG to
-            attach in compose.
-          </p>
-        )}
-      </div>
-
-      <details className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3">
-        <summary className="cursor-pointer text-xs font-medium text-[var(--text-muted)]">
-          Tweet draft preview
-        </summary>
-        <pre className="mt-2 whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-[var(--text-dim)]">
-          {tweetText}
-        </pre>
-      </details>
-
-      {lightbox ? (
-        <ImageLightbox
-          url={lightbox}
-          filename={filename}
-          onClose={() => {
-            URL.revokeObjectURL(lightbox);
-            setLightbox(null);
-          }}
-        />
-      ) : null}
     </div>
   );
 }

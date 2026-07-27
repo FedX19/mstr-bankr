@@ -15,7 +15,7 @@ export function RiskSummary() {
               </p>
               <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
                 {siteConfig.projectName} is a highly speculative cultural meme.
-                It provides no ownership in Strategy, {quote.displayName}s,
+                It provides no ownership in Strategy, tokenized MSTR,
                 Bitcoin, any liquidity pool, or the project company. Prices may
                 fall to zero. The proposed stock-paired market is not confirmed.
                 Robinhood Stock Tokens are restricted in the United States and

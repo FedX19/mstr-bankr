@@ -41,9 +41,8 @@ export function Hero() {
 
           <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-[var(--text-muted)] sm:text-lg">
             Bitcoin trades 24/7. ${siteConfig.ticker} is a cultural market
-            paired with {quote.displayName.toLowerCase()}. Buying $
-            {siteConfig.ticker} through the MSTR pair adds tokenized MSTR
-            exposure to the pool.
+            paired with tokenized MSTR. Buying ${siteConfig.ticker} through the
+            MSTR pair adds tokenized MSTR exposure to the pool.
           </p>
 
           <p className="mt-2 text-[11px] text-[var(--text-dim)] sm:text-xs">

@@ -129,7 +129,7 @@ export default function TokenomicsPage() {
         <h2>The pair</h2>
         <p>
           The primary market is <strong>{getPairLabel()}</strong>. When people
-          buy ${siteConfig.ticker}, {quote.displayName.toLowerCase()} enters the
+          buy ${siteConfig.ticker}, tokenized MSTR enters the
           pool. When they sell, it can leave. That balance is{" "}
           <strong>dynamic</strong> — not a permanent treasury you own.
         </p>

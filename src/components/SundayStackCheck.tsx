@@ -15,7 +15,6 @@ type Props = {
 export function SundayStackCheck({ data }: Props) {
   const s = data.strategy;
   const rhj = data.rhj;
-  const failCount = data.sources.filter((x) => !x.ok).length;
 
   return (
     <div className="space-y-8 sm:space-y-12">
@@ -31,18 +30,7 @@ export function SundayStackCheck({ data }: Props) {
         </p>
       </header>
 
-      {/* Soft source health — not a debug dump */}
-      {failCount > 0 ? (
-        <p className="rounded-lg border border-[rgba(247,147,26,0.25)] bg-[rgba(247,147,26,0.06)] px-4 py-2.5 text-xs text-[var(--text-muted)]">
-          <span className="font-medium text-[var(--accent)]">
-            {failCount} source{failCount > 1 ? "s" : ""} delayed
-          </span>
-          {" — "}
-          card still renders with available data and chart fallbacks.
-        </p>
-      ) : null}
-
-      {/* 2–3. Hero export card + export actions */}
+      {/* 2–3. Hero card (visual scoreboard only) */}
       <SundayStackCard data={data} hideToolbar />
 
       {/* 4. Supporting insights — 3 premium panels */}
@@ -227,51 +215,26 @@ export function SundayStackCheck({ data }: Props) {
         </div>
       </section>
 
-      {/* 5–6. Compact sources — not a debug dump */}
-      <section className="card overflow-hidden border-[var(--border-strong)]">
-        <div className="border-b border-[var(--border)] px-5 py-4">
-          <p className="card-label">Sources</p>
-          <p className="mt-1 text-sm text-[var(--text-muted)]">
-            Week ending {data.weekEnding} (UTC Sunday) · Snapshot{" "}
-            <span className="font-mono text-xs text-white">
-              {new Date(data.generatedAt).toISOString()}
-            </span>
-          </p>
-        </div>
-        <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
-          {data.sources.map((src) => (
-            <div
-              key={src.id}
-              className="border-b border-[var(--border)] px-5 py-3 last:border-b-0 sm:border-r sm:odd:border-r lg:[&:nth-child(3n)]:border-r-0"
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                    src.ok ? "bg-[var(--positive)]" : "bg-[var(--negative)]"
-                  }`}
-                />
-                <p className="text-xs font-medium text-white">{src.label}</p>
-              </div>
-              <p className="mt-1 font-mono text-[10px] text-[var(--text-dim)]">
-                {src.fetchedAt
-                  ? new Date(src.fetchedAt).toISOString().replace("T", " ").slice(0, 19)
-                  : "—"}
-                {" UTC"}
-              </p>
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] px-5 py-3">
-          <p className="text-[11px] text-[var(--text-dim)]">
-            {data.disclaimer}
-          </p>
+      {/* Compact footer — no debug source grid for consumers */}
+      <section className="border-t border-[var(--border)] pt-6">
+        <p className="text-xs text-[var(--text-dim)]">
+          Week ending {data.weekEnding} (UTC) · Updated{" "}
+          {new Date(data.generatedAt).toLocaleString(undefined, {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
+        </p>
+        <p className="mt-2 max-w-2xl text-[11px] leading-relaxed text-[var(--text-dim)]">
+          Data from Strategy&apos;s public Bitcoin ledger, Robinhood RHJ, BTC
+          market history, DexScreener, and Robinhood Chain explorers.{" "}
+          {data.disclaimer}{" "}
           <Link
             href="/risks"
-            className="shrink-0 text-xs font-medium text-[var(--accent)] hover:opacity-85"
+            className="font-medium text-[var(--accent)] hover:opacity-85"
           >
             Full risks →
           </Link>
-        </div>
+        </p>
       </section>
     </div>
   );
