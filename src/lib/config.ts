@@ -193,7 +193,7 @@ export const siteConfig = {
   platformStatus: "live",
   jurisdictionNoticeEnabled: true,
 
-  officialWebsite: "https://mstr-bankr.vercel.app",
+  officialWebsite: "https://roaring-stackr.com",
   officialX: "https://x.com",
   officialTelegram: null as string | null,
   officialDiscord: null as string | null,

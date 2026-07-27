@@ -1,7 +1,9 @@
 /**
- * Sunday Stack Check — composed weekly snapshot for Strategy BTC + STACKR/MSTR.
+ * Sunday Stack Check — composed daily snapshot for Strategy BTC + STACKR/MSTR.
+ * Published snapshot is cached per UTC day and refreshed by cron (~21:00 UTC).
  */
 
+import { unstable_cache } from "next/cache";
 import { fetchBtcHistory, type BtcHistoryPoint } from "./adapters/btc-history";
 import {
   fetchPoolInventory,
@@ -18,6 +20,10 @@ import {
   type StrategyLedgerSnapshot,
 } from "./adapters/strategy-ledger";
 import { getQuoteAsset, siteConfig } from "./config";
+import { formatNumber, formatUsd } from "./format";
+
+/** Marker for future repost rewards detection */
+export const STACK_CHECK_TWEET_MARKER = "#SundayStackCheck";
 
 export type DataSourceMeta = {
   id: string;
@@ -43,6 +49,8 @@ export type PoolStrip = {
 };
 
 export type StackCheckSnapshot = {
+  /** Stable id for this published card day (UTC YYYY-MM-DD) — use for rewards */
+  snapshotId: string;
   weekEnding: string; // Sunday date YYYY-MM-DD
   generatedAt: string;
   strategy: StrategyLedgerSnapshot | null;
@@ -55,7 +63,14 @@ export type StackCheckSnapshot = {
   tagline: string;
   disclaimer: string;
   pairLine: string;
+  /** Stable marker for repost detection */
+  tweetMarker: string;
 };
+
+/** UTC calendar date YYYY-MM-DD — daily snapshot identity */
+export function dailySnapshotId(d = new Date()): string {
+  return d.toISOString().slice(0, 10);
+}
 
 /** Most recent Sunday (UTC) on or before today. */
 export function weekEndingSunday(d = new Date()): string {
@@ -67,8 +82,55 @@ export function weekEndingSunday(d = new Date()): string {
   return x.toISOString().slice(0, 10);
 }
 
-export async function getStackCheckSnapshot(): Promise<StackCheckSnapshot> {
+/**
+ * Canonical tweet body for share + future rewards.
+ * Keep this template stable; detection can match snapshotId + marker + link.
+ */
+export function buildStackCheckTweet(data: StackCheckSnapshot): string {
+  const s = data.strategy;
+  const reserve =
+    s?.reserveValueUsd != null
+      ? formatUsd(s.reserveValueUsd, { compact: true })
+      : s?.reserveValueUsdM != null
+        ? `$${formatNumber(s.reserveValueUsdM, { digits: 1 })}M`
+        : "—";
+  const btc =
+    s?.totalBtc != null
+      ? formatNumber(s.totalBtc, { digits: s.totalBtc >= 100 ? 0 : 2 })
+      : "—";
+  const avg =
+    s?.averageCostUsd != null
+      ? formatUsd(s.averageCostUsd, { digits: 0 })
+      : "—";
+
+  const base =
+    (siteConfig.officialWebsite ?? "https://roaring-stackr.com").replace(
+      /\/$/,
+      "",
+    );
+  const pageUrl = `${base}/stack-check`;
+
+  return [
+    `Stack Check — ${data.snapshotId}`,
+    `Week ending ${data.weekEnding}`,
+    ``,
+    `Strategy BTC reserve: ${reserve}`,
+    `Total BTC: ${btc}`,
+    `Avg cost: ${avg}`,
+    ``,
+    data.tagline,
+    siteConfig.thesisLine,
+    ``,
+    data.tweetMarker,
+    `$${siteConfig.ticker} × Strategy`,
+    pageUrl,
+  ].join("\n");
+}
+
+/** Live fetch — used by cron to refresh the published daily snapshot. */
+export async function fetchStackCheckSnapshot(): Promise<StackCheckSnapshot> {
   const generatedAt = new Date().toISOString();
+  const snapshotId = dailySnapshotId();
   const weekEnding = weekEndingSunday();
   const sources: DataSourceMeta[] = [];
   const errors: string[] = [];
@@ -186,6 +248,7 @@ export async function getStackCheckSnapshot(): Promise<StackCheckSnapshot> {
   }
 
   return {
+    snapshotId,
     weekEnding,
     generatedAt,
     strategy,
@@ -200,5 +263,28 @@ export async function getStackCheckSnapshot(): Promise<StackCheckSnapshot> {
       "$STACKR is a meme token. Holders do not own MSTR, BTC, pool assets, or creator fees.",
     pairLine:
       "Buying $STACKR through the MSTR pair adds tokenized MSTR exposure to the pool.",
+    tweetMarker: STACK_CHECK_TWEET_MARKER,
   };
+}
+
+/**
+ * Published daily snapshot (stable for share + rewards until cron refreshes).
+ * Cached per UTC day; invalidated by /api/cron/stack-check.
+ */
+export async function getPublishedStackCheckSnapshot(): Promise<StackCheckSnapshot> {
+  const id = dailySnapshotId();
+  return unstable_cache(
+    async () => fetchStackCheckSnapshot(),
+    ["stack-check-daily", id],
+    {
+      // Hold until cron revalidates; still expires after 26h as safety net
+      revalidate: 60 * 60 * 26,
+      tags: ["stack-check", `stack-check-${id}`],
+    },
+  )();
+}
+
+/** @deprecated use getPublishedStackCheckSnapshot */
+export async function getStackCheckSnapshot(): Promise<StackCheckSnapshot> {
+  return getPublishedStackCheckSnapshot();
 }

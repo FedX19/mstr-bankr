@@ -1,9 +1,24 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import type { StackCheckSnapshot } from "../lib/stack-check";
+import { buildStackCheckTweet } from "../lib/stack-check";
 import { siteConfig } from "../lib/config";
 import { formatNumber, formatUsd } from "../lib/format";
+import {
+  captureElementPng,
+  openXCompose,
+  saveImageCrossPlatform,
+  triggerDownload,
+} from "../lib/capture-card";
 import { StackCheckChart } from "./StackCheckChart";
 
 type Props = {
@@ -12,8 +27,8 @@ type Props = {
   hideToolbar?: boolean;
 };
 
-const DESKTOP = { w: 1200, h: 675 } as const;
-const PORTRAIT = { w: 1080, h: 1350 } as const;
+const DESKTOP = { w: 1200, h: 675, margin: 24 } as const;
+const PORTRAIT = { w: 1080, h: 1350, margin: 36 } as const;
 const MOBILE_MQ = "(max-width: 767px)";
 
 function fmtBtc(n: number | null | undefined) {
@@ -367,57 +382,315 @@ function PortraitCardFace({
   );
 }
 
+function ExportStage({
+  stageRef,
+  w,
+  h,
+  margin,
+  children,
+}: {
+  stageRef: RefObject<HTMLDivElement | null>;
+  w: number;
+  h: number;
+  margin: number;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      ref={stageRef}
+      aria-hidden
+      data-export-stage="true"
+      style={{
+        position: "fixed",
+        left: "-10000px",
+        top: "0",
+        width: w,
+        height: h,
+        margin: 0,
+        padding: 0,
+        background: "#050506",
+        zIndex: 1,
+        opacity: 1,
+        overflow: "hidden",
+        pointerEvents: "none",
+        contain: "strict",
+      }}
+    >
+      <div
+        style={{
+          boxSizing: "border-box",
+          width: "100%",
+          height: "100%",
+          padding: margin,
+        }}
+      >
+        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ImageLightbox({
+  url,
+  filename,
+  onClose,
+}: {
+  url: string;
+  filename: string;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    const prevBg = document.body.style.background;
+    document.body.style.overflow = "hidden";
+    document.body.style.background = "#000";
+    document.documentElement.classList.add("stack-check-lightbox-open");
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.background = prevBg;
+      document.documentElement.classList.remove("stack-check-lightbox-open");
+    };
+  }, []);
+
+  return (
+    <div
+      className="stack-check-lightbox fixed inset-0 flex flex-col"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Save card image"
+      style={{
+        zIndex: 99999,
+        background: "#000000",
+        width: "100%",
+        height: "100%",
+        minHeight: "100dvh",
+        top: 0,
+        left: 0,
+      }}
+    >
+      <div
+        className="flex shrink-0 items-center justify-between gap-3 border-b border-white/15 bg-black px-4"
+        style={{
+          paddingTop: "max(20px, calc(env(safe-area-inset-top, 0px) + 8px))",
+          paddingBottom: "14px",
+          paddingLeft: "max(16px, env(safe-area-inset-left, 0px))",
+          paddingRight: "max(16px, env(safe-area-inset-right, 0px))",
+        }}
+      >
+        <div className="min-w-0">
+          <p className="text-base font-semibold text-white">Save this image</p>
+          <p className="mt-0.5 text-xs text-white/70">
+            Long-press the card → Save Image
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="shrink-0 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black"
+        >
+          Done
+        </button>
+      </div>
+      <div
+        className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-black px-3"
+        style={{
+          paddingBottom: "max(20px, env(safe-area-inset-bottom, 0px))",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={url}
+          alt={filename}
+          className="max-h-full max-w-full rounded-lg object-contain"
+        />
+      </div>
+    </div>
+  );
+}
+
 /**
- * Consumer scoreboard card only — no share/download/debug chrome.
- * Responsive: portrait on mobile, landscape on desktop.
+ * Scoreboard card + clean share strip (Post to X · Save Image).
+ * Tweet text is stable via buildStackCheckTweet (snapshotId + #SundayStackCheck).
  */
 export function SundayStackCard({ data }: Props) {
+  const desktopExportRef = useRef<HTMLDivElement>(null);
+  const portraitExportRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const metrics = useCardMetrics(data);
   const ready = isMobile !== null;
   const mobile = isMobile === true;
+  const [busy, setBusy] = useState<null | "post" | "save">(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
-  if (!ready) {
-    return (
-      <div
-        className="mx-auto w-full max-w-sm rounded-xl bg-[#050506]"
-        style={{ aspectRatio: "4 / 5" }}
-        aria-hidden
-      />
-    );
-  }
+  const tweetText = useMemo(() => buildStackCheckTweet(data), [data]);
+  const filename = useMemo(
+    () =>
+      mobile
+        ? `stack-check-${data.snapshotId}.png`
+        : `stack-check-${data.snapshotId}-16x9.png`,
+    [data.snapshotId, mobile],
+  );
 
-  if (mobile) {
-    return (
-      <div
-        className="stack-check-export-stage mx-auto w-full max-w-sm"
-        style={{
-          aspectRatio: `${PORTRAIT.w} / ${PORTRAIT.h}`,
-          background: "#050506",
-        }}
-      >
-        <div className="box-border h-full w-full p-[3.33%]">
-          <div className="h-full w-full">
-            <PortraitCardFace data={data} m={metrics} />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const size = mobile ? PORTRAIT : DESKTOP;
+  const exportRef = mobile ? portraitExportRef : desktopExportRef;
+
+  const prepareImage = useCallback(async () => {
+    const el = exportRef.current;
+    if (!el) throw new Error("Export stage not ready");
+    return captureElementPng(el, { w: size.w, h: size.h });
+  }, [exportRef, size.h, size.w]);
+
+  const postToX = useCallback(() => {
+    setBusy("post");
+    setMsg(null);
+    try {
+      // Desktop: also download PNG so attach is one step away
+      if (!mobile) {
+        void prepareImage()
+          .then(({ blob }) => triggerDownload(blob, filename))
+          .catch(() => undefined);
+      }
+      openXCompose(tweetText);
+      setMsg(
+        mobile
+          ? "X opened with today’s Stack Check text. Save Image to attach the chart."
+          : "X opened with today’s text — PNG downloading; attach it in compose.",
+      );
+    } finally {
+      setBusy(null);
+    }
+  }, [filename, mobile, prepareImage, tweetText]);
+
+  const saveImage = useCallback(async () => {
+    setBusy("save");
+    setMsg(null);
+    try {
+      const { blob } = await prepareImage();
+      const result = await saveImageCrossPlatform(blob, filename);
+      if (result === "lightbox") {
+        setLightbox(URL.createObjectURL(blob));
+        setMsg("Long-press the image → Save Image.");
+      } else {
+        setMsg(`Saved ${filename}`);
+      }
+    } catch (e) {
+      console.error(e);
+      try {
+        const { blob } = await prepareImage();
+        setLightbox(URL.createObjectURL(blob));
+        setMsg("Long-press the image → Save Image.");
+      } catch {
+        setMsg("Could not generate image. Refresh and try again.");
+      }
+    } finally {
+      setBusy(null);
+    }
+  }, [filename, prepareImage]);
 
   return (
-    <div
-      className="stack-check-export-stage mx-auto w-full max-w-5xl"
-      style={{
-        aspectRatio: `${DESKTOP.w} / ${DESKTOP.h}`,
-        background: "#050506",
-      }}
-    >
-      <div className="box-border h-full w-full p-[2%]">
-        <div className="h-full w-full">
+    <div className="space-y-4">
+      {!ready ? (
+        <div
+          className="mx-auto w-full max-w-sm rounded-xl bg-[#050506]"
+          style={{ aspectRatio: "4 / 5" }}
+          aria-hidden
+        />
+      ) : mobile ? (
+        <div
+          className="stack-check-export-stage mx-auto w-full max-w-sm"
+          style={{
+            aspectRatio: `${PORTRAIT.w} / ${PORTRAIT.h}`,
+            background: "#050506",
+          }}
+        >
+          <div className="box-border h-full w-full p-[3.33%]">
+            <div className="h-full w-full">
+              <PortraitCardFace data={data} m={metrics} />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="stack-check-export-stage mx-auto w-full max-w-5xl"
+          style={{
+            aspectRatio: `${DESKTOP.w} / ${DESKTOP.h}`,
+            background: "#050506",
+          }}
+        >
+          <div className="box-border h-full w-full p-[2%]">
+            <div className="h-full w-full">
+              <DesktopCardFace data={data} m={metrics} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fixed-size export nodes for PNG capture */}
+      {ready && mobile ? (
+        <ExportStage
+          stageRef={portraitExportRef}
+          w={PORTRAIT.w}
+          h={PORTRAIT.h}
+          margin={PORTRAIT.margin}
+        >
+          <PortraitCardFace data={data} m={metrics} />
+        </ExportStage>
+      ) : null}
+      {ready && !mobile ? (
+        <ExportStage
+          stageRef={desktopExportRef}
+          w={DESKTOP.w}
+          h={DESKTOP.h}
+          margin={DESKTOP.margin}
+        >
           <DesktopCardFace data={data} m={metrics} />
+        </ExportStage>
+      ) : null}
+
+      {/* Consumer share strip — keep for repost rewards later */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <p className="text-xs text-[var(--text-dim)]">
+          Snapshot{" "}
+          <span className="font-mono text-white">{data.snapshotId}</span>
+          {" · "}
+          Share the card · {data.tweetMarker}
+        </p>
+        <div className="grid grid-cols-2 gap-2 sm:flex">
+          <button
+            type="button"
+            onClick={postToX}
+            disabled={!!busy || !ready}
+            className="btn-primary rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
+          >
+            {busy === "post" ? "Opening X…" : "Post to X"}
+          </button>
+          <button
+            type="button"
+            onClick={saveImage}
+            disabled={!!busy || !ready}
+            className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+          >
+            {busy === "save" ? "Saving…" : "Save Image"}
+          </button>
         </div>
       </div>
+      {msg ? (
+        <p className="text-xs text-[var(--text-muted)]">{msg}</p>
+      ) : null}
+
+      {lightbox ? (
+        <ImageLightbox
+          url={lightbox}
+          filename={filename}
+          onClose={() => {
+            URL.revokeObjectURL(lightbox);
+            setLightbox(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

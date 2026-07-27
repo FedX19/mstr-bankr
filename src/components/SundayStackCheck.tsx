@@ -215,9 +215,12 @@ export function SundayStackCheck({ data }: Props) {
         </div>
       </section>
 
-      {/* Compact footer — no debug source grid for consumers */}
+      {/* Compact footer */}
       <section className="border-t border-[var(--border)] pt-6">
         <p className="text-xs text-[var(--text-dim)]">
+          Snapshot{" "}
+          <span className="font-mono text-white">{data.snapshotId}</span>
+          {" · "}
           Week ending {data.weekEnding} (UTC) · Updated{" "}
           {new Date(data.generatedAt).toLocaleString(undefined, {
             dateStyle: "medium",
@@ -225,9 +228,9 @@ export function SundayStackCheck({ data }: Props) {
           })}
         </p>
         <p className="mt-2 max-w-2xl text-[11px] leading-relaxed text-[var(--text-dim)]">
-          Data from Strategy&apos;s public Bitcoin ledger, Robinhood RHJ, BTC
-          market history, DexScreener, and Robinhood Chain explorers.{" "}
-          {data.disclaimer}{" "}
+          Daily scoreboard refreshes around 21:00 UTC. Data from Strategy&apos;s
+          public Bitcoin ledger, Robinhood RHJ, BTC market history, DexScreener,
+          and Robinhood Chain explorers. {data.disclaimer}{" "}
           <Link
             href="/risks"
             className="font-medium text-[var(--accent)] hover:opacity-85"
